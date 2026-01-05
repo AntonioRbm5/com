@@ -1,0 +1,346 @@
+/* Variables globales */
+:root {
+  --famille-primary: #0066cc;
+  --famille-border: #c0c0c0;
+  --famille-bg-gray: #f0f0f0;
+  --famille-bg-selected: #d4e8ff;
+  --famille-text-dark: #333;
+}
+
+/* Conteneur principal */
+.app-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20px;
+}
+
+/* Fenêtre principale */
+.window {
+  background: white;
+  border: 1px solid var(--famille-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.window-header {
+  background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+  border-bottom: 1px solid var(--famille-border);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.window-title {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--famille-text-dark);
+  margin: 0;
+}
+
+.window-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.window-control-btn {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--famille-border);
+  background: white;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Toolbar */
+.toolbar {
+  background: var(--famille-bg-gray);
+  border-bottom: 1px solid var(--famille-border);
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-btn {
+  background: white;
+  border: 1px solid var(--famille-border);
+  border-radius: 3px;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: #e8f4ff;
+  border-color: var(--famille-primary);
+}
+
+.toolbar-btn.active {
+  background: var(--famille-primary);
+  color: white;
+  border-color: var(--famille-primary);
+}
+
+.toolbar-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Liste des familles */
+.famille-list-container {
+  padding: 12px;
+}
+
+.famille-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid var(--famille-border);
+}
+
+.famille-table thead {
+  background: var(--famille-bg-gray);
+}
+
+.famille-table th {
+  padding: 6px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  border-bottom: 1px solid var(--famille-border);
+  border-right: 1px solid var(--famille-border);
+}
+
+.famille-table th:last-child {
+  border-right: none;
+}
+
+.famille-table tbody tr {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.famille-table tbody tr:hover {
+  background: #f8f8f8;
+}
+
+.famille-table tbody tr.selected {
+  background: var(--famille-bg-selected);
+}
+
+.famille-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.famille-table tbody tr:nth-child(even):hover {
+  background: #f0f0f0;
+}
+
+.famille-table tbody tr:nth-child(even).selected {
+  background: var(--famille-bg-selected);
+}
+
+.famille-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  font-size: 11px;
+}
+
+.famille-table td:last-child {
+  border-right: none;
+}
+
+/* Formulaire */
+.form-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--famille-border);
+  margin-bottom: 20px;
+  background: var(--famille-bg-gray);
+}
+
+.form-tab {
+  padding: 8px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.form-tab:hover {
+  background: rgba(0, 102, 204, 0.1);
+}
+
+.form-tab.active {
+  background: white;
+  border-bottom-color: var(--famille-primary);
+  color: var(--famille-primary);
+}
+
+.form-section {
+  background: white;
+  border: 1px solid var(--famille-border);
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.form-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--famille-text-dark);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 11px;
+  font-weight: 500;
+  min-width: 120px;
+  text-align: right;
+  color: var(--famille-text-dark);
+}
+
+.form-input,
+.form-select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--famille-border);
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--famille-primary);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+.form-checkbox {
+  margin-right: 6px;
+}
+
+.form-checkbox-label {
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* Table paramètres comptabilisation */
+.param-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 11px;
+}
+
+.param-table th {
+  background: var(--famille-bg-gray);
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid var(--famille-border);
+}
+
+.param-table td {
+  padding: 6px 8px;
+  border: 1px solid var(--famille-border);
+  background: white;
+}
+
+/* Boutons d'action */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--famille-bg-gray);
+  border-top: 1px solid var(--famille-border);
+}
+
+.btn {
+  padding: 6px 20px;
+  border: 1px solid var(--famille-border);
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.btn-primary {
+  background: var(--famille-primary);
+  color: white;
+  border-color: var(--famille-primary);
+}
+
+.btn-primary:hover {
+  background: #0052a3;
+}
+
+.btn:hover {
+  background: #f0f0f0;
+}
+
+.sidebar-menu {
+  background: var(--famille-bg-gray);
+  border-right: 1px solid var(--famille-border);
+  padding: 8px;
+  min-width: 160px;
+}
+
+.sidebar-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-bottom: 4px;
+  font-size: 11px;
+  transition: background 0.2s;
+}
+
+.sidebar-item:hover {
+  background: rgba(0, 102, 204, 0.1);
+}
+
+.sidebar-item.active {
+  background: var(--famille-primary);
+  color: white;
+  font-weight: 600;
+}
