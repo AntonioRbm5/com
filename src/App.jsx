@@ -1,19 +1,10 @@
 import './App.css'
-import DashboardHome from './composants/accueil'
-import Navbar from './composants/navbar'
-import InitEntrepriseForm from './pages/init_entreprise'
-import UserSignupForm from './pages/Inscription_utilisateur'
-import LoginForm from './pages/login'
+import TestNotifs from './composants/notifications_temp_test'
 
 function App() {
 
   return (
-    
-      // <LoginForm/>
-      // <InitEntrepriseForm/>
-      // <Navbar/>
-      // <UserSignupForm/>
-      <DashboardHome/>
+    <TestNotifs/>
   )
 }
 
