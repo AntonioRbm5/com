@@ -1,37 +1,40 @@
 import { useState } from "react";
 import LogosTantana from "../assets/images/icons/tantana_logo.png";
+// import { useToast } from "../hooks/toast_notifs_hooks";
 import * as userService from "../services/userService";
 import * as userUtilis from "../utilis/authStorage";
 const LoginForm = () => {
-   const [form, setForm] = useState({
+  // const { addToast } = useToast();
+  const [form, setForm] = useState({
       email: "",
       password: "",
-    });
+  });
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleChange = (e) => {
+  const handleChange = (e) => {
       setForm({
         ...form,
         [e.target.name]: e.target.value,
       });
-    };
+  };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
       e.preventDefault();
       setError("");
       setLoading(true);
       try {
         const data = await userService.loginUser(form)
         userUtilis.saveAuth(data);
+        // addToast(`${data.data.user.username} nouvel session`, "success")
       } catch  {
         setError("Mots de passe ou Email incorrect!");
       } finally {
         setLoading(false);
       }
-    };
-    return (
+  };
+  return (
 
       <section class="bg-primary py-3 py-md-5 py-xl-8 vh-100">
         <div class="container">
@@ -153,7 +156,7 @@ const LoginForm = () => {
       </section>
 
 
-    )
+  )
 }
 
 export default LoginForm;
