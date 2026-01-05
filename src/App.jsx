@@ -1,10 +1,10 @@
 import './App.css'
-import TestNotifs from './composants/notifications_temp_test'
+import AppRouter from './routes/Router';
 
 function App() {
 
   return (
-    <TestNotifs/>
+    <AppRouter />
   )
 }
 
