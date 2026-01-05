@@ -73,10 +73,10 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                         Identification
                     </button>
                     <button
-                        className={`form-tab ${activeTab === 'descriptif' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('descriptif')}
+                        className={`form-tab ${activeTab === 'tarif' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('tarif')}
                     >
-                        Descriptif
+                        Tarif
                     </button>
                     <button
                         className={`form-tab ${activeTab === 'champsLibres' ? 'active' : ''}`}
@@ -96,23 +96,51 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                     <IdentificationTab formData={formData} handleInputChange={handleInputChange} />
                 )}
 
-                {activeTab === 'descriptif' && (
+                {activeTab === 'tarif' && (
                     <div className="form-section">
-                        <div className="form-section-title">Description complémentaire</div>
+                        <div className="form-section-title">Tarif</div>
                         <div className="form-row">
                             <div className="form-group">
-                                <label className="form-label">Code fiscal</label>
+                                <label className="form-label">Prix d'achat</label>
                                 <input type="text" className="form-input" />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Pays d'origine</label>
-                                <select className="form-select">
-                                    <option></option>
-                                    <option>Madagascar</option>
-                                    <option>France</option>
+                                <label className="form-label">Dernier Prix d'achat</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                        </div>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Coefficient</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Coût standard</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                        </div>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Prix de vente</label>
+                                <input type="text" className="form-input" />
+                                <select className="form-select" style={{ flex: '0 0 100px' }}>
+                                    <option>PV HT</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Unité de vente</label>
+                                <select
+                                    className="form-select"
+                                    value={formData.unitVente || 'PIECE'}
+                                    onChange={(e) => handleInputChange('unitVente', e.target.value)}
+                                >
+                                    <option>PIECE</option>
+                                    <option>METRE</option>
+                                    <option>KG</option>
                                 </select>
                             </div>
                         </div>
+
                     </div>
                 )}
 
