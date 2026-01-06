@@ -2,14 +2,14 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import IdentificationTab from './tabs/IdentificationTab';
 import ParametresTab from './parametres/ParametresTab';
-import './famille.css';
+import './article.css';
 
 
-const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
+const ArticleFormPage = ({ article, onSave, mode = 'edit' }) => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('identification');
-    const [formData, setFormData] = useState(famille || {
-        code: '',
+    const [formData, setFormData] = useState(article || {
+        reference: '',
         intitule: '',
         unitVente: 'PIECE',
         suiviStock: 'Aucun',
@@ -30,13 +30,13 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
 
     const handleSubmit = () => {
         onSave(formData);
-        navigate('/famille');
+        navigate('/article');
     };
     return (
         <div className="window">
             <div className="window-header">
                 <h2 className="window-title">
-                    Famille : {formData.code ? `${formData.code} ${formData.intitule}` : 'Nouvelle Famille'}
+                    article : {formData.reference ? `${formData.reference} ${formData.intitule}` : 'Nouvelle article'}
                 </h2>
                 <div className="window-controls">
                     <button className="window-control-btn">_</button>
@@ -76,7 +76,7 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                         className={`form-tab ${activeTab === 'tarif' ? 'active' : ''}`}
                         onClick={() => setActiveTab('tarif')}
                     >
-                        Descriptif
+                        Tarif
                     </button>
                     <button
                         className={`form-tab ${activeTab === 'champsLibres' ? 'active' : ''}`}
@@ -111,7 +111,7 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                         </div>
                         <div className="form-row">
                             <div className="form-group">
-                                <label className="form-label">Coefficient</label>
+                                <label className="form-label">Nomendature</label>
                                 <input type="text" className="form-input" />
                             </div>
                             <div className="form-group">
@@ -158,10 +158,10 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
 
             <div className="form-actions">
                 <button className="btn btn-primary" onClick={handleSubmit}>OK</button>
-                <button className="btn" onClick={() => navigate('/famille')}>Annuler</button>
+                <button className="btn" onClick={() => navigate('/article')}>Annuler</button>
             </div>
         </div>
     )
 }
 
-export default FamilleFormPage
+export default ArticleFormPage

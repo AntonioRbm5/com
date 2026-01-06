@@ -1,0 +1,170 @@
+/* Conteneur de la modale (Overlay) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fenêtre principale */
+.modal-container {
+  background: white;
+  width: 620px;
+  border: 1px solid #a0a0a0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Barre de titre */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #333;
+}
+
+.header-icon {
+  width: 18px;
+  height: 18px;
+  background-color: #0056b3;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 2px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Corps du formulaire */
+.modal-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Champ Domaine */
+.domaine-box {
+  border: 1px solid #c0c0c0;
+  border-radius: 4px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.domaine-box label {
+  font-size: 12px;
+  color: #333;
+  width: 60px;
+}
+
+.domaine-box input {
+  border: none;
+  outline: none;
+  font-size: 12px;
+  flex: 1;
+}
+
+/* Sections et Titres */
+.form-section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+/* Grille et Champs */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 30px;
+  row-gap: 8px;
+}
+
+.field-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-group label {
+  font-size: 11px;
+  color: #333;
+  width: 110px; /* Taille fixe pour aligner */
+  white-space: nowrap;
+}
+
+.field-group select,
+.field-group input {
+  flex: 1;
+  border: 1px solid #bcbcbc;
+  padding: 2px 4px;
+  font-size: 11px;
+  height: 22px;
+  outline: none;
+}
+
+.field-group select:focus {
+  border-color: #0078d7;
+}
+
+/* Footer et Boutons */
+.modal-footer {
+  background-color: #f0f0f0;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #dcdcdc;
+}
+
+.btn-ok {
+  background-color: #0056b3;
+  color: white;
+  border: 1px solid #004494;
+  padding: 4px 25px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-annuler {
+  background-color: #e1e1e1;
+  color: #333;
+  border: 1px solid #adadad;
+  padding: 4px 20px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-ok:hover {
+  background-color: #004494;
+}
+.btn-annuler:hover {
+  background-color: #d1d1d1;
+}
