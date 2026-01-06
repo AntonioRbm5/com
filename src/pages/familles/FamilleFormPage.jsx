@@ -76,7 +76,7 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                         className={`form-tab ${activeTab === 'tarif' ? 'active' : ''}`}
                         onClick={() => setActiveTab('tarif')}
                     >
-                        Descriptif
+                        Tarif
                     </button>
                     <button
                         className={`form-tab ${activeTab === 'champsLibres' ? 'active' : ''}`}
