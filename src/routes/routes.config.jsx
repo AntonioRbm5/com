@@ -13,6 +13,7 @@ import HomeCompt from "../pages/Home/home-compta";
 import Utilisateur from "../pages/Utilisateurs/utilisateur";
 import UserSignupForm from "../pages/Utilisateurs/Inscription_utilisateur";
 import ManageUser from "../pages/Utilisateurs/manage_utilisateur";
+import GestionStock from "../pages/stock/GestionStock";
 
 export const routesConfig = [
   {
@@ -91,6 +92,10 @@ export const routesConfig = [
   {
     path: "/article/edit/:code",
     element: <ArticleFormPage />
+  },
+  {
+    path: "/gestionstock",
+    element: <GestionStock/>,
   },
   
 
