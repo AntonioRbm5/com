@@ -1,0 +1,70 @@
+.ft-l-1 {
+    font-size: 2rem;
+}
+.ft-3 {
+    font-size: 0.75rem;
+}
+.ft-2 {
+    font-size: 1rem;
+}
+.ft-1 {
+    font-size: 1.5rem;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stepper-item {
+  flex: 1; /* clé pour la cohérence */
+  display: flex;
+  align-items: center;
+}
+
+.step-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-line {
+  flex: 1; /* clé pour la cohérence */
+  height: 3px;
+  margin: 0 6px;
+  border-radius: 2px;
+}
+
+.step-finish {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-active {
+  background-color: var(--bs-primary);
+  color: #fff;
+}
+
+.step-inactive {
+  background-color: #e0e0e0;
+  color: #6c757d;
+}
+
+.step-active-line {
+  background-color: var(--bs-primary);
+}
+
+.step-inactive-line {
+  background-color: #e0e0e0;
+}
