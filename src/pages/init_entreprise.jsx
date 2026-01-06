@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logotantana from "../assets/images/icons/tantana_logo_blue.png";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import { addEntreprise } from "../slice/entrepriseSlice";
 
 
 const InitEntrepriseForm = () => {
@@ -43,8 +44,9 @@ const InitEntrepriseForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Payload final :", formData);
+    addEntreprise(formData).then(response => { if (response.data) { navigation("/success-entreprise") }})
     // alert("Formulaire soumis ! Voir console pour le payload.");
-    navigation("/success-entreprise")
+    
   };
 
   return (

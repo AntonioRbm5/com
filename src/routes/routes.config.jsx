@@ -10,6 +10,9 @@ import Identification_entreprise from "../pages/Entreprises/identification_entre
 import EntrepriseSuccess from "../pages/success_create_entreprise";
 import HomeCom from "../pages/Home/home-commercial";
 import HomeCompt from "../pages/Home/home-compta";
+import Utilisateur from "../pages/Utilisateurs/utilisateur";
+import UserSignupForm from "../pages/Utilisateurs/Inscription_utilisateur";
+import ManageUser from "../pages/Utilisateurs/manage_utilisateur";
 
 export const routesConfig = [
   {
@@ -43,6 +46,20 @@ export const routesConfig = [
       {
         path: "identity",
         element: <Identification_entreprise/>
+      }
+    ]
+  },
+  {
+    path: "/utilisateur",
+    element: <Utilisateur/>,
+    children: [
+      {
+        path: "inscription",
+        element: <UserSignupForm/>
+      },
+      {
+        path: "manage",
+        element: <ManageUser/>
       }
     ]
   }
