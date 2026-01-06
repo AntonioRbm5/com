@@ -62,7 +62,7 @@ export const routesConfig = [
         element: <ManageUser/>
       }
     ]
-  }
+  },
   // {
   //   path: "/dashboard",
   //   element: <Dashboard />,
