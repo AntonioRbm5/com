@@ -68,3 +68,108 @@
 .step-inactive-line {
   background-color: #e0e0e0;
 }
+:root {
+  --primary: #0d6efd;
+  --white: #ffffff;
+  --dark: #1f2937;
+}
+/* SIDEBAR */
+.sidebar {
+  width: 72px;
+  height: 100vh;
+  border-right: 1px solid #eee;
+  transition: all 0.35s ease;
+  overflow: hidden;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.05);
+}
+
+/* HOVER ASIDE → Dark pro */
+.sidebar:hover {
+  width: 260px;
+  background: #1f2937; /* dark gray pro */
+}
+
+/* HEADER */
+.sidebar-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+/* SHOW LOGO ON HOVER */
+.sidebar:hover .logo {
+  opacity: 1;
+  color: var(--primary); /* reste lisible sur fond dark */
+}
+
+/* MENU */
+.sidebar-menu {
+  list-style: none;
+  padding: 12px;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #1f2937; /* texte sombre par défaut */
+  transition: all 0.25s ease;
+}
+
+/* ICON */
+.sidebar-menu li svg {
+  font-size: 20px;
+  min-width: 20px;
+  transition: color 0.25s ease;
+}
+
+/* TEXT HIDDEN BY DEFAULT */
+.label {
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.25s ease, color 0.25s ease;
+  color: #1f2937; /* sombre par défaut */
+}
+
+/* SHOW TEXT ON SIDEBAR HOVER → lisible sur dark */
+.sidebar:hover .label {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--white);
+}
+
+/* ITEM HOVER */
+.sidebar-menu li:hover {
+  background: rgba(255, 255, 255, 0.1); /* léger sur dark */
+  color: var(--primary);
+}
+
+.sidebar-menu li:hover svg {
+  color: var(--primary);
+}
+
+/* ACTIVE ITEM */
+.sidebar-menu li.active {
+  background: rgba(255, 255, 255, 0.2); /* léger contraste */
+  color: var(--primary);
+}
+
+.sidebar-menu li.active .label {
+  color: var(--primary);
+}
