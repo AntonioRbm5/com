@@ -43,7 +43,8 @@ const InitEntrepriseForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Payload final :", formData);
-    alert("Formulaire soumis ! Voir console pour le payload.");
+    // alert("Formulaire soumis ! Voir console pour le payload.");
+    navigation("/success-entreprise")
   };
 
   return (
