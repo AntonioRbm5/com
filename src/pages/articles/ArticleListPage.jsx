@@ -1,29 +1,50 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './article.css';
+import { getAllArticles } from '../../services/articleService';
 
-const ArticleListPage = ({
-    articles = [],
-    onSelectArticle = () => { },
-    onNewArticle = () => { },
-    selectedId = null
-}) => {
+const ArticleListPage = () => {
     const navigate = useNavigate();
+    const [articles, setArticles] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        loadArticles();
+    }, []);
+
+    const loadArticles = async () => {
+        try {
+            setLoading(true);
+            const response = await getAllArticles();
+
+            if (response.data.status === 'success') {
+                setArticles(response.data.data);
+            } else {
+                setError('Erreur lors du chargement des articles');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erreur de connexion au serveur');
+            console.error('Erreur:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleRowClick = (article) => {
-        onSelectArticle(article);
-        navigate(`/article/edit/${article.code}`);
+        setSelectedId(article.article_id);
+        navigate(`/article/edit/${article.article_id}`);
     };
 
     const handleNew = () => {
-        onNewArticle();
         navigate('/article/new');
     };
 
     return (
         <div className="window">
             <div className="window-header">
-                <h2 className="window-title">Articles d'articles</h2>
+                <h2 className="window-title">Liste des articles</h2>
                 <div className="window-controls">
                     <button className="window-control-btn">_</button>
                     <button className="window-control-btn">□</button>
@@ -50,29 +71,60 @@ const ArticleListPage = ({
                 </button>
             </div>
 
+            {error && (
+                <div style={{
+                    padding: '10px',
+                    margin: '10px',
+                    backgroundColor: '#fee',
+                    border: '1px solid #fcc',
+                    borderRadius: '4px',
+                    color: '#c00'
+                }}>
+                    {error}
+                </div>
+            )}
+
             <div className="article-list-container">
-                <table className="article-table">
-                    <thead>
-                        <tr>
-                            <th style={{ width: '20px' }}></th>
-                            <th>Code article</th>
-                            <th>Intitulé de la article</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {articles.map(article => (
-                            <tr
-                                key={article.code}
-                                onClick={() => handleRowClick(article)}
-                                className={selectedId === article.code ? 'selected' : ''}
-                            >
-                                <td>📁</td>
-                                <td>{article.code}</td>
-                                <td>{article.intitule}</td>
+                {loading ? (
+                    <div style={{ padding: '20px', textAlign: 'center' }}>
+                        Chargement des articles...
+                    </div>
+                ) : (
+                    <table className="article-table">
+                        <thead>
+                            <tr>
+                                <th style={{ width: '20px' }}></th>
+                                <th>Référence</th>
+                                <th>Désignation</th>
+                                <th>Famille</th>
+                                <th>Prix de vente</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {articles.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                                        Aucun article trouvé
+                                    </td>
+                                </tr>
+                            ) : (
+                                articles.map(article => (
+                                    <tr
+                                        key={article.article_id}
+                                        onClick={() => handleRowClick(article)}
+                                        className={selectedId === article.article_id ? 'selected' : ''}
+                                    >
+                                        <td>📁</td>
+                                        <td>{article.article_reference}</td>
+                                        <td>{article.article_name}</td>
+                                        <td>{article.famille?.famille_name || '-'}</td>
+                                        <td>{article.article_prix_vente?.toFixed(2)} €</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
 
             <div className="form-actions">
@@ -82,7 +134,7 @@ const ArticleListPage = ({
                 <button className="btn">Fermer</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ArticleListPage
+export default ArticleListPage;

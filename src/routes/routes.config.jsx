@@ -82,7 +82,7 @@ export const routesConfig = [
     element: <FamilleFormPage />
   },
   {
-    path: "/article/*",
+    path: "/article",
     element: <ArticleListPage />
   },
   {

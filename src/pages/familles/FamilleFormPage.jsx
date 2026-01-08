@@ -1,14 +1,20 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import IdentificationTab from './tabs/IdentificationTab';
 import ParametresTab from './parametres/ParametresTab';
 import './famille.css';
+import { createFamille } from '../../services/familleService';
 
-
-const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
+const FamilleFormPage = ({ mode = 'edit' }) => {
     const navigate = useNavigate();
+    const { id } = useParams();
     const [activeTab, setActiveTab] = useState('identification');
-    const [formData, setFormData] = useState(famille || {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    
+    const [formData, setFormData] = useState({
+        famille_name: '',
+        famille_description: '',
         code: '',
         intitule: '',
         unitVente: 'PIECE',
@@ -24,14 +30,42 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
         garantie: 0
     });
 
+    useEffect(() => {
+        if (mode === 'edit' && id) {
+            // TODO: Charger la famille existante
+            // loadFamille(id);
+        }
+    }, [mode, id]);
+
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleSubmit = () => {
-        onSave(formData);
-        navigate('/famille');
+    const handleSubmit = async () => {
+        setLoading(true);
+        setError(null);
+        
+        try {
+            const apiData = {
+                famille_name: formData.famille_name || formData.intitule,
+                famille_description: formData.famille_description || formData.code
+            };
+
+            const response = await createFamille(apiData);
+            
+            if (response.data.status === 'success') {
+                navigate('/famille');
+            } else {
+                setError(response.data.message || 'Erreur lors de la création');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erreur lors de la sauvegarde');
+            console.error('Erreur:', err);
+        } finally {
+            setLoading(false);
+        }
     };
+
     return (
         <div className="window">
             <div className="window-header">
@@ -63,6 +97,19 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                     Traçabilité
                 </button>
             </div>
+
+            {error && (
+                <div style={{ 
+                    padding: '10px', 
+                    margin: '10px', 
+                    backgroundColor: '#fee', 
+                    border: '1px solid #fcc',
+                    borderRadius: '4px',
+                    color: '#c00'
+                }}>
+                    {error}
+                </div>
+            )}
 
             <div className="form-container">
                 <div className="form-tabs">
@@ -102,27 +149,27 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                         <div className="form-row">
                             <div className="form-group">
                                 <label className="form-label">Prix d'achat</label>
-                                <input type="text" className="form-input" />
+                                <input type="number" className="form-input" />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Dernier Prix d'achat</label>
-                                <input type="text" className="form-input" />
+                                <input type="number" className="form-input" />
                             </div>
                         </div>
                         <div className="form-row">
                             <div className="form-group">
                                 <label className="form-label">Coefficient</label>
-                                <input type="text" className="form-input" />
+                                <input type="number" className="form-input" />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Coût standard</label>
-                                <input type="text" className="form-input" />
+                                <input type="number" className="form-input" />
                             </div>
                         </div>
                         <div className="form-row">
                             <div className="form-group">
                                 <label className="form-label">Prix de vente</label>
-                                <input type="text" className="form-input" />
+                                <input type="number" className="form-input" />
                                 <select className="form-select" style={{ flex: '0 0 100px' }}>
                                     <option>PV HT</option>
                                 </select>
@@ -140,7 +187,6 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
                                 </select>
                             </div>
                         </div>
-
                     </div>
                 )}
 
@@ -157,11 +203,17 @@ const FamilleFormPage = ({ famille, onSave, mode = 'edit' }) => {
             </div>
 
             <div className="form-actions">
-                <button className="btn btn-primary" onClick={handleSubmit}>OK</button>
+                <button 
+                    className="btn btn-primary" 
+                    onClick={handleSubmit}
+                    disabled={loading}
+                >
+                    {loading ? 'Enregistrement...' : 'OK'}
+                </button>
                 <button className="btn" onClick={() => navigate('/famille')}>Annuler</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default FamilleFormPage
+export default FamilleFormPage;
