@@ -14,6 +14,7 @@ import Utilisateur from "../pages/Utilisateurs/utilisateur";
 import UserSignupForm from "../pages/Utilisateurs/Inscription_utilisateur";
 import ManageUser from "../pages/Utilisateurs/manage_utilisateur";
 import GestionStock from "../pages/stock/GestionStock";
+import ERPSystem from "../pages/ERPSystem/ERPSystem";
 
 export const routesConfig = [
   {
@@ -97,6 +98,9 @@ export const routesConfig = [
     path: "/gestionstock",
     element: <GestionStock/>,
   },
-  
+  {
+    path: "/erp",
+    element: <ERPSystem/>,
+  }
 
 ];

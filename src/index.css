@@ -1,15 +1,19 @@
 .ft-l-1 {
-    font-size: 2rem;
+  font-size: 2rem;
 }
+
 .ft-3 {
-    font-size: 0.75rem;
+  font-size: 0.75rem;
 }
+
 .ft-2 {
-    font-size: 1rem;
+  font-size: 1rem;
 }
+
 .ft-1 {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 }
+
 .stepper {
   display: flex;
   align-items: center;
@@ -17,7 +21,8 @@
 }
 
 .stepper-item {
-  flex: 1; /* clé pour la cohérence */
+  flex: 1;
+  /* clé pour la cohérence */
   display: flex;
   align-items: center;
 }
@@ -34,7 +39,8 @@
 }
 
 .step-line {
-  flex: 1; /* clé pour la cohérence */
+  flex: 1;
+  /* clé pour la cohérence */
   height: 3px;
   margin: 0 6px;
   border-radius: 2px;
@@ -68,11 +74,13 @@
 .step-inactive-line {
   background-color: #e0e0e0;
 }
+
 :root {
   --primary: #0d6efd;
   --white: #ffffff;
   --dark: #1f2937;
 }
+
 /* SIDEBAR */
 .sidebar {
   width: 72px;
@@ -86,7 +94,7 @@
 /* HOVER ASIDE → Dark pro */
 .sidebar:hover {
   width: 260px;
-  background: #1f2937; /* dark gray pro */
+  background: #1f2937;
 }
 
 /* HEADER */
@@ -109,7 +117,8 @@
 /* SHOW LOGO ON HOVER */
 .sidebar:hover .logo {
   opacity: 1;
-  color: var(--primary); /* reste lisible sur fond dark */
+  color: var(--primary);
+  /* reste lisible sur fond dark */
 }
 
 /* MENU */
@@ -127,7 +136,8 @@
   margin-bottom: 6px;
   border-radius: 10px;
   cursor: pointer;
-  color: #1f2937; /* texte sombre par défaut */
+  color: #1f2937;
+  /* texte sombre par défaut */
   transition: all 0.25s ease;
 }
 
@@ -144,7 +154,8 @@
   opacity: 0;
   transform: translateX(-10px);
   transition: all 0.25s ease, color 0.25s ease;
-  color: #1f2937; /* sombre par défaut */
+  color: #1f2937;
+  /* sombre par défaut */
 }
 
 /* SHOW TEXT ON SIDEBAR HOVER → lisible sur dark */
@@ -156,7 +167,8 @@
 
 /* ITEM HOVER */
 .sidebar-menu li:hover {
-  background: rgba(255, 255, 255, 0.1); /* léger sur dark */
+  background: rgba(255, 255, 255, 0.1);
+  /* léger sur dark */
   color: var(--primary);
 }
 
@@ -166,7 +178,8 @@
 
 /* ACTIVE ITEM */
 .sidebar-menu li.active {
-  background: rgba(255, 255, 255, 0.2); /* léger contraste */
+  background: rgba(255, 255, 255, 0.2);
+  /* léger contraste */
   color: var(--primary);
 }
 

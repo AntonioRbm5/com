@@ -1,302 +1,171 @@
-// import React, { useState } from 'react';
-// import './CategoriesTable.css';
-
-// const CategoriesTable = () => {
-//     const [activeTab, setActiveTab] = useState('categories');
-//     const [categories, setCategories] = useState([
-//         { categorie: 'GROSSISTE', coefficient: '', prixVente: '', remise: '' },
-//         { categorie: 'DETAILLANT', coefficient: '', prixVente: '', remise: '' }
-//     ]);
-//     const [sortOrder, setSortOrder] = useState('asc');
-//     const [showModal, setShowModal] = useState(false);
-//     const [selectedCategory, setSelectedCategory] = useState(null);
-
-//     const [editIndex, setEditIndex] = useState(null);
-//     const [editData, setEditData] = useState(null);
-
-//     const handleSort = () => {
-//         const sorted = [...categories].sort((a, b) =>
-//             sortOrder === 'asc'
-//                 ? a.remise.localeCompare(b.remise)
-//                 : b.remise.localeCompare(a.remise)
-//         );
-//         setCategories(sorted);
-//         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-//     };
-
-//     const handleDeleteCategory = (index) => {
-//         setCategories(categories.filter((_, i) => i !== index));
-//     };
-
-//     const handleEditOpen = (index) => {
-//         setShowModal(false);
-//         setEditIndex(index);
-//         setEditData({ ...categories[index] });
-//     };
-
-//     const handleEditSave = () => {
-//         const updated = [...categories];
-//         updated[editIndex] = editData;
-//         setCategories(updated);
-//         setEditIndex(null);
-//         setEditData(null);
-//     };
-
-
-//     return (
-//         <div className="categories-container">
-//             {/* Onglets */}
-//             <div className="tabs">
-//                 {[
-//                     ['categories', 'Catégories tarifaires'],
-//                     ['tarifs-clients', 'Tarifs clients'],
-//                     ['fournisseurs', 'Fournisseurs'],
-//                     ['nouveau-tarif', 'Nouveau tarif']
-//                 ].map(([key, label]) => (
-//                     <button
-//                         key={key}
-//                         className={`tab ${activeTab === key ? 'active' : ''}`}
-//                         onClick={() => setActiveTab(key)}
-//                     >
-//                         {label}
-//                     </button>
-//                 ))}
-//             </div>
-
-//             {/* Contenu */}
-//             <div className="tab-content">
-//                 {activeTab === 'categories' && (
-//                     <table className="categories-table">
-//                         <thead>
-//                             <tr>
-//                                 <th>Catégorie</th>
-//                                 <th>Coefficient</th>
-//                                 <th>Prix de vente</th>
-//                                 <th className="sortable" onClick={handleSort}>
-//                                     Remise {sortOrder === 'asc' ? '▲' : '▼'}
-//                                 </th>
-//                                 <th></th>
-//                             </tr>
-//                         </thead>
-//                         <tbody>
-//                             {categories.map((cat, index) => (
-//                                 <tr key={index}>
-//                                     <td className="bold clickable" onClick={() => handleEditOpen(index)}>
-//                                         {cat.categorie}
-//                                     </td>
-//                                     <td className="clickable" onClick={() => handleEditOpen(index)}>
-//                                         {cat.coefficient}
-//                                     </td>
-//                                     <td className="clickable" onClick={() => handleEditOpen(index)}>
-//                                         {cat.prixVente}
-//                                     </td>
-//                                     <td className="clickable" onClick={() => handleEditOpen(index)}>
-//                                         {cat.remise}
-//                                     </td>
-//                                     <td className="center">
-//                                         <button
-//                                             className="delete-btn"
-//                                             onClick={() => handleDeleteCategory(index)}
-//                                         >
-//                                             🗑️
-//                                         </button>
-//                                     </td>
-//                                 </tr>
-//                             ))}
-//                         </tbody>
-
-//                     </table>
-//                 )}
-
-//                 {activeTab !== 'categories' && (
-//                     <div className="empty-tab">
-//                         Contenu {activeTab.replace('-', ' ')}
-//                     </div>
-//                 )}
-
-//                 {/* Actions */}
-//                 <div className="actions">
-//                     <button onClick={() => setShowModal(true)}>Ouvrir…</button>
-//                     <button>Défaut</button>
-//                 </div>
-//             </div>
-
-//             {/* Modal */}
-//             {showModal && (
-//                 <>
-//                     <div className="modal-overlay" onClick={() => setShowModal(false)} />
-//                     <div className="modal">
-//                         <div className="modal-header">
-//                             Sélectionner une catégorie
-//                             <button onClick={() => setShowModal(false)}>✕</button>
-//                         </div>
-//                         <div className="modal-body">
-//                             {categories.map((cat, i) => (
-//                                 <div
-//                                     key={i}
-//                                     className={`modal-item ${selectedCategory === cat.categorie ? 'selected' : ''}`}
-//                                     onClick={() => setSelectedCategory(cat.categorie)}
-//                                 >
-//                                     {cat.categorie}
-//                                 </div>
-//                             ))}
-//                         </div>
-//                         <div className="modal-footer">
-//                             <button onClick={() => setShowModal(false)}>Annuler</button>
-//                             <button disabled={!selectedCategory}>OK</button>
-//                         </div>
-//                     </div>
-//                 </>
-//             )}
-//             {editData && (
-//                 <>
-//                     <div className="modal-overlay" onClick={() => setEditData(null)} />
-//                     <div className="modal" onClick={(e) => e.stopPropagation()}>
-//                         <div className="modal-header">
-//                             Modifier catégorie tarifaire
-//                             <button onClick={() => setEditData(null)}>✕</button>
-//                         </div>
-
-//                         <div className="modal-body form-modal">
-//                             <label>Catégorie</label>
-//                             <input
-//                                 value={editData.categorie}
-//                                 onChange={(e) =>
-//                                     setEditData({ ...editData, categorie: e.target.value })
-//                                 }
-//                             />
-
-//                             <label>Coefficient</label>
-//                             <input
-//                                 value={editData.coefficient}
-//                                 onChange={(e) =>
-//                                     setEditData({ ...editData, coefficient: e.target.value })
-//                                 }
-//                             />
-
-//                             <label>Prix de vente</label>
-//                             <input
-//                                 value={editData.prixVente}
-//                                 onChange={(e) =>
-//                                     setEditData({ ...editData, prixVente: e.target.value })
-//                                 }
-//                             />
-
-//                             <label>Remise</label>
-//                             <input
-//                                 value={editData.remise}
-//                                 onChange={(e) =>
-//                                     setEditData({ ...editData, remise: e.target.value })
-//                                 }
-//                             />
-//                         </div>
-
-//                         <div className="modal-footer">
-//                             <button onClick={() => setEditData(null)}>Annuler</button>
-//                             <button onClick={handleEditSave}>Enregistrer</button>
-//                         </div>
-//                     </div>
-//                 </>
-//             )}
-
-
-//         </div>
-//     );
-// };
-
-// export default CategoriesTable;
-
 import React, { useState, useEffect } from 'react';
 import './CategoriesTable.css';
+import { getAllCategories, createCategorie, updateCategorie, deleteCategorie } from '../../../services/categorieService';
 
-const CategoriesTable = ({ categories = [], onChange }) => {
+const CategoriesTable = () => {
     const [activeTab, setActiveTab] = useState('categories');
-    const [localCategories, setLocalCategories] = useState(categories);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [sortOrder, setSortOrder] = useState('asc');
-    const [showModal, setShowModal] = useState(false);
+    const [showSelectModal, setShowSelectModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [editIndex, setEditIndex] = useState(null);
     const [editData, setEditData] = useState(null);
 
-    // Synchroniser avec les props
-    useEffect(() => {
-        if (categories.length === 0 && localCategories.length === 0) {
-            // Initialiser avec des catégories par défaut
-            setLocalCategories([
-                { categorie: 'GROSSISTE', coefficient: '', prixVente: '', remise: '' },
-                { categorie: 'DETAILLANT', coefficient: '', prixVente: '', remise: '' }
-            ]);
-        } else {
-            setLocalCategories(categories);
-        }
-    }, [categories]);
+    // État pour la création de nouvelle catégorie
+    const [newCategoryData, setNewCategoryData] = useState({
+        categorie: '',
+        coefficient: '',
+        prixVente: '',
+        remise: ''
+    });
 
-    // Notifier le parent des changements
-    const updateCategories = (newCategories) => {
-        setLocalCategories(newCategories);
-        if (onChange) {
-            onChange(newCategories);
+    useEffect(() => {
+        loadCategories();
+    }, []);
+
+    const loadCategories = async () => {
+        try {
+            setLoading(true);
+            const response = await getAllCategories();
+            if (response.data.status === 'success') {
+                const mappedCategories = response.data.data.map(cat => ({
+                    categorie_id: cat.categorie_id,
+                    categorie: cat.categorie_name,
+                    coefficient: cat.categorie_coefficient || '',
+                    prixVente: cat.categorie_prix_vente || '',
+                    remise: cat.categorie_remise || ''
+                }));
+                setCategories(mappedCategories);
+            }
+        } catch (err) {
+            console.error('Erreur chargement catégories:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleSort = () => {
-        const sorted = [...localCategories].sort((a, b) => {
-            const remiseA = a.remise || '';
-            const remiseB = b.remise || '';
-            return sortOrder === 'asc'
-                ? remiseA.localeCompare(remiseB)
-                : remiseB.localeCompare(remiseA);
-        });
-        updateCategories(sorted);
+        const sorted = [...categories].sort((a, b) =>
+            sortOrder === 'asc'
+                ? a.remise.localeCompare(b.remise)
+                : b.remise.localeCompare(a.remise)
+        );
+        setCategories(sorted);
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     };
 
-    const handleDeleteCategory = (index) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-            updateCategories(localCategories.filter((_, i) => i !== index));
+    const handleDeleteCategory = async (index) => {
+        const category = categories[index];
+        if (category.categorie_id && window.confirm('Confirmer la suppression ?')) {
+            try {
+                await deleteCategorie(category.categorie_id);
+                setCategories(categories.filter((_, i) => i !== index));
+            } catch (err) {
+                console.error('Erreur suppression:', err);
+                alert('Erreur lors de la suppression');
+            }
+        } else {
+            setCategories(categories.filter((_, i) => i !== index));
         }
     };
 
     const handleEditOpen = (index) => {
-        setShowModal(false);
+        setShowSelectModal(false);
         setEditIndex(index);
-        setEditData({ ...localCategories[index] });
+        setEditData({ ...categories[index] });
     };
 
-    const handleEditSave = () => {
-        const updated = [...localCategories];
+    const handleEditSave = async () => {
+        const updated = [...categories];
         updated[editIndex] = editData;
-        updateCategories(updated);
+        setCategories(updated);
+
+        if (editData.categorie_id) {
+            try {
+                await updateCategorie(editData.categorie_id, {
+                    categorie_name: editData.categorie,
+                    categorie_description: `Coef: ${editData.coefficient}, PV: ${editData.prixVente}, Remise: ${editData.remise}`
+                });
+            } catch (err) {
+                console.error('Erreur mise à jour:', err);
+            }
+        }
+
         setEditIndex(null);
         setEditData(null);
     };
 
-    const handleAddCategory = () => {
-        if (selectedCategory) {
-            const exists = localCategories.some(cat => cat.categorie === selectedCategory);
-            if (!exists) {
-                updateCategories([
-                    ...localCategories,
-                    { categorie: selectedCategory, coefficient: '', prixVente: '', remise: '' }
-                ]);
+    // Ouvrir le modal de sélection d'une catégorie existante
+    const handleOpenSelectModal = () => {
+        setShowSelectModal(true);
+        setSelectedCategory(null);
+    };
+
+    // Ouvrir le modal de création d'une nouvelle catégorie
+    const handleOpenCreateModal = () => {
+        setShowSelectModal(false);
+        setShowCreateModal(true);
+        setNewCategoryData({
+            categorie: '',
+            coefficient: '',
+            prixVente: '',
+            remise: ''
+        });
+    };
+
+    // Ajouter une catégorie existante depuis le modal de sélection
+    const handleAddExistingCategory = () => {
+        if (!selectedCategory) return;
+
+        const existingCat = categories.find(cat => cat.categorie === selectedCategory);
+        if (existingCat && !categories.some(cat => cat === existingCat)) {
+            setCategories([...categories, existingCat]);
+        }
+        setShowSelectModal(false);
+        setSelectedCategory(null);
+    };
+
+    // Créer une nouvelle catégorie
+    const handleCreateCategory = async () => {
+        if (!newCategoryData.categorie.trim()) {
+            alert('Le nom de la catégorie est obligatoire');
+            return;
+        }
+
+        try {
+            const response = await createCategorie({
+                categorie_name: newCategoryData.categorie,
+                categorie_description: `Coef: ${newCategoryData.coefficient}, PV: ${newCategoryData.prixVente}, Remise: ${newCategoryData.remise}`
+            });
+
+            if (response.data.status === 'success') {
+                const newCat = {
+                    categorie_id: response.data.data.categorie_id,
+                    categorie: newCategoryData.categorie,
+                    coefficient: newCategoryData.coefficient,
+                    prixVente: newCategoryData.prixVente,
+                    remise: newCategoryData.remise
+                };
+
+                setCategories([...categories, newCat]);
+                setShowCreateModal(false);
+                setNewCategoryData({
+                    categorie: '',
+                    coefficient: '',
+                    prixVente: '',
+                    remise: ''
+                });
             }
-            setShowModal(false);
-            setSelectedCategory(null);
+        } catch (err) {
+            console.error('Erreur création:', err);
+            alert('Erreur lors de la création de la catégorie');
         }
     };
 
-    const availableCategories = [
-        'GROSSISTE',
-        'DETAILLANT',
-        'REVENDEUR',
-        'PARTICULIER',
-        'ENTREPRISE',
-        'COLLECTIVITE'
-    ];
-
     return (
         <div className="categories-container">
-            {/* Onglets */}
             <div className="tabs">
                 {[
                     ['categories', 'Catégories tarifaires'],
@@ -314,105 +183,176 @@ const CategoriesTable = ({ categories = [], onChange }) => {
                 ))}
             </div>
 
-            {/* Contenu */}
             <div className="tab-content">
                 {activeTab === 'categories' && (
-                    <table className="categories-table">
-                        <thead>
-                            <tr>
-                                <th>Catégorie</th>
-                                <th>Coefficient</th>
-                                <th>Prix de vente</th>
-                                <th className="sortable" onClick={handleSort}>
-                                    Remise {sortOrder === 'asc' ? '▲' : '▼'}
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {localCategories.length > 0 ? (
-                                localCategories.map((cat, index) => (
-                                    <tr key={index}>
-                                        <td className="bold clickable" onClick={() => handleEditOpen(index)}>
-                                            {cat.categorie}
-                                        </td>
-                                        <td className="clickable" onClick={() => handleEditOpen(index)}>
-                                            {cat.coefficient}
-                                        </td>
-                                        <td className="clickable" onClick={() => handleEditOpen(index)}>
-                                            {cat.prixVente}
-                                        </td>
-                                        <td className="clickable" onClick={() => handleEditOpen(index)}>
-                                            {cat.remise}
-                                        </td>
-                                        <td className="center">
-                                            <button
-                                                className="delete-btn"
-                                                onClick={() => handleDeleteCategory(index)}
-                                            >
-                                                🗑️
-                                            </button>
-                                        </td>
+                    <>
+                        {loading ? (
+                            <div style={{ padding: '20px', textAlign: 'center' }}>
+                                Chargement...
+                            </div>
+                        ) : (
+                            <table className="categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Catégorie</th>
+                                        <th>Coefficient</th>
+                                        <th>Prix de vente</th>
+                                        <th className="sortable" onClick={handleSort}>
+                                            Remise {sortOrder === 'asc' ? '▲' : '▼'}
+                                        </th>
+                                        <th></th>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="5" style={{ textAlign: 'center', padding: '12px', color: '#666' }}>
-                                        Aucune catégorie tarifaire définie
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody>
+                                    {categories.map((cat, index) => (
+                                        <tr key={cat.categorie_id || index}>
+                                            <td className="bold clickable" onClick={() => handleEditOpen(index)}>
+                                                {cat.categorie}
+                                            </td>
+                                            <td className="clickable" onClick={() => handleEditOpen(index)}>
+                                                {cat.coefficient}
+                                            </td>
+                                            <td className="clickable" onClick={() => handleEditOpen(index)}>
+                                                {cat.prixVente}
+                                            </td>
+                                            <td className="clickable" onClick={() => handleEditOpen(index)}>
+                                                {cat.remise}
+                                            </td>
+                                            <td className="center">
+                                                <button
+                                                    className="delete-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteCategory(index);
+                                                    }}
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </>
                 )}
 
                 {activeTab !== 'categories' && (
                     <div className="empty-tab">
-                        Section "{activeTab.replace('-', ' ')}" en construction
+                        Contenu {activeTab.replace('-', ' ')}
                     </div>
                 )}
 
-                {/* Actions */}
                 <div className="actions">
-                    <button onClick={() => setShowModal(true)}>Ajouter…</button>
-                    <button onClick={() => updateCategories([])}>Réinitialiser</button>
+                    <button onClick={handleOpenSelectModal}>Ouvrir…</button>
+                    <button onClick={handleOpenCreateModal}>Nouveau</button>
+                    <button>Défaut</button>
                 </div>
             </div>
 
-            {/* Modal de sélection */}
-            {showModal && (
+            {/* Modal Sélection d'une catégorie existante */}
+            {showSelectModal && (
                 <>
-                    <div className="modal-overlay" onClick={() => setShowModal(false)} />
+                    <div className="modal-overlay" onClick={() => setShowSelectModal(false)} />
                     <div className="modal">
                         <div className="modal-header">
-                            Sélectionner une catégorie
-                            <button onClick={() => setShowModal(false)}>✕</button>
+                            Sélectionner une catégorie existante
+                            <button onClick={() => setShowSelectModal(false)}>✕</button>
                         </div>
                         <div className="modal-body">
-                            {availableCategories.map((cat, i) => (
-                                <div
-                                    key={i}
-                                    className={`modal-item ${selectedCategory === cat ? 'selected' : ''}`}
-                                    onClick={() => setSelectedCategory(cat)}
-                                >
-                                    {cat}
+                            {categories.length === 0 ? (
+                                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                    Aucune catégorie disponible. Créez-en une nouvelle.
                                 </div>
-                            ))}
+                            ) : (
+                                categories.map((cat, i) => (
+                                    <div
+                                        key={i}
+                                        className={`modal-item ${selectedCategory === cat.categorie ? 'selected' : ''}`}
+                                        onClick={() => setSelectedCategory(cat.categorie)}
+                                    >
+                                        {cat.categorie}
+                                    </div>
+                                ))
+                            )}
                         </div>
                         <div className="modal-footer">
-                            <button onClick={() => setShowModal(false)}>Annuler</button>
-                            <button
-                                onClick={handleAddCategory}
-                                disabled={!selectedCategory}
-                            >
-                                OK
+                            <button onClick={() => setShowSelectModal(false)}>Annuler</button>
+                            <button onClick={handleAddExistingCategory} disabled={!selectedCategory}>
+                                Ajouter
                             </button>
                         </div>
                     </div>
                 </>
             )}
 
-            {/* Modal d'édition */}
+            {/* Modal Création d'une nouvelle catégorie */}
+            {showCreateModal && (
+                <>
+                    <div className="modal-overlay" onClick={() => setShowCreateModal(false)} />
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            Créer une nouvelle catégorie tarifaire
+                            <button onClick={() => setShowCreateModal(false)}>✕</button>
+                        </div>
+
+                        <div className="modal-body form-modal">
+                            <label>Catégorie *</label>
+                            <input
+                                type="text"
+                                placeholder="Nom de la catégorie"
+                                value={newCategoryData.categorie}
+                                onChange={(e) =>
+                                    setNewCategoryData({ ...newCategoryData, categorie: e.target.value })
+                                }
+                                autoFocus
+                            />
+
+                            <label>Coefficient</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: 1.5"
+                                value={newCategoryData.coefficient}
+                                onChange={(e) =>
+                                    setNewCategoryData({ ...newCategoryData, coefficient: e.target.value })
+                                }
+                            />
+
+                            <label>Prix de vente</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: 100.00"
+                                value={newCategoryData.prixVente}
+                                onChange={(e) =>
+                                    setNewCategoryData({ ...newCategoryData, prixVente: e.target.value })
+                                }
+                            />
+
+                            <label>Remise</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: 10%"
+                                value={newCategoryData.remise}
+                                onChange={(e) =>
+                                    setNewCategoryData({ ...newCategoryData, remise: e.target.value })
+                                }
+                            />
+                        </div>
+
+                        <div className="modal-footer">
+                            <button onClick={() => setShowCreateModal(false)}>Annuler</button>
+                            <button
+                                onClick={handleCreateCategory}
+                                disabled={!newCategoryData.categorie.trim()}
+                            >
+                                Créer
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Modal Édition d'une catégorie */}
             {editData && (
                 <>
                     <div className="modal-overlay" onClick={() => setEditData(null)} />
@@ -433,8 +373,6 @@ const CategoriesTable = ({ categories = [], onChange }) => {
 
                             <label>Coefficient</label>
                             <input
-                                type="number"
-                                step="0.01"
                                 value={editData.coefficient}
                                 onChange={(e) =>
                                     setEditData({ ...editData, coefficient: e.target.value })
@@ -443,18 +381,14 @@ const CategoriesTable = ({ categories = [], onChange }) => {
 
                             <label>Prix de vente</label>
                             <input
-                                type="number"
-                                step="0.01"
                                 value={editData.prixVente}
                                 onChange={(e) =>
                                     setEditData({ ...editData, prixVente: e.target.value })
                                 }
                             />
 
-                            <label>Remise (%)</label>
+                            <label>Remise</label>
                             <input
-                                type="number"
-                                step="0.01"
                                 value={editData.remise}
                                 onChange={(e) =>
                                     setEditData({ ...editData, remise: e.target.value })

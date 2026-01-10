@@ -3,10 +3,10 @@ import api from "./api";
 // ============================================
 // DEPOT API CALLS
 // ============================================
-export const getAllDepots = () => api.get("/stockage-depot/search");
-export const createDepot = (data) => api.post("/stockage-depot/create", data);
-export const updateDepot = (id, data) => api.put(`/stockage-depot/${id}`, data);
-export const deleteDepot = (id) => api.delete(`/stockage-depot/${id}`);
+export const getAllDepots = () => api.get("/article-stock-depot/search");
+export const createDepot = (data) => api.post("/article-stock-depot/create", data);
+export const updateDepot = (id, data) => api.put(`/article-stock-depot/${id}`, data);
+export const deleteDepot = (id) => api.delete(`/article-stock-depot/${id}`);
 
 // ============================================
 // MOUVEMENT API CALLS

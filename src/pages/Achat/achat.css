@@ -1,0 +1,62 @@
+/* SageCore.css */
+.sage-app {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 12px;
+    color: #000;
+}
+
+.sage-window {
+    border: 1px solid #999;
+    background: #f0f0f0;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.sage-header {
+    background: linear-gradient(to bottom, #fff, #dcdcdc);
+    border-bottom: 1px solid #999;
+    padding: 4px 8px;
+    font-weight: bold;
+}
+
+.sage-table {
+    background: white;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.sage-table th {
+    background: linear-gradient(to bottom, #fdfdfd, #dcdcdc);
+    border: 1px solid #ccc;
+    font-weight: normal;
+    padding: 4px;
+    text-align: left;
+}
+
+.sage-table td {
+    border: 1px solid #eee;
+    padding: 2px 4px;
+    white-space: nowrap;
+}
+
+.sage-input {
+    border: 1px solid #abadb3;
+    height: 22px;
+    padding: 0 4px;
+    border-radius: 0;
+}
+
+.sage-btn {
+    border: 1px solid #707070;
+    background: linear-gradient(to bottom, #f0f0f0, #e5e5e5);
+    padding: 2px 12px;
+    min-width: 80px;
+}
+
+.sage-btn:hover {
+    background: #e0e0e0;
+}
+
+.active-row {
+    background-color: #0078d7 !important;
+    color: white !important;
+}
