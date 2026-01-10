@@ -1,6 +1,3 @@
-// AnalysisView.jsx
-import React from 'react';
-
 const AnalysisView = ({ data }) => {
     const total = {
         nbDoc: 3,

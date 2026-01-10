@@ -23,15 +23,15 @@ export const routesConfig = [
   },
   {
     path: "/success-entreprise",
-    element: <EntrepriseSuccess/>
+    element: <EntrepriseSuccess />
   },
   {
     path: "/home-commercial",
-    element: <HomeCom/>
+    element: <HomeCom />
   },
   {
     path: "/home-compta",
-    element: <HomeCompt/>
+    element: <HomeCompt />
   },
   {
     path: "/login",
@@ -39,29 +39,29 @@ export const routesConfig = [
   },
   {
     path: "/entreprise",
-    element: <Entreprise/>,
+    element: <Entreprise />,
     children: [
       {
         path: "global",
-        element: <Global_info_entreprise/>
+        element: <Global_info_entreprise />
       },
       {
         path: "identity",
-        element: <Identification_entreprise/>
+        element: <Identification_entreprise />
       }
     ]
   },
   {
     path: "/utilisateur",
-    element: <Utilisateur/>,
+    element: <Utilisateur />,
     children: [
       {
         path: "inscription",
-        element: <UserSignupForm/>
+        element: <UserSignupForm />
       },
       {
         path: "manage",
-        element: <ManageUser/>
+        element: <ManageUser />
       }
     ]
   },
@@ -96,11 +96,11 @@ export const routesConfig = [
   },
   {
     path: "/gestionstock",
-    element: <GestionStock/>,
+    element: <GestionStock />,
   },
   {
     path: "/erp",
-    element: <ERPSystem/>,
+    element: <ERPSystem />,
   }
 
 ];

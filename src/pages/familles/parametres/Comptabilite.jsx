@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import '../famille.css'
 const Comptabilite = () => {
   const [domaine, setDomaine] = useState('Tous');
   const [showModal, setShowModal] = useState(false);
@@ -49,16 +49,18 @@ const Comptabilite = () => {
     }
   ]);
 
-  const handleOpenModal = (index) => {
-    const row = comptabilisationData[index];
-    setSelectedRow(index);
+  const handleOpenModal = (row) => {
+    // Trouver l'index réel dans le tableau d'origine
+    const realIndex = comptabilisationData.findIndex(item => item === row);
+    setSelectedRow(realIndex);
+
     setModalData({
-      domaine: row.categorie === 'VENTE NATIONALE' ? 'Ventes' :
-        row.categorie === 'ACHAT NATIONAL' ? 'Achats' :
+      domaine: row.categorie.includes('VENTE') ? 'Ventes' :
+        row.categorie.includes('ACHAT') ? 'Achats' :
           row.categorie === 'STOCK' ? 'Stocks' : '',
-      compteGeneral: row.compteGeneral,
-      sectionAnalytique: row.section,
-      codeTaxe1: row.taxe1,
+      compteGeneral: row.compteGeneral || '',
+      sectionAnalytique: row.section || '',
+      codeTaxe1: row.taxe1 || '',
       dateApplication1: '',
       ancienCodeTaxe1: '',
       codeTaxe2: '',
@@ -70,6 +72,7 @@ const Comptabilite = () => {
     });
     setShowModal(true);
   };
+
 
   const handleModalSave = () => {
     if (selectedRow !== null) {
@@ -84,6 +87,7 @@ const Comptabilite = () => {
     }
     setShowModal(false);
   };
+
 
   const filteredData = domaine === 'Tous'
     ? comptabilisationData
@@ -140,7 +144,7 @@ const Comptabilite = () => {
                   <button
                     className="btn"
                     style={{ padding: '2px 8px' }}
-                    onClick={() => handleOpenModal(index)}
+                    onClick={() => handleOpenModal(row)}
                   >
                     Ouvrir...
                   </button>
@@ -156,40 +160,38 @@ const Comptabilite = () => {
 
       {/* Modal Comptabilité */}
       {showModal && (
-        <>
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          {/* Overlay sombre */}
           <div
-            className="modal-overlay"
             onClick={() => setShowModal(false)}
             style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              position: 'absolute',
+              top: 0, left: 0, right: 0, bottom: 0,
               backgroundColor: 'rgba(0,0,0,0.5)',
-              zIndex: 999
             }}
           />
+
+          {/* Contenu du Modal */}
           <div
-            className="modal"
             style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
+              position: 'relative',
               backgroundColor: 'white',
-              padding: '0',
               borderRadius: '4px',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-              zIndex: 1000,
+              boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
               minWidth: '600px',
-              maxHeight: '80vh',
-              overflow: 'auto'
+              maxWidth: '90%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column'
             }}
-            onClick={(e) => e.stopPropagation()}
           >
             <div
-              className="modal-header"
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -199,157 +201,157 @@ const Comptabilite = () => {
                 backgroundColor: '#f5f5f5'
               }}
             >
-              <span>Famille/Comptabilité : {modalData.domaine === 'Ventes' ? 'VENTE NATIONALE' :
-                modalData.domaine === 'Achats' ? 'ACHAT NATIONAL' :
-                  'STOCK'}</span>
+              <span style={{ fontWeight: 'bold' }}>
+                Famille/Comptabilité : {modalData.domaine === 'Ventes' ? 'VENTE NATIONALE' :
+                  modalData.domaine === 'Achats' ? 'ACHAT NATIONAL' : 'STOCK'}
+              </span>
               <button
                 onClick={() => setShowModal(false)}
                 style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}
-              >
-                ✕
-              </button>
+              >✕</button>
             </div>
 
-            <div className="modal-body" style={{ padding: '20px' }}>
-              <div className="form-section" style={{ marginBottom: 0 }}>
-                <div style={{ marginBottom: '16px', padding: '8px', backgroundColor: '#f9f9f9', border: '1px solid #ddd' }}>
-                  <strong>Domaine :</strong> {modalData.domaine}
-                </div>
+            <div style={{ padding: '20px' }}>
+              <div style={{ padding: '20px' }}>
+                <div className="form-section" style={{ marginBottom: 0 }}>
+                  <div style={{ marginBottom: '16px', padding: '8px', backgroundColor: '#f9f9f9', border: '1px solid #ddd' }}>
+                    <strong>Domaine :</strong> {modalData.domaine}
+                  </div>
 
-                <div className="form-section-title">Compte général et section analytique</div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Compte général</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={modalData.compteGeneral}
-                      onChange={(e) => setModalData({ ...modalData, compteGeneral: e.target.value })}
-                    />
+                  <div className="form-section-title">Compte général et section analytique</div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Compte général</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={modalData.compteGeneral}
+                        onChange={(e) => setModalData({ ...modalData, compteGeneral: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Section analytique</label>
+                      <select
+                        className="form-select"
+                        value={modalData.sectionAnalytique}
+                        onChange={(e) => setModalData({ ...modalData, sectionAnalytique: e.target.value })}
+                      >
+                        <option value="">-- Sélectionner --</option>
+                      </select>
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Section analytique</label>
-                    <select
-                      className="form-select"
-                      value={modalData.sectionAnalytique}
-                      onChange={(e) => setModalData({ ...modalData, sectionAnalytique: e.target.value })}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div className="form-section-title">Taux de taxe 1</div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Code taxe</label>
-                    <select
-                      className="form-select"
-                      value={modalData.codeTaxe1}
-                      onChange={(e) => setModalData({ ...modalData, codeTaxe1: e.target.value })}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                      <option>TVAF/18%</option>
-                      <option>TVAR/18%</option>
-                    </select>
+                  <div className="form-section-title">Taux de taxe 1</div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Code taxe</label>
+                      <select
+                        className="form-select"
+                        value={modalData.codeTaxe1}
+                        onChange={(e) => setModalData({ ...modalData, codeTaxe1: e.target.value })}
+                      >
+                        <option value="">-- Sélectionner --</option>
+                        <option>TVAF/18%</option>
+                        <option>TVAR/18%</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Date d'application</label>
+                      <input
+                        type="date"
+                        className="form-input"
+                        value={modalData.dateApplication1}
+                        onChange={(e) => setModalData({ ...modalData, dateApplication1: e.target.value })}
+                      />
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Date d'application</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      value={modalData.dateApplication1}
-                      onChange={(e) => setModalData({ ...modalData, dateApplication1: e.target.value })}
-                    />
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Ancien code taxe</label>
+                      <select
+                        className="form-select"
+                        value={modalData.ancienCodeTaxe1}
+                        onChange={(e) => setModalData({ ...modalData, ancienCodeTaxe1: e.target.value })}
+                      >
+                        <option value="">-- Sélectionner --</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Ancien code taxe</label>
-                    <select
-                      className="form-select"
-                      value={modalData.ancienCodeTaxe1}
-                      onChange={(e) => setModalData({ ...modalData, ancienCodeTaxe1: e.target.value })}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div className="form-section-title">Taux de taxe 2</div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Code taxe</label>
-                    <select
-                      className="form-select"
-                      value={modalData.codeTaxe2}
-                      onChange={(e) => setModalData({ ...modalData, codeTaxe2: e.target.value })}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                    </select>
+                  <div className="form-section-title">Taux de taxe 2</div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Code taxe</label>
+                      <select
+                        className="form-select"
+                        value={modalData.codeTaxe2}
+                        onChange={(e) => setModalData({ ...modalData, codeTaxe2: e.target.value })}
+                      >
+                        <option value="">-- Sélectionner --</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Date d'application</label>
+                      <input
+                        type="date"
+                        className="form-input"
+                        value={modalData.dateApplication2}
+                        onChange={(e) => setModalData({ ...modalData, dateApplication2: e.target.value })}
+                      />
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Date d'application</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      value={modalData.dateApplication2}
-                      onChange={(e) => setModalData({ ...modalData, dateApplication2: e.target.value })}
-                    />
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Ancien code taxe</label>
+                      <select
+                        className="form-select"
+                        value={modalData.ancienCodeTaxe2}
+                        onChange={(e) => setModalData({ ...modalData, ancienCodeTaxe2: e.target.value })}
+                      >
+                        <option value="">-- Sélectionner --</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Ancien code taxe</label>
-                    <select
-                      className="form-select"
-                      value={modalData.ancienCodeTaxe2}
-                      onChange={(e) => setModalData({ ...modalData, ancienCodeTaxe2: e.target.value })}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div className="form-section-title">Taux de taxe 3</div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Code taxe</label>
-                    <select
-                      className="form-select"
-                      value={modalData.codeTaxe3}
-                      onChange={(e) => setModalData({ ...modalData, codeTaxe3: e.target.value })}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                    </select>
+                  <div className="form-section-title">Taux de taxe 3</div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Code taxe</label>
+                      <select
+                        className="form-select"
+                        value={modalData.codeTaxe3}
+                        onChange={(e) => setModalData({ ...modalData, codeTaxe3: e.target.value })}
+                      >
+                        <option value="">-- Sélectionner --</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Date d'application</label>
+                      <input
+                        type="date"
+                        className="form-input"
+                        value={modalData.dateApplication3}
+                        onChange={(e) => setModalData({ ...modalData, dateApplication3: e.target.value })}
+                      />
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Date d'application</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      value={modalData.dateApplication3}
-                      onChange={(e) => setModalData({ ...modalData, dateApplication3: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Ancien code taxe</label>
-                    <select
-                      className="form-select"
-                      value={modalData.ancienCodeTaxe3}
-                      onChange={(e) => setModalData({ ...modalData, ancienCodeTaxe3: e.target.value })}
-                    >
-                      <option value="">-- Sélectionner --</option>
-                    </select>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Ancien code taxe</label>
+                      <select
+                        className="form-select"
+                        value={modalData.ancienCodeTaxe3}
+                        onChange={(e) => setModalData({ ...modalData, ancienCodeTaxe3: e.target.value })}
+                      >
+                        <option value="">-- Sélectionner --</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div
-              className="modal-footer"
               style={{
                 display: 'flex',
                 justifyContent: 'flex-end',
@@ -363,10 +365,12 @@ const Comptabilite = () => {
               <button className="btn btn-primary" onClick={handleModalSave}>OK</button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </>
   );
 };
 
 export default Comptabilite;
+
+

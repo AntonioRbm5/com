@@ -19,8 +19,8 @@
   background: white;
   border: 1px solid var(--famille-border);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: visible;
 }
 
 .window-header {
@@ -343,4 +343,27 @@
   background: var(--famille-primary);
   color: white;
   font-weight: 600;
+}
+
+/* ============================= */
+/* MODAL GLOBAL (SAFE)           */
+/* ============================= */
+/* Dans ton fichier famille.css */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  /* Valeur très haute */
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  z-index: 10001;
+  /* Doit être supérieur à l'overlay */
+  /* ... reste du style */
 }

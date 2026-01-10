@@ -11,7 +11,7 @@ const FamilleFormPage = ({ mode = 'edit' }) => {
     const [activeTab, setActiveTab] = useState('identification');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    
+
     const [formData, setFormData] = useState({
         famille_name: '',
         famille_description: '',
@@ -44,15 +44,15 @@ const FamilleFormPage = ({ mode = 'edit' }) => {
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const apiData = {
-                famille_name: formData.famille_name || formData.intitule,
-                famille_description: formData.famille_description || formData.code
+                famille_name: formData.famille_name || formData.famille_name,
+                famille_description: formData.famille_description || formData.famille_description
             };
 
             const response = await createFamille(apiData);
-            
+
             if (response.data.status === 'success') {
                 navigate('/famille');
             } else {
@@ -99,10 +99,10 @@ const FamilleFormPage = ({ mode = 'edit' }) => {
             </div>
 
             {error && (
-                <div style={{ 
-                    padding: '10px', 
-                    margin: '10px', 
-                    backgroundColor: '#fee', 
+                <div style={{
+                    padding: '10px',
+                    margin: '10px',
+                    backgroundColor: '#fee',
                     border: '1px solid #fcc',
                     borderRadius: '4px',
                     color: '#c00'
@@ -124,12 +124,6 @@ const FamilleFormPage = ({ mode = 'edit' }) => {
                         onClick={() => setActiveTab('tarif')}
                     >
                         Tarif
-                    </button>
-                    <button
-                        className={`form-tab ${activeTab === 'champsLibres' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('champsLibres')}
-                    >
-                        Champs Libres
                     </button>
                     <button
                         className={`form-tab ${activeTab === 'parametres' ? 'active' : ''}`}
@@ -190,21 +184,14 @@ const FamilleFormPage = ({ mode = 'edit' }) => {
                     </div>
                 )}
 
-                {activeTab === 'champsLibres' && (
-                    <div className="form-section">
-                        <div className="form-section-title">Champs Libres</div>
-                        <p>Aucun champ libre défini</p>
-                    </div>
-                )}
-
                 {activeTab === 'parametres' && (
                     <ParametresTab formData={formData} handleInputChange={handleInputChange} />
                 )}
             </div>
 
             <div className="form-actions">
-                <button 
-                    className="btn btn-primary" 
+                <button
+                    className="btn btn-primary"
                     onClick={handleSubmit}
                     disabled={loading}
                 >
