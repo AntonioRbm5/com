@@ -3,26 +3,26 @@ import api from "./api";
 // ============================================
 // DEPOT API CALLS
 // ============================================
-export const getAllDepots = () => api.get("/stockage_depot/all");
-export const createDepot = (data) => api.post("/stockage_depot/create", data);
-export const updateDepot = (id, data) => api.put(`/stockage_depot/${id}`, data);
-export const deleteDepot = (id) => api.delete(`/stockage_depot/${id}`);
+export const getAllDepots = () => api.get("/stockage-depot/search");
+export const createDepot = (data) => api.post("/stockage-depot/create", data);
+export const updateDepot = (id, data) => api.put(`/stockage-depot/${id}`, data);
+export const deleteDepot = (id) => api.delete(`/stockage-depot/${id}`);
 
 // ============================================
 // MOUVEMENT API CALLS
 // ============================================
 export const getAllMouvements = (params = {}) => {
   const queryString = new URLSearchParams(params).toString();
-  return api.get(`/mouvements${queryString ? `?${queryString}` : ''}`);
+  return api.get(`/stock-mouvement/search${queryString ? `?${queryString}` : ''}`);
 };
 
-export const getMouvementById = (id) => api.get(`/mouvements/${id}`);
+export const getMouvementById = (id) => api.get(`/stock-mouvement/${id}`);
 
-export const createMouvement = (data) => api.post("/mouvements/create", data);
+export const createMouvement = (data) => api.post("/stock-mouvement/create", data);
 
-export const updateMouvement = (id, data) => api.put(`/mouvements/${id}`, data);
+export const updateMouvement = (id, data) => api.put(`/stock-mouvement/${id}`, data);
 
-export const deleteMouvement = (id) => api.delete(`/mouvements/${id}`);
+export const deleteMouvement = (id) => api.delete(`/stock-mouvement/${id}`);
 
 // ============================================
 // MOUVEMENT LINES (LIGNES) API CALLS
