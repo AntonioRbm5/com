@@ -1,17 +1,15 @@
 import React from 'react'
 
-const FormBonCommande = () => {
+const FormBonCommande = ({ onValidate, isReadOnly, headerRef, setHeaderRef }) => {
     return (
         <div className="invoice-body container-fluid py-2">
 
             <div className="row g-2">
-
-
                 <div className="col-md-4">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Client</span>
                         <select className="form-select w-25"><option>Numéro</option></select>
-                        <select className="form-select flex-grow-1"><option></option></select>
+                        <select className="form-select flex-grow-1"><option>123</option></select>
                     </div>
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Statut</span>
@@ -26,7 +24,6 @@ const FormBonCommande = () => {
                         <select className="form-select"><option></option></select>
                     </div>
                 </div>
-
 
                 <div className="col-md-4">
                     <div className="input-group input-group-sm mb-1">
@@ -59,7 +56,13 @@ const FormBonCommande = () => {
                     </div>
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Référence</span>
-                        <input type="text" className="form-control" />
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={headerRef}
+                            onChange={(e) => setHeaderRef(e.target.value)}
+                            disabled={isReadOnly}
+                        />
                     </div>
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Entête 1</span>
@@ -70,7 +73,12 @@ const FormBonCommande = () => {
                             <span className="input-group-text custom-label bg-light">Info2</span>
                             <input type="text" className="form-control bg-light" disabled />
                         </div>
-                        <button className="btn btn-outline-primary btn-sm px-4">Valider</button>
+                        <button
+                            className="btn btn-outline-primary btn-sm px-4"
+                            onClick={onValidate}
+                            disabled={isReadOnly}>
+                            Valider
+                        </button>
                     </div>
                 </div>
             </div>

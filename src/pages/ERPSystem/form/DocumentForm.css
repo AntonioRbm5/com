@@ -235,3 +235,36 @@
 .text-right {
     text-align: right;
 }
+
+.custom-input {
+    border-radius: 0 !important;
+    font-size: 11px !important;
+    height: 30px;
+}
+
+.custom-input:focus {
+    box-shadow: none;
+    background-color: #e8f0fe;
+    border: 1px solid #0078d4 !important;
+}
+
+/* Boutons type ERP */
+.btn-erp {
+    font-size: 12px;
+    background-color: white;
+    padding: 2px 15px;
+    border-radius: 3px;
+    color: #0078d4;
+}
+
+.btn-erp-save {
+    font-size: 12px;
+    background-color: #0063ad;
+    border-color: #0063ad;
+    padding: 2px 15px;
+    border-radius: 3px;
+}
+
+.btn-erp:hover {
+    background-color: #f0f0f0;
+}
