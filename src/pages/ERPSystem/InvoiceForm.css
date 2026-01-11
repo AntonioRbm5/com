@@ -1,0 +1,237 @@
+/* Container principal */
+.invoice-wrapper {
+    background-color: white;
+    margin: 16px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 32px);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Header */
+.invoice-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f5f5f5;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-icon {
+    color: #0078d4;
+    font-size: 18px;
+}
+
+.header-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.header-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.control-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+/* Barre d'outils (Toolbar) */
+.invoice-toolbar {
+    padding: 8px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    color: #666;
+    background-color: #fafafa;
+}
+
+.toolbar-btn {
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+/* Formulaire */
+.invoice-body {
+    padding: 16px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.form-row label {
+    font-size: 11px;
+    width: 100px;
+}
+
+.label-right {
+    text-align: right;
+}
+
+.input-field {
+    padding: 4px;
+    font-size: 11px;
+    border: 1px solid #ccc;
+}
+
+.input-flex {
+    flex: 1;
+}
+
+.w-120 {
+    width: 120px;
+}
+
+.w-100 {
+    width: 100px;
+}
+
+.w-60 {
+    width: 60px;
+}
+
+.w-150 {
+    width: 150px;
+}
+
+/* Section Info & Bouton Valider */
+.info-section {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.info-box {
+    flex: 1;
+    padding: 8px;
+    background-color: #f9f9f9;
+    font-size: 10px;
+    color: #666;
+    border: 1px solid #e0e0e0;
+}
+
+.btn-validate {
+    padding: 6px 16px;
+    background-color: white;
+    border: 1px solid #0078d4;
+    color: #0078d4;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+/* Tableau */
+.table-container {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+.invoice-table {
+    width: 100%;
+    font-size: 11px;
+    border-collapse: collapse;
+}
+
+.invoice-table th {
+    background-color: #f5f5f5;
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+.invoice-table th.text-right {
+    text-align: right;
+}
+
+.empty-row-text {
+    padding: 40px;
+    text-align: center;
+    color: #999;
+}
+
+/* Actions Tableau */
+.table-actions {
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fafafa;
+}
+
+.btn-action {
+    padding: 4px 12px;
+    background-color: white;
+    border: 1px solid #0078d4;
+    color: #0078d4;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.btn-delete {
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    cursor: not-allowed;
+    color: #999;
+}
+
+/* Footer Summary */
+.summary-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.summary-card {
+    background-color: #e3f2fd;
+    padding: 12px;
+    flex: 1;
+    border: 1px solid #90caf9;
+}
+
+.summary-row {
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.summary-label {
+    display: inline-block;
+    width: 100px;
+}
+
+.text-right {
+    text-align: right;
+}

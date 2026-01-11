@@ -27,16 +27,16 @@ export const deleteMouvement = (id) => api.delete(`/stock-mouvement/${id}`);
 // ============================================
 // MOUVEMENT LINES (LIGNES) API CALLS
 // ============================================
-export const getMouvementLines = (mouvementId) => 
+export const getMouvementLines = (mouvementId) =>
   api.get(`/mouvements/${mouvementId}/lignes`);
 
-export const createMouvementLine = (mouvementId, data) => 
+export const createMouvementLine = (mouvementId, data) =>
   api.post(`/mouvements/${mouvementId}/lignes`, data);
 
-export const updateMouvementLine = (mouvementId, lineId, data) => 
+export const updateMouvementLine = (mouvementId, lineId, data) =>
   api.put(`/mouvements/${mouvementId}/lignes/${lineId}`, data);
 
-export const deleteMouvementLine = (mouvementId, lineId) => 
+export const deleteMouvementLine = (mouvementId, lineId) =>
   api.delete(`/mouvements/${mouvementId}/lignes/${lineId}`);
 
 // ============================================
@@ -68,7 +68,7 @@ export const getStockMovementsReport = (params) => {
  */
 export const transformDepotResponse = (apiResponse) => {
   if (!apiResponse?.data?.data) return [];
-  
+
   return apiResponse.data.data.map(depot => ({
     id: depot.depot_id,
     name: depot.depot_name,
