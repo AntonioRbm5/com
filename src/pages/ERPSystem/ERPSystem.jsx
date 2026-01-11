@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { clientAnalysis, documents, inventory, purchaseDocuments } from './data';
+import { clientAnalysis, documents, purchaseDocuments } from './data';
 import HeaderErp from './Layout/HeaderErp';
 import ToolbarERP from './Layout/ToolbarERP';
 import SidebarERP from './Layout/SidebarERP';
 import SalesView from './Tous/SalesView';
 import PurchasesView from './PurchasesView';
-import InventoryView from './Facture_comptabilisée/InventoryView';
+// import InventoryView from './Facture_comptabilisée/InventoryView';
 import AnalysisView from './AnalysisView';
 import TransformModal from './Tous/TransformModal';
 import DocumentModal from './Tous/DocumentModal';
@@ -40,7 +40,7 @@ const ERPSystem = () => {
                         <PurchasesView documents={purchaseDocuments} />
                     )}
 
-                    {currentView === 'inventory' && <InventoryView inventory={inventory} />}
+                    {/* {currentView === 'inventory' && <InventoryView inventory={inventory} />} */}
 
                     {currentView === 'analysis' && <AnalysisView data={clientAnalysis} />}
 

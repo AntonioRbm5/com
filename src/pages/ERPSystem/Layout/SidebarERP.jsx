@@ -18,7 +18,7 @@ const SidebarERP = ({ currentView, onViewChange }) => {
         { id: 'stock', label: 'Mouvements de stock' },
         { id: 'analysis', label: 'Analyse clients' },
         { id: 'stats', label: 'Statistiques clients' },
-        { id: 'inventory', label: "Saisie d'inventaire" }
+        // { id: 'inventory', label: "Saisie d'inventaire" }
 
     ];
 
