@@ -15,6 +15,8 @@ import UserSignupForm from "../pages/Utilisateurs/Inscription_utilisateur";
 import ManageUser from "../pages/Utilisateurs/manage_utilisateur";
 import GestionStock from "../pages/stock/GestionStock";
 import ERPSystem from "../pages/ERPSystem/ERPSystem";
+import InventoryListView from "../pages/inventaire/InventoryListView";
+import InventoryEntryModal from "../pages/inventaire/InventoryEntryModal";
 
 export const routesConfig = [
   {
@@ -101,6 +103,14 @@ export const routesConfig = [
   {
     path: "/erp",
     element: <ERPSystem />,
+  },
+  {
+    path: "/inventaire",
+    element: <InventoryListView />
+  },
+  {
+    path: "/inventaire/nouveaux",
+    element: <InventoryEntryModal />
   }
 
 ];

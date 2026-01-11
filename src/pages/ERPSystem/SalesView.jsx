@@ -34,6 +34,7 @@ const SalesView = ({ documents, onDocumentClick }) => {
                                 style={{ maxWidth: '400px' }}
                             />
                         </div>
+                        
                     </div>
 
                     <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
