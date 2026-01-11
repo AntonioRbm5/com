@@ -1,98 +1,97 @@
-import '../InvoiceForm.css';
+import React from 'react';
+import DocumentHeader from '../form/DocumentHeader';
+import DocumentToolbar from '../form/DocumentToolbar';
+import DocumentFooter from '../form/DocumentFooter';
+import "../form/DocumentForm.css";
 const InvoiceForm = ({ onClose }) => {
     return (
         <div>
             <div className="invoice-wrapper">
                 {/* Header */}
-                <div className="invoice-header">
-                    <div className="header-left">
-                        <span className="header-icon">📄</span>
-                        <h2 className="header-title">
-                            Facture : A comptabiliser N° 2
-                        </h2>
-                    </div>
-                    <div className="header-controls">
-                        <button className="control-btn">−</button>
-                        <button className="control-btn">□</button>
-                        <button onClick={onClose} className="control-btn">×</button>
-                    </div>
-                </div>
+                <DocumentHeader
+                    title="Facture : A comptabiliser N° 2"
+                    onClose={onClose}
+                />
 
                 {/* Toolbar */}
-                <div className="invoice-toolbar">
-                    <button className="toolbar-btn">⚙ Fonctions</button>
-                    <button className="toolbar-btn">📊 Barèmes</button>
-                    <button className="toolbar-btn">ℹ Informations</button>
-                    <button className="toolbar-btn">📎 Pied</button>
-                    <button className="toolbar-btn">🖨 Imprimer</button>
-                    <button className="toolbar-btn">💰 Comptabiliser</button>
-                    <button className="toolbar-btn">🔄 Transformer</button>
-                    <button className="toolbar-btn">📋 Traçabilité</button>
-                </div>
+                <DocumentToolbar />
 
                 {/* Form content */}
                 <div className="invoice-body">
-                    <div className="form-grid">
-                        <div>
-                            <div className="form-row">
-                                <label>Fournisseur</label>
-                                <select className="input-field w-120">
-                                    <option>Numéro</option>
-                                </select>
-                                <input type="text" className="input-field input-flex" />
+                    <div className="invoice-body container-fluid py-2">
+                        <div className="row g-2">
+                            <div className="col-md-4">
+                                <div className="input-group input-group-sm mb-1">
+                                    <label className='input-group-text custom-label'>Fournisseur</label>
+                                    <select className="form-select w-25">
+                                        <option>Numéro</option>
+                                    </select>
+                                    <input type="text" className="form-select flex-grow-1" />
+                                </div>
+                                <div className="input-group input-group-sm mb-1">
+                                    <label className='input-group-text custom-label'>Statut</label>
+                                    <select className="form-select w-25">
+                                        <option>A comptabiliser</option>
+                                    </select>
+                                    <input type="text" className="form-select flex-grow-1" />
+                                </div>
+                                <div className="input-group input-group-sm mb-1">
+                                    <span className="input-group-text custom-label">Affaire</span>
+                                    <select className="form-select"><option></option></select>
+                                </div>
+                                <div className="input-group input-group-sm mb-1">
+                                    <span className="input-group-text custom-label">Expédition</span>
+                                    <select className="form-select"><option></option></select>
+                                </div>
                             </div>
-                            <div className="form-row">
-                                <label>Statut</label>
-                                <select className="input-field w-120">
-                                    <option>A comptabiliser</option>
-                                </select>
-                                <input type="text" className="input-field input-flex" />
+                            <div className="col-md-4">
+                                <div className="input-group input-group-sm mb-1">
+                                    <label className="input-group-text custom-label">Date</label>
+                                    <input type="text" defaultValue="070722" className="form-control" />
+                                </div>
+                                <div className="input-group input-group-sm mb-1">
+                                    <span className="input-group-text custom-label">N° document</span>
+                                    <select className="form-select w-25"><option>N° Pièce</option></select>
+                                    <input type="text" className="form-control" defaultValue="BC000001" />
+                                </div>
+                                <div className="input-group input-group-sm mb-1">
+                                    <span className="input-group-text custom-label">Date livraison</span>
+                                    <select className="form-select w-25"><option>Prévue</option></select>
+                                    <input type="text" className="form-control" />
+                                    <button className="btn btn-outline-secondary" type="button">📅</button>
+                                </div>
+                                <div className="input-group input-group-sm mb-1 text-muted">
+                                    <span className="input-group-text custom-label bg-light">Info1</span>
+                                    <input type="text" className="form-control bg-light" disabled />
+                                </div>
+
                             </div>
-                            <div className="form-row">
-                                <label>Affaire</label>
-                                <input type="text" className="input-field input-flex" />
-                            </div>
-                            <div className="form-row">
-                                <label>Expédition</label>
-                                <input type="text" className="input-field input-flex" />
+                            <div className="col-md-4">
+                                <div className="input-group input-group-sm mb-1">
+                                    <label className='input-group-text custom-label'>Acheteur</label>
+                                    <input type="text" className="input-field input-flex" />
+                                </div>
+                                <div className="input-group input-group-sm mb-1">
+                                    <span className="input-group-text custom-label">Référence</span>
+                                    <input type="text" className="form-control" />
+                                </div>
+                                <div className="input-group input-group-sm mb-1">
+                                    <span className="input-group-text custom-label">Entête 1</span>
+                                    <input type="text" className="form-control" />
+                                </div>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div className="input-group input-group-sm flex-grow-1">
+                                        <span className="input-group-text custom-label bg-light">Info2</span>
+                                        <input type="text" className="form-control bg-light" disabled />
+                                    </div>
+                                    <button className="btn btn-outline-primary btn-sm px-4">Valider</button>
+                                </div>
                             </div>
                         </div>
 
-                        <div>
-                            <div className="form-row">
-                                <label>Date</label>
-                                <input type="text" defaultValue="070722" className="input-field w-100" />
-                                <label className="label-right">N° document</label>
-                                <select className="input-field w-120">
-                                    <option>N° Pièce</option>
-                                </select>
-                                <input type="text" defaultValue="2" className="input-field w-60" />
-                            </div>
-                            <div className="form-row">
-                                <label>Date livraison</label>
-                                <select className="input-field w-100">
-                                    <option>Prévue</option>
-                                </select>
-                                <input type="text" className="input-field input-flex" />
-                            </div>
-                            <div className="form-row">
-                                <label>Acheteur</label>
-                                <input type="text" className="input-field input-flex" />
-                            </div>
-                            <div className="form-row">
-                                <label>Référence</label>
-                                <input type="text" className="input-field w-150" />
-                                <label className="label-right">Entête 1</label>
-                                <input type="text" className="input-field input-flex" />
-                            </div>
-                        </div>
                     </div>
 
-                    <div className="info-section">
-                        <div className="info-box">Info1</div>
-                        <div className="info-box">Info2</div>
-                        <button className="btn-validate">Valider</button>
-                    </div>
+
 
                     {/* Table */}
                     <div className="table-container">
@@ -128,23 +127,7 @@ const InvoiceForm = ({ onClose }) => {
                     </div>
 
                     {/* Footer summary */}
-                    <div className="summary-footer">
-                        <div className="summary-card">
-                            <div className="summary-row">
-                                <span className="summary-label">Poids net</span>
-                                <span>0</span>
-                            </div>
-                            <div className="summary-row">
-                                <span className="summary-label">Poids brut</span>
-                                <span>0</span>
-                            </div>
-                        </div>
-                        <div className="summary-card">
-                            <div className="text-right">
-                                <span>Total HT</span>
-                            </div>
-                        </div>
-                    </div>
+                    <DocumentFooter />
                 </div>
             </div>
         </div>
