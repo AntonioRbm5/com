@@ -13,7 +13,7 @@ const AddDocumentModal = ({ show, onClose, onDocumentTypeSelect }) => {
     const documentTypes = [
         { value: 'demande_achat', label: 'Demande d\'achat' },
         { value: 'preparation_commande', label: 'Préparation de commande' },
-        { value: 'bon_commande', label: 'Bon de commande' },
+        { value: 'commande', label: 'Bon de commande' },
         { value: 'bon_livraison', label: 'Bon de livraison' },
         { value: 'bon_retour', label: 'Bon de retour' },
         { value: 'bon_avoir_financier', label: 'Bon d\'avoir financier' },
@@ -21,8 +21,8 @@ const AddDocumentModal = ({ show, onClose, onDocumentTypeSelect }) => {
         { value: 'facture_retour', label: 'Facture de retour' },
         { value: 'facture_avoir', label: 'Facture d\'avoir' }
     ];
-  return (
-    <div style={{
+    return (
+        <div style={{
             position: 'fixed',
             top: 0,
             left: 0,
@@ -127,7 +127,7 @@ const AddDocumentModal = ({ show, onClose, onDocumentTypeSelect }) => {
                 </div>
             </div>
         </div>
-  )
+    )
 }
 
 export default AddDocumentModal

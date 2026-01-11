@@ -1,5 +1,5 @@
-import './InvoiceForm.css';
-const InvoiceForm = ({ onClose }) => {
+import '../InvoiceForm.css';
+const BonCommande = ({ onClose }) => {
     return (
         <div>
             <div className="invoice-wrapper">
@@ -8,7 +8,7 @@ const InvoiceForm = ({ onClose }) => {
                     <div className="header-left">
                         <span className="header-icon">📄</span>
                         <h2 className="header-title">
-                            Facture : A comptabiliser N° 2
+                            Bon de commande: A préparer N° BC00001
                         </h2>
                     </div>
                     <div className="header-controls">
@@ -35,7 +35,7 @@ const InvoiceForm = ({ onClose }) => {
                     <div className="form-grid">
                         <div>
                             <div className="form-row">
-                                <label>Fournisseur</label>
+                                <label>Client</label>
                                 <select className="input-field w-120">
                                     <option>Numéro</option>
                                 </select>
@@ -44,7 +44,7 @@ const InvoiceForm = ({ onClose }) => {
                             <div className="form-row">
                                 <label>Statut</label>
                                 <select className="input-field w-120">
-                                    <option>A comptabiliser</option>
+                                    <option>A préparer</option>
                                 </select>
                                 <input type="text" className="input-field input-flex" />
                             </div>
@@ -61,7 +61,7 @@ const InvoiceForm = ({ onClose }) => {
                         <div>
                             <div className="form-row">
                                 <label>Date</label>
-                                <input type="text" defaultValue="070722" className="input-field w-100" />
+                                <input type="date" defaultValue="070722" className="input-field w-100" />
                                 <label className="label-right">N° document</label>
                                 <select className="input-field w-120">
                                     <option>N° Pièce</option>
@@ -73,16 +73,16 @@ const InvoiceForm = ({ onClose }) => {
                                 <select className="input-field w-100">
                                     <option>Prévue</option>
                                 </select>
+                                <input type="date" className="input-field input-flex" />
+                            </div>
+                            <div className="form-row">
+                                <label>Représentant</label>
                                 <input type="text" className="input-field input-flex" />
                             </div>
                             <div className="form-row">
-                                <label>Acheteur</label>
-                                <input type="text" className="input-field input-flex" />
-                            </div>
-                            <div className="form-row">
-                                <label>Référence</label>
+                                <label>N° document</label>
                                 <input type="text" className="input-field w-150" />
-                                <label className="label-right">Entête 1</label>
+                                <label className="label-right">N° Pièce</label>
                                 <input type="text" className="input-field input-flex" />
                             </div>
                         </div>
@@ -148,7 +148,7 @@ const InvoiceForm = ({ onClose }) => {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default InvoiceForm;
+export default BonCommande

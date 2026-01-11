@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
 import { clientAnalysis, documents, inventory, purchaseDocuments } from './data';
-import HeaderErp from './HeaderErp';
-import ToolbarERP from './ToolbarERP';
-import SidebarERP from './SidebarERP';
-import SalesView from './SalesView';
+import HeaderErp from './Layout/HeaderErp';
+import ToolbarERP from './Layout/ToolbarERP';
+import SidebarERP from './Layout/SidebarERP';
+import SalesView from './Tous/SalesView';
 import PurchasesView from './PurchasesView';
-import InventoryView from './InventoryView';
+import InventoryView from './Facture_comptabilisée/InventoryView';
 import AnalysisView from './AnalysisView';
-import TransformModal from './TransformModal';
-import DocumentModal from './DocumentModal';
+import TransformModal from './Tous/TransformModal';
+import DocumentModal from './Tous/DocumentModal';
 import './erp.css';
+import InvoiceForm from './Facture_comptabilisée/InvoiceForm';
+import BonCommande from './Bon_de_commande/BonCommande';
 const ERPSystem = () => {
     const [currentView, setCurrentView] = useState('sales');
     const [showTransformModal, setShowTransformModal] = useState(false);
@@ -26,6 +28,12 @@ const ERPSystem = () => {
                 <div className="content-area">
                     {currentView === 'sales' && (
                         <SalesView documents={documents} onDocumentClick={setShowDocument} />
+                    )}
+                    {currentView === 'facture' && (
+                        <InvoiceForm documents={documents} onDocumentClick={setShowDocument} />
+                    )}
+                    {currentView === 'commande' && (
+                        <BonCommande documents={documents} onDocumentClick={setShowDocument} />
                     )}
 
                     {currentView === 'purchases' && (

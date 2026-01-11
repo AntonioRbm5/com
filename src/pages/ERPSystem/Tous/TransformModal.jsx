@@ -33,7 +33,7 @@ const TransformModal = ({ show, onClose, transformType, onTransformTypeChange })
                                 <input
                                     type="radio"
                                     name="transform"
-                                    value="bon_commande"
+                                    value="commande"
                                     onChange={(e) => onTransformTypeChange(e.target.value)}
                                 />
                                 Bon de commande
