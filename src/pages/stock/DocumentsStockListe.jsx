@@ -7,15 +7,15 @@ const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpe
   const [selectedRow, setSelectedRow] = useState(null);
   const [activeType, setActiveType] = useState('Mouvement d\'entrée');
 
-  const menuItems = [
-    'Mouvement d\'entrée',
-    'Mouvement de sortie',
-    'Dépréciation du stock',
-    'Mouvement de transfert',
-    'Préparation de fabrication',
-    'Bon de fabrication',
-    'Tous les documents'
-  ];
+  // const menuItems = [
+  //   'Mouvement d\'entrée',
+  //   'Mouvement de sortie',
+  //   'Dépréciation du stock',
+  //   'Mouvement de transfert',
+  //   'Préparation de fabrication',
+  //   'Bon de fabrication',
+  //   'Tous les documents'
+  // ];
 
   const handleRowClick = (doc, index) => {
     setSelectedRow(index);
