@@ -196,7 +196,7 @@
   color: var(--famille-primary);
 }
 
-.form-section {
+.article-form-section {
   background: white;
   border: 1px solid var(--famille-border);
   border-radius: 4px;
@@ -204,7 +204,7 @@
   margin-bottom: 16px;
 }
 
-.form-section-title {
+.article-form-section-title {
   font-size: 12px;
   font-weight: 600;
   color: var(--famille-text-dark);
@@ -213,21 +213,21 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
-.form-row {
+.article-form-row {
   display: flex;
   gap: 16px;
   margin-bottom: 12px;
   align-items: center;
 }
 
-.form-group {
+.article-form-group {
   flex: 1;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.form-label {
+.article-form-label {
   font-size: 11px;
   font-weight: 500;
   min-width: 120px;
@@ -235,8 +235,8 @@
   color: var(--famille-text-dark);
 }
 
-.form-input,
-.form-select {
+.article-form-input,
+.article-form-select {
   flex: 1;
   padding: 4px 8px;
   border: 1px solid var(--famille-border);
@@ -245,8 +245,8 @@
   font-family: inherit;
 }
 
-.form-input:focus,
-.form-select:focus {
+.article-form-input:focus,
+.article-form-select:focus {
   outline: none;
   border-color: var(--famille-primary);
   box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);

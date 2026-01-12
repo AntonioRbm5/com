@@ -178,31 +178,31 @@ const ArticleFormPage = ({ mode = 'edit' }) => {
                 )}
 
                 {activeTab === 'tarif' && (
-                    <div className="form-section">
-                        <div className="form-section-title">Tarif</div>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Prix d'achat</label>
+                    <div className="article-form-section">
+                        <div className="article-form-section-title">Tarif</div>
+                        <div className="article-form-row">
+                            <div className="article-form-group">
+                                <label className="article-form-label">Prix d'achat</label>
                                 <input type="number" className="form-input" />
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Dernier Prix d'achat</label>
+                            <div className="article-form-group">
+                                <label className="article-form-label">Dernier Prix d'achat</label>
                                 <input type="number" className="form-input" />
                             </div>
                         </div>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Nomenclature</label>
+                        <div className="article-form-row">
+                            <div className="article-form-group">
+                                <label className="article-form-label">Nomenclature</label>
                                 <input type="text" className="form-input" />
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Coût standard</label>
+                            <div className="article-form-group">
+                                <label className="article-form-label">Coût standard</label>
                                 <input type="number" className="form-input" />
                             </div>
                         </div>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Prix de vente</label>
+                        <div className="article-form-row">
+                            <div className="article-form-group">
+                                <label className="article-form-label">Prix de vente</label>
                                 <input 
                                     type="number" 
                                     className="form-input"
@@ -213,8 +213,8 @@ const ArticleFormPage = ({ mode = 'edit' }) => {
                                     <option>PV HT</option>
                                 </select>
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Unité de vente</label>
+                            <div className="article-form-group">
+                                <label className="article-form-label">Unité de vente</label>
                                 <select
                                     className="form-select"
                                     value={formData.unitVente || 'PIECE'}
@@ -230,8 +230,8 @@ const ArticleFormPage = ({ mode = 'edit' }) => {
                 )}
 
                 {activeTab === 'champsLibres' && (
-                    <div className="form-section">
-                        <div className="form-section-title">Champs Libres</div>
+                    <div className="article-form-section">
+                        <div className="article-form-section-title">Champs Libres</div>
                         <p>Aucun champ libre défini</p>
                     </div>
                 )}

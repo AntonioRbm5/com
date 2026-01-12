@@ -67,15 +67,15 @@ const FamilleFormPage = ({ mode = 'edit' }) => {
     };
 
     return (
-        <div className="window">
-            <div className="window-header">
-                <h2 className="window-title">
+        <div className="famille-window">
+            <div className="famille-window-header">
+                <h2 className="famille-window-title">
                     Famille : {formData.code ? `${formData.code} ${formData.intitule}` : 'Nouvelle Famille'}
                 </h2>
-                <div className="window-controls">
-                    <button className="window-control-btn">_</button>
-                    <button className="window-control-btn">□</button>
-                    <button className="window-control-btn">×</button>
+                <div className="famille-window-controls">
+                    <button className="famille-window-control-btn">_</button>
+                    <button className="famille-window-control-btn">□</button>
+                    <button className="famille-window-control-btn">×</button>
                 </div>
             </div>
 
@@ -140,38 +140,38 @@ const FamilleFormPage = ({ mode = 'edit' }) => {
                 {activeTab === 'tarif' && (
                     <div className="form-section">
                         <div className="form-section-title">Tarif</div>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Prix d'achat</label>
+                        <div className="famille-form-row">
+                            <div className="famille-form-group">
+                                <label className="famille-form-label">Prix d'achat</label>
                                 <input type="number" className="form-input" />
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Dernier Prix d'achat</label>
-                                <input type="number" className="form-input" />
-                            </div>
-                        </div>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Coefficient</label>
-                                <input type="number" className="form-input" />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Coût standard</label>
+                            <div className="famille-form-group">
+                                <label className="famille-form-label">Dernier Prix d'achat</label>
                                 <input type="number" className="form-input" />
                             </div>
                         </div>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Prix de vente</label>
+                        <div className="famille-form-row">
+                            <div className="famille-form-group">
+                                <label className="famille-form-label">Coefficient</label>
                                 <input type="number" className="form-input" />
-                                <select className="form-select" style={{ flex: '0 0 100px' }}>
+                            </div>
+                            <div className="famille-form-group">
+                                <label className="famille-form-label">Coût standard</label>
+                                <input type="number" className="form-input" />
+                            </div>
+                        </div>
+                        <div className="famille-form-row">
+                            <div className="famille-form-group">
+                                <label className="famille-form-label">Prix de vente</label>
+                                <input type="number" className="form-input" />
+                                <select className="famille-form-select" style={{ flex: '0 0 100px' }}>
                                     <option>PV HT</option>
                                 </select>
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Unité de vente</label>
+                            <div className="famille-form-group">
+                                <label className="famille-form-label">Unité de vente</label>
                                 <select
-                                    className="form-select"
+                                    className="famille-form-select"
                                     value={formData.unitVente || 'PIECE'}
                                     onChange={(e) => handleInputChange('unitVente', e.target.value)}
                                 >

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './famille.css';
 import { getAllFamilles } from '../../services/familleService';
+import Header from '../Layout/Header';
+import Toolbar from '../Layout/Toolbar';
 
 const FamilleListPage = () => {
     const navigate = useNavigate();
@@ -9,7 +11,13 @@ const FamilleListPage = () => {
     const [selectedId, setSelectedId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    
+    const toolbarConfig = [
+        { label: 'Tous', icon: '📋', active: true, onClick: () => { } },
+        { label: 'Rechercher', icon: '🔍', onClick: () => { } },
+        { label: 'Imprimer', icon: '🖨️', onClick: () => { } },
+        { label: 'Assistant', icon: '❓', onClick: () => { } }
+    ];
     useEffect(() => {
         loadFamilles();
     }, []);
@@ -18,7 +26,7 @@ const FamilleListPage = () => {
         try {
             setLoading(true);
             const response = await getAllFamilles();
-            
+
             if (response.data.status === 'success') {
                 setFamilles(response.data.data);
             } else {
@@ -43,39 +51,25 @@ const FamilleListPage = () => {
 
     return (
         <div className="window">
-            <div className="window-header">
-                <h2 className="window-title">Familles d'articles</h2>
-                <div className="window-controls">
-                    <button className="window-control-btn">_</button>
-                    <button className="window-control-btn">□</button>
-                    <button className="window-control-btn">×</button>
-                </div>
-            </div>
+           <Header
+                title="Familles d'articles"
+                showWindowControls={true}
+            />
 
-            <div className="toolbar">
-                <button className="toolbar-btn active">
-                    <span className="toolbar-icon">📋</span>
-                    Tous
-                </button>
-                <button className="toolbar-btn">
-                    <span className="toolbar-icon">🔍</span>
-                    Rechercher
-                </button>
-                <button className="toolbar-btn">
-                    <span className="toolbar-icon">🖨️</span>
-                    Imprimer
-                </button>
-                <button className="toolbar-btn">
-                    <span className="toolbar-icon">❓</span>
-                    Assistant
-                </button>
-            </div>
+            <Toolbar customButtons={toolbarConfig} />
 
             {error && (
-                <div style={{ 
-                    padding: '10px', 
-                    margin: '10px', 
-                    backgroundColor: '#fee', 
+                <div style={{ padding: '10px', margin: '10px', backgroundColor: '#fee', border: '1px solid #fcc', borderRadius: '4px', color: '#c00' }}>
+                    {error}
+                </div>
+            )}
+            
+
+            {error && (
+                <div style={{
+                    padding: '10px',
+                    margin: '10px',
+                    backgroundColor: '#fee',
                     border: '1px solid #fcc',
                     borderRadius: '4px',
                     color: '#c00'

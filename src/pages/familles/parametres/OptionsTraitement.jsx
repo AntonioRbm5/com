@@ -4,15 +4,15 @@ import React from 'react';
 const OptionsTraitement = ({ formData, handleInputChange }) => {
   return (
     <>
-      <div className="form-section">
-        <div className="form-section-title">Facturation</div>
-        <div className="form-row">
+      <div className="famille-form-section">
+        <div className="famille-form-section-title">Facturation</div>
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="checkbox" className="form-checkbox" />
             Ne pas soumettre à l'escompte
           </label>
         </div>
-        <div className="form-row">
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input
               type="checkbox"
@@ -23,19 +23,19 @@ const OptionsTraitement = ({ formData, handleInputChange }) => {
             Publier sur le site marchand
           </label>
         </div>
-        <div className="form-row">
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="checkbox" className="form-checkbox" />
             Facturer au Poids net
           </label>
         </div>
-        <div className="form-row">
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="checkbox" className="form-checkbox" />
             Vendre au débit
           </label>
         </div>
-        <div className="form-row">
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="checkbox" className="form-checkbox" />
             Gérer en contremarque
@@ -43,21 +43,21 @@ const OptionsTraitement = ({ formData, handleInputChange }) => {
         </div>
       </div>
 
-      <div className="form-section">
-        <div className="form-section-title">Impression</div>
-        <div className="form-row">
+      <div className="famille-form-section">
+        <div className="famille-form-section-title">Impression</div>
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="radio" name="impression" className="form-checkbox" />
             Ne pas imprimer
           </label>
         </div>
-        <div className="form-row">
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="radio" name="impression" className="form-checkbox" />
             Facturer au forfait
           </label>
         </div>
-        <div className="form-row">
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="radio" name="impression" className="form-checkbox" />
             Exclure des statistiques
@@ -65,9 +65,9 @@ const OptionsTraitement = ({ formData, handleInputChange }) => {
         </div>
       </div>
 
-      <div className="form-section">
-        <div className="form-section-title">Modèle d'enregistrement</div>
-        <div className="form-row">
+      <div className="famille-form-section">
+        <div className="famille-form-section-title">Modèle d'enregistrement</div>
+        <div className="famille-form-row">
           <div className="form-group">
             <label className="form-label">Intitulé</label>
             <input type="text" className="form-input" />

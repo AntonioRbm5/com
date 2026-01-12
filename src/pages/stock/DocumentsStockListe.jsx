@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import '../stock/stock.css';
+import Sidebar from '../Layout/Sidebar';
+import Toolbar from '../Layout/Toolbar';
 
 const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpenFiltres }) => {
   const [selectedRow, setSelectedRow] = useState(null);
@@ -23,44 +25,31 @@ const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpe
     onSelectDocument(doc);
   };
 
+  const sidebarItems = [
+    { id: 'Mouvement d\'entrée', label: 'Mouvement d\'entrée' },
+    { id: 'Mouvement de sortie', label: 'Mouvement de sortie' },
+    { id: 'Dépréciation du stock', label: 'Dépréciation du stock' },
+    { id: 'Mouvement de transfert', label: 'Mouvement de transfert' },
+    { id: 'Préparation de fabrication', label: 'Préparation de fabrication' },
+    { id: 'Bon de fabrication', label: 'Bon de fabrication' },
+    { id: 'Tous les documents', label: 'Tous les documents' }
+  ];
+
+  const toolbarConfig = [
+    { label: 'Function', icon: '⚙', onClick: () => { } },
+    { label: 'Filtrer', icon: '🔍', onClick: () => { } },
+    { label: 'Mes filtres', icon: '⭐', onClick: () => { } }
+  ];
+
   return (
     <div className="stock-list-container">
-      <div className="stock-sidebar">
-        {menuItems.map((item, idx) => (
-          <div
-            key={idx}
-            className={`stock-sidebar-item ${activeType === item ? 'active' : ''}`}
-            onClick={() => setActiveType(item)}
-          >
-            {item}
-          </div>
-        ))}
-      </div>
-
+      <Sidebar
+        items={sidebarItems}
+        activeItem={activeType}
+        onItemClick={setActiveType}
+      />
       <div className="stock-main-content">
-        <div className="stock-toolbar">
-          <button className="stock-toolbar-btn" onClick={() => {}}>
-            ⚙ Function
-          </button>
-          <button className="stock-toolbar-btn" onClick={onOpenFiltres}>
-            🔍 Filtrer
-          </button>
-          <button className="stock-toolbar-btn">
-            ⭐ Mes filtres
-          </button>
-          <input
-            type="text"
-            className="stock-search"
-            placeholder="Rechercher des mots dans la liste..."
-          />
-          <button className="stock-toolbar-btn" style={{ padding: '5px 8px' }}>
-            🔍
-          </button>
-          <button className="stock-toolbar-btn">
-            ▶
-          </button>
-        </div>
-
+        <Toolbar customButtons={toolbarConfig} />
         <div className="stock-table-wrapper">
           <table className="stock-table">
             <thead>
@@ -114,7 +103,7 @@ const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpe
             Plus de critères...
           </button>
           <div className="stock-footer-right">
-            <button 
+            <button
               className="btn-custom btn-secondary-custom"
               onClick={() => {
                 if (selectedRow !== null) {
@@ -124,7 +113,7 @@ const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpe
             >
               Ouvrir
             </button>
-            <button 
+            <button
               className="btn-custom btn-primary-custom"
               onClick={onNewDocument}
             >

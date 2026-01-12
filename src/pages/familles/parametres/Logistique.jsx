@@ -3,13 +3,13 @@ import React from 'react';
 const Logistique = ({ formData, handleInputChange }) => {
   return (
     <>
-      <div className="form-section">
-        <div className="form-section-title">Caractéristiques</div>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Unité poids</label>
+      <div className="famille-form-section">
+        <div className="famille-form-section-title">Caractéristiques</div>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
+            <label className="famille-form-label">Unité poids</label>
             <select
-              className="form-select"
+              className="famille-form-select"
               value={formData.unitesPoids}
               onChange={(e) => handleInputChange('unitesPoids', e.target.value)}
             >
@@ -18,8 +18,8 @@ const Logistique = ({ formData, handleInputChange }) => {
               <option>Tonne</option>
             </select>
           </div>
-          <div className="form-group">
-            <label className="form-label">Délai livraison (jours)</label>
+          <div className="famille-form-group">
+            <label className="famille-form-label">Délai livraison (jours)</label>
             <input
               type="number"
               className="form-input"
@@ -28,13 +28,13 @@ const Logistique = ({ formData, handleInputChange }) => {
             />
           </div>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Racine référence</label>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
+            <label className="famille-form-label">Racine référence</label>
             <input type="text" className="form-input" />
           </div>
-          <div className="form-group">
-            <label className="form-label">Garantie (mois)</label>
+          <div className="famille-form-group">
+            <label className="famille-form-label">Garantie (mois)</label>
             <input
               type="number"
               className="form-input"
@@ -43,21 +43,21 @@ const Logistique = ({ formData, handleInputChange }) => {
             />
           </div>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Racine code barres</label>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
+            <label className="famille-form-label">Racine code barres</label>
             <input type="text" className="form-input" />
           </div>
         </div>
       </div>
 
-      <div className="form-section">
-        <div className="form-section-title">Gestion du stock</div>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Suivi de stock</label>
+      <div className="famille-form-section">
+        <div className="famille-form-section-title">Gestion du stock</div>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
+            <label className="famille-form-label">Suivi de stock</label>
             <select
-              className="form-select"
+              className="famille-form-select"
               value={formData.suiviStockParam}
               onChange={(e) => handleInputChange('suiviStockParam', e.target.value)}
             >
@@ -66,10 +66,10 @@ const Logistique = ({ formData, handleInputChange }) => {
               <option>LIFO</option>
             </select>
           </div>
-          <div className="form-group">
-            <label className="form-label">Niveau de criticité</label>
+          <div className="famille-form-group">
+            <label className="famille-form-label">Niveau de criticité</label>
             <select
-              className="form-select"
+              className="famille-form-select"
               value={formData.niveauCriticite}
               onChange={(e) => handleInputChange('niveauCriticite', e.target.value)}
             >
@@ -79,7 +79,7 @@ const Logistique = ({ formData, handleInputChange }) => {
             </select>
           </div>
         </div>
-        <div className="form-row">
+        <div className="famille-form-row">
           <label className="form-checkbox-label">
             <input type="checkbox" className="form-checkbox" />
             Réserver à la sous-traitance
@@ -87,23 +87,23 @@ const Logistique = ({ formData, handleInputChange }) => {
         </div>
       </div>
 
-      <div className="form-section">
-        <div className="form-section-title">Frais fixes</div>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Coût de stockage</label>
+      <div className="famille-form-section">
+        <div className="famille-form-section-title">Frais fixes</div>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
+            <label className="famille-form-label">Coût de stockage</label>
             <input type="text" className="form-input" />
           </div>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Coût de transport</label>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
+            <label className="famille-form-label">Coût de transport</label>
             <input type="text" className="form-input" />
           </div>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Coût annexe</label>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
+            <label className="famille-form-label">Coût annexe</label>
             <input type="text" className="form-input" />
           </div>
         </div>

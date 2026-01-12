@@ -44,21 +44,21 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
 
     return (
         <>
-            <div className="form-section">
-                <div className="form-section-title">Identification</div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Référence *</label>
+            <div className="article-form-section">
+                <div className="article-form-section-title">Identification</div>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Référence *</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.article_reference || ''}
                             onChange={(e) => handleInputChange('article_reference', e.target.value)}
                             required
                         />
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Type</label>
+                    <div className="article-form-group">
+                        <label className="article-form-label">Type</label>
                         <select
                             className="form-select"
                             value={formData.type || 'Standard'}
@@ -69,21 +69,21 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                         </select>
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Désignation *</label>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Désignation *</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.article_name || ''}
                             onChange={(e) => handleInputChange('article_name', e.target.value)}
                             required
                         />
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Famille *</label>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Famille *</label>
                         <select
                             className="form-select"
                             value={formData.famille_id || ''}
@@ -98,8 +98,8 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                             ))}
                         </select>
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Catégorie *</label>
+                    <div className="article-form-group">
+                        <label className="article-form-label">Catégorie *</label>
                         <select
                             className="form-select"
                             value={formData.categorie_id || ''}
@@ -116,9 +116,9 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                         </select>
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Fournisseur *</label>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Fournisseur *</label>
                         <select
                             className="form-select"
                             value={formData.fournisseur_id || ''}
@@ -134,8 +134,8 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                             ))}
                         </select>
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Unité de stock *</label>
+                    <div className="article-form-group">
+                        <label className="article-form-label">Unité de stock *</label>
                         <select
                             className="form-select"
                             value={formData.unite_stock_id || ''}
@@ -152,9 +152,9 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                         </select>
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Suivi de stock</label>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Suivi de stock</label>
                         <select
                             className="form-select"
                             value={formData.suiviStock || 'Aucun'}
@@ -165,28 +165,28 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                             <option>FIFO</option>
                         </select>
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Nomenclature</label>
+                    <div className="article-form-group">
+                        <label className="article-form-label">Nomenclature</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.nomenclature || 'Aucune'}
                             disabled
                         />
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Description</label>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Description</label>
                         <textarea
-                            className="form-input"
+                            className="article-form-input"
                             rows="3"
                             value={formData.article_description || ''}
                             onChange={(e) => handleInputChange('article_description', e.target.value)}
                         />
                     </div>
                 </div>
-                <div className="form-row">
+                <div className="article-form-row">
                     <label className="form-checkbox-label">
                         <input
                             type="checkbox"
@@ -199,58 +199,58 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                 </div>
             </div>
 
-            <div className="form-section">
-                <div className="form-section-title">Tarif</div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Prix d'achat</label>
+            <div className="article-form-section">
+                <div className="article-form-section-title">Tarif</div>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Prix d'achat</label>
                         <input
                             type="number"
                             step="0.01"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.prix_achat || ''}
                             onChange={(e) => handleInputChange('prix_achat', parseFloat(e.target.value) || 0)}
                         />
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Dernier Prix d'achat</label>
+                    <div className="article-form-group">
+                        <label className="article-form-label">Dernier Prix d'achat</label>
                         <input
                             type="number"
                             step="0.01"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.dernier_prix_achat || ''}
                             onChange={(e) => handleInputChange('dernier_prix_achat', parseFloat(e.target.value) || 0)}
                         />
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Nomenclature</label>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Nomenclature</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.nomenclature_tarif || ''}
                             onChange={(e) => handleInputChange('nomenclature_tarif', e.target.value)}
                         />
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Coût standard</label>
+                    <div className="article-form-group">
+                        <label className="article-form-label">Coût standard</label>
                         <input
                             type="number"
                             step="0.01"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.cout_standard || ''}
                             onChange={(e) => handleInputChange('cout_standard', parseFloat(e.target.value) || 0)}
                         />
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Prix de vente *</label>
+                <div className="article-form-row">
+                    <div className="article-form-group">
+                        <label className="article-form-label">Prix de vente *</label>
                         <input
                             type="number"
                             step="0.01"
-                            className="form-input"
+                            className="article-form-input"
                             value={formData.article_prix_vente || ''}
                             onChange={(e) => handleInputChange('article_prix_vente', parseFloat(e.target.value) || 0)}
                             required
@@ -265,8 +265,8 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                             <option>PV TTC</option>
                         </select>
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Unité de vente</label>
+                    <div className="article-form-group">
+                        <label className="article-form-label">Unité de vente</label>
                         <select
                             className="form-select"
                             value={formData.unitVente || 'PIECE'}
@@ -281,8 +281,8 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                 </div>
             </div>
 
-            <div className="form-section">
-                <div className="form-row">
+            <div className="article-form-section">
+                <div className="article-form-row">
                     <CategoriesTable
                         categories={formData.categories_tarifaires || []}
                         onChange={(categories) => handleInputChange('categories_tarifaires', categories)}

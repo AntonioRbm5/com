@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import './InventoryListView.css';
 import InventoryEntryModal from './InventoryEntryModal';
+import Sidebar from '../Layout/Sidebar';
+import Toolbar from '../Layout/Toolbar';
+import Header from '../Layout/Header';
 
 const InventoryListView = () => {
     const [activeTab, setActiveTab] = useState('tous');
     const [showModal, setShowModal] = useState(false);
+    const sidebarItems = [
+        { id: 'tous', label: 'Tous' },
+        { id: 'articles_stock', label: 'Articles en stock' },
+        { id: 'articles_non_presents', label: 'Articles non présents' }
+    ];
+
+    const toolbarButtons = ['fonctions', 'imprimer', 'importer', 'exporter', 'enregistrer'];
 
     const inventoryData = [
         { ref: 'IMPR0001', designation: 'HP MULTIFONCTION LASERJ...', quantity: 10.00, priceUnit: 589675, value: 5896750, condition: 'PIECE' },
@@ -44,28 +54,13 @@ const InventoryListView = () => {
     return (
         <>
             <div className="inventory-container">
-                {/* Header */}
-                <div className="inventory-header">
-                    <div className="header-title">
-                        <span className="header-icon">⚙</span>
-                        <span>Saisie inventaire au 07/07/22 : SIEGE</span>
-                    </div>
-                    <div className="window-controls">
-                        <button className="window-btn">−</button>
-                        <button className="window-btn">□</button>
-                        <button className="window-btn close">×</button>
-                    </div>
-                </div>
+                <Header
+                    title="Saisie inventaire au 07/07/22 : SIEGE"
+                    showWindowControls={true}
+                />
 
-                {/* Toolbar */}
-                <div className="inventory-toolbar">
-                    <button className="toolbar-btn">⚙ Fonctions</button>
-                    <button className="toolbar-btn">🖨 Imprimer</button>
-                    <button className="toolbar-btn">📥 Importer</button>
-                    <button className="toolbar-btn">📤 Exporter</button>
-                    <button className="toolbar-btn">💾 Enregistrer</button>
-                </div>
-
+                {/* Toolbar centralisé */}
+                <Toolbar buttons={toolbarButtons} />
                 {/* Tabs */}
                 <div className="inventory-tabs">
                     <button
@@ -82,27 +77,12 @@ const InventoryListView = () => {
 
                 {/* Left Sidebar */}
                 <div className="inventory-content">
-                    <div className="inventory-sidebar">
-                        <div
-                            className={`sidebar-item ${activeTab === 'tous' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('tous')}
-                        >
-                            Tous
-                        </div>
-                        <div
-                            className={`sidebar-item ${activeTab === 'articles_stock' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('articles_stock')}
-                        >
-                            Articles en stock
-                        </div>
-                        <div
-                            className={`sidebar-item ${activeTab === 'articles_non_presents' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('articles_non_presents')}
-                        >
-                            Articles non présents
-                        </div>
-                    </div>
 
+                    <Sidebar
+                        items={sidebarItems}
+                        activeItem={activeTab}
+                        onItemClick={setActiveTab}
+                    />
                     {/* Main Table */}
                     <div className="inventory-table-container">
                         <table className="inventory-table">

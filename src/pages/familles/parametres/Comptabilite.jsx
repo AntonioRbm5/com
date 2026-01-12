@@ -100,10 +100,10 @@ const Comptabilite = () => {
 
   return (
     <>
-      <div className="form-section">
-        <div className="form-section-title">Paramètres de comptabilisation</div>
-        <div className="form-row">
-          <div className="form-group">
+      <div className="famille-form-section">
+        <div className="famille-form-section-title">Paramètres de comptabilisation</div>
+        <div className="famille-form-row">
+          <div className="famille-form-group">
             <label className="form-label">Domaine</label>
             <select
               className="form-select"
@@ -213,14 +213,14 @@ const Comptabilite = () => {
 
             <div style={{ padding: '20px' }}>
               <div style={{ padding: '20px' }}>
-                <div className="form-section" style={{ marginBottom: 0 }}>
+                <div className="famille-form-section" style={{ marginBottom: 0 }}>
                   <div style={{ marginBottom: '16px', padding: '8px', backgroundColor: '#f9f9f9', border: '1px solid #ddd' }}>
                     <strong>Domaine :</strong> {modalData.domaine}
                   </div>
 
-                  <div className="form-section-title">Compte général et section analytique</div>
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className="famille-form-section-title">Compte général et section analytique</div>
+                  <div className="famille-form-row">
+                    <div className="famille-form-group">
                       <label className="form-label">Compte général</label>
                       <input
                         type="text"
@@ -229,7 +229,7 @@ const Comptabilite = () => {
                         onChange={(e) => setModalData({ ...modalData, compteGeneral: e.target.value })}
                       />
                     </div>
-                    <div className="form-group">
+                    <div className="famille-form-group">
                       <label className="form-label">Section analytique</label>
                       <select
                         className="form-select"
@@ -241,9 +241,9 @@ const Comptabilite = () => {
                     </div>
                   </div>
 
-                  <div className="form-section-title">Taux de taxe 1</div>
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className="famille-form-section-title">Taux de taxe 1</div>
+                  <div className="famille-form-row">
+                    <div className="famille-form-group">
                       <label className="form-label">Code taxe</label>
                       <select
                         className="form-select"
@@ -255,7 +255,7 @@ const Comptabilite = () => {
                         <option>TVAR/18%</option>
                       </select>
                     </div>
-                    <div className="form-group">
+                    <div className="famille-form-group">
                       <label className="form-label">Date d'application</label>
                       <input
                         type="date"
@@ -265,8 +265,8 @@ const Comptabilite = () => {
                       />
                     </div>
                   </div>
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className="famille-form-row">
+                    <div className="famille-form-group">
                       <label className="form-label">Ancien code taxe</label>
                       <select
                         className="form-select"
@@ -278,9 +278,9 @@ const Comptabilite = () => {
                     </div>
                   </div>
 
-                  <div className="form-section-title">Taux de taxe 2</div>
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className="famille-form-section-title">Taux de taxe 2</div>
+                  <div className="famille-form-row">
+                    <div className="famille-form-group">
                       <label className="form-label">Code taxe</label>
                       <select
                         className="form-select"
@@ -290,7 +290,7 @@ const Comptabilite = () => {
                         <option value="">-- Sélectionner --</option>
                       </select>
                     </div>
-                    <div className="form-group">
+                    <div className="famille-form-group">
                       <label className="form-label">Date d'application</label>
                       <input
                         type="date"
@@ -300,8 +300,8 @@ const Comptabilite = () => {
                       />
                     </div>
                   </div>
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className="famille-form-row">
+                    <div className="famille-form-group">
                       <label className="form-label">Ancien code taxe</label>
                       <select
                         className="form-select"
@@ -313,9 +313,9 @@ const Comptabilite = () => {
                     </div>
                   </div>
 
-                  <div className="form-section-title">Taux de taxe 3</div>
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className="famille-form-section-title">Taux de taxe 3</div>
+                  <div className="famille-form-row">
+                    <div className="famille-form-group">
                       <label className="form-label">Code taxe</label>
                       <select
                         className="form-select"
@@ -325,7 +325,7 @@ const Comptabilite = () => {
                         <option value="">-- Sélectionner --</option>
                       </select>
                     </div>
-                    <div className="form-group">
+                    <div className="famille-form-group">
                       <label className="form-label">Date d'application</label>
                       <input
                         type="date"
@@ -335,8 +335,8 @@ const Comptabilite = () => {
                       />
                     </div>
                   </div>
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className="famille-form-row">
+                    <div className="famille-form-group">
                       <label className="form-label">Ancien code taxe</label>
                       <select
                         className="form-select"
