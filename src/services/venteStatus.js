@@ -1,4 +1,5 @@
 import api from "./api";
+
 export const createVente = (data) => api.post("/vente/create", data)
 export const getAllVente = () => api.get("/vente/all")
 export const getVenteByID = (id_vente) => api.get(`/vente/get/${id_vente}`)
