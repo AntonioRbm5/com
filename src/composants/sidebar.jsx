@@ -10,14 +10,14 @@ export default function Sidebar() {
   const location = useLocation();
 
   const menuItems = [
-    { label: "Home", icon: <FaHome />, path: "/home-commercial" },
-    { label: "Articles", icon: <FaBox/>, path: "/article"},
-    { label: "Stocks", icon: <FaWarehouse/>, path: "/not-found"},
-    { label: "Inventaires", icon: <FaClipboardList/>, path: "/inventaire"},
-    { label: "Clients", icon: <FaUsers />, path: "/clients" },
-    { label: "Fournisseurs", icon: <FaTruck/>, path: "/not-found"},
-    { label: "Ventes", icon: <FaDollarSign/>, path: "/not-found"},
-    { label: "Logout", icon: <FaSignOutAlt />, path: "/login" }
+    { label: "Home", icon: <FaHome className="ft-2"/>, path: "/home-commercial" },
+    { label: "Articles", icon: <FaBox className="ft-2"/>, path: "/article"},
+    { label: "Stocks", icon: <FaWarehouse className="ft-2"/>, path: "/not-found"},
+    { label: "Inventaires", icon: <FaClipboardList className="ft-2"/>, path: "/inventaire"},
+    { label: "Clients", icon: <FaUsers className="ft-2"/>, path: "/clients" },
+    { label: "Fournisseurs", icon: <FaTruck className="ft-2"/>, path: "/not-found"},
+    { label: "Ventes", icon: <FaDollarSign className="ft-2"/>, path: "/not-found"},
+    { label: "Logout", icon: <FaSignOutAlt className="ft-2"/>, path: "/login" }
   ];
 
   const handleClick = (path) => {
