@@ -6,7 +6,7 @@ const HomeCom = () => {
     return (
 
         <div className="d-flex">
-            <div style={{ width: "20%" }}>
+            <div style={{ width: "8%" }}>
                 <Sidebar />
             </div>
             <div style={{ width: "80%" }}>
