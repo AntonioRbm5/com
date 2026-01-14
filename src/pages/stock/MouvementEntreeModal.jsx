@@ -255,17 +255,41 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
 
         const totaux = calculerTotaux();
 
+        // const payload = {
+        //     header: {
+        //         ...formData,
+        //         type: 'Mouvement d\'entrée'
+        //     },
+        //     lignes: lignes.map(ligne => ({
+        //         ...ligne,
+        //         id: undefined
+        //     })),
+        //     totaux: totaux
+        // };
+
         const payload = {
-            header: {
-                ...formData,
-                type: 'Mouvement d\'entrée'
-            },
-            lignes: lignes.map(ligne => ({
-                ...ligne,
-                id: undefined
-            })),
-            totaux: totaux
-        };
+            mouvement_type: "ENTREE",
+            mouvement_date: new Date().toISOString(),
+
+            article_id: formData.articleId,
+            depot_source_id: null,
+            depot_destination_id: formData.depotId,
+
+            unite_id: formData.uniteId,
+            lot_id: formData.lotId,
+
+            mouvement_quantity: totaux.poidsNet,
+            mouvement_valeur: totaux.totalHT,
+            mouvement_reference: formData.numeroDocument,
+
+            lignes: lignes.map(l => ({
+                reference: l.reference,
+                designation: l.designation,
+                quantite: Number(l.quantite),
+                pu: Number(l.puHT),
+                montant: Number(l.montantHT)
+            }))
+        }
 
         console.log('📤 Payload à envoyer:', payload);
         onSave(payload);

@@ -44,7 +44,10 @@ const SalesView = () => {
                 
                 // Transformer les données pour correspondre au format attendu
                 const formattedDocs = salesDocs.map(doc => ({
-                    id: doc.mouvement_reference || `MOV-${doc.mouvement_id}`,
+                    // id: doc.mouvement_reference || `MOV-${doc.mouvement_id}`,
+                    id: `MOV-${doc.mouvement_id}`,
+                    reference: doc.mouvement_reference,
+
                     date: new Date(doc.mouvement_date).toLocaleDateString('fr-FR'),
                     client: doc.article_id?.toString() || '-',
                     name: `Article ${doc.article_id}`,

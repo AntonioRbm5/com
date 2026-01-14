@@ -1,10 +1,10 @@
 
-import React from 'react';
 
-const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) => {
+const FormFactureComptabilise = ({ formData, setFormData, fournisseurs = [], isReadOnly = false }) => {
     const handleChange = (field, value) => {
         setFormData(prev => ({
             ...prev,
+
             [field]: value
         }));
     };
@@ -13,6 +13,30 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
         const today = new Date().toLocaleDateString('fr-FR').replace(/\//g, '');
         handleChange(field, today);
     };
+    const handleFournisseurChange = (e) => {
+        const fournisseurId = e.target.value;
+
+        if (!fournisseurId) {
+            setFormData(prev => ({
+                ...prev,
+                fournisseur_id: '',
+                fournisseur_name: ''
+            }));
+            return;
+        }
+
+        const fournisseur = fournisseurs.find(
+            f => String(f.id) === String(fournisseurId)
+        );
+
+        setFormData(prev => ({
+            ...prev,
+            fournisseur_id: fournisseurId,
+            fournisseur_name: fournisseur?.fournisseur_name || ''
+        }));
+    };
+
+
 
     return (
         <div className="invoice-body container-fluid py-2">
@@ -21,25 +45,36 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                 <div className="col-md-4">
                     <div className="input-group input-group-sm mb-1">
                         <label className='input-group-text custom-label'>Fournisseur</label>
-                        <select 
+                        <select
                             className="form-select w-25"
+                            value={formData.fournisseur_id || ''}
+                            onChange={handleFournisseurChange}
                             disabled={isReadOnly}
                         >
-                            <option>Numéro</option>
+                           
+                            {fournisseurs.map((f, index) => (
+                                <option
+                                    key={f.id ?? `fournisseur-${index}`}
+                                    value={f.id ?? ''}
+                                >
+                                    {f.fournisseur_name ?? 'Fournisseur sans nom'}
+                                </option>
+                            ))}
+
                         </select>
-                        <input 
-                            type="text" 
-                            className="form-select flex-grow-1"
-                            value={formData.fournisseur || ''}
-                            onChange={(e) => handleChange('fournisseur', e.target.value)}
+                        {/* <input
+                            type="text"
+                            className="form-input flex-grow-1"
+                            value={formData.fournisseur_name || ''}
+                            onChange={(e) => handleChange('fournisseur_name', e.target.value)}
                             disabled={isReadOnly}
-                            placeholder="Sélectionner un fournisseur"
-                        />
+
+                        /> */}
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1">
                         <label className='input-group-text custom-label'>Statut</label>
-                        <select 
+                        <select
                             className="form-select"
                             value={formData.statut || 'A comptabiliser'}
                             onChange={(e) => handleChange('statut', e.target.value)}
@@ -50,10 +85,10 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                             <option value="Annulé">Annulé</option>
                         </select>
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Affaire</span>
-                        <select 
+                        <select
                             className="form-select"
                             value={formData.affaire || ''}
                             onChange={(e) => handleChange('affaire', e.target.value)}
@@ -64,10 +99,10 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                             <option value="AFF002">Affaire 002</option>
                         </select>
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Expédition</span>
-                        <select 
+                        <select
                             className="form-select"
                             value={formData.expedition || ''}
                             onChange={(e) => handleChange('expedition', e.target.value)}
@@ -84,16 +119,16 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                 <div className="col-md-4">
                     <div className="input-group input-group-sm mb-1">
                         <label className="input-group-text custom-label">Date</label>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="form-control"
                             value={formData.date || ''}
                             onChange={(e) => handleChange('date', e.target.value)}
                             disabled={isReadOnly}
                             placeholder="jjmmaa"
                         />
-                        <button 
-                            className="btn btn-outline-secondary" 
+                        <button
+                            className="btn btn-outline-secondary"
                             type="button"
                             onClick={() => handleDateChange('date')}
                             disabled={isReadOnly}
@@ -101,42 +136,42 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                             📅
                         </button>
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">N° document</span>
-                        <select 
+                        <select
                             className="form-select w-25"
                             disabled={isReadOnly}
                         >
                             <option>N° Pièce</option>
                         </select>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="form-control"
                             value={formData.numeroDocument || 'BC000001'}
                             onChange={(e) => handleChange('numeroDocument', e.target.value)}
                             disabled={isReadOnly}
                         />
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Date livraison</span>
-                        <select 
+                        <select
                             className="form-select w-25"
                             disabled={isReadOnly}
                         >
                             <option>Prévue</option>
                             <option>Réelle</option>
                         </select>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="form-control"
                             value={formData.dateLivraison || ''}
                             onChange={(e) => handleChange('dateLivraison', e.target.value)}
                             disabled={isReadOnly}
                         />
-                        <button 
-                            className="btn btn-outline-secondary" 
+                        <button
+                            className="btn btn-outline-secondary"
                             type="button"
                             onClick={() => handleDateChange('dateLivraison')}
                             disabled={isReadOnly}
@@ -144,13 +179,13 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                             📅
                         </button>
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1 text-muted">
                         <span className="input-group-text custom-label bg-light">Info1</span>
-                        <input 
-                            type="text" 
-                            className="form-control bg-light" 
-                            disabled 
+                        <input
+                            type="text"
+                            className="form-control bg-light"
+                            disabled
                             placeholder="Champ calculé automatiquement"
                         />
                     </div>
@@ -160,8 +195,8 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                 <div className="col-md-4">
                     <div className="input-group input-group-sm mb-1">
                         <label className='input-group-text custom-label'>Acheteur</label>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="form-control"
                             value={formData.acheteur || ''}
                             onChange={(e) => handleChange('acheteur', e.target.value)}
@@ -169,11 +204,11 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                             placeholder="Nom de l'acheteur"
                         />
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Référence</span>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="form-control"
                             value={formData.reference || ''}
                             onChange={(e) => handleChange('reference', e.target.value)}
@@ -181,11 +216,11 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                             placeholder="Référence externe"
                         />
                     </div>
-                    
+
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Entête 1</span>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="form-control"
                             value={formData.entete1 || ''}
                             onChange={(e) => handleChange('entete1', e.target.value)}
@@ -193,18 +228,18 @@ const FormFactureComptabilise = ({ formData, setFormData, isReadOnly = false }) 
                             placeholder="Texte d'en-tête"
                         />
                     </div>
-                    
+
                     <div className="d-flex gap-2 align-items-center">
                         <div className="input-group input-group-sm flex-grow-1">
                             <span className="input-group-text custom-label bg-light">Info2</span>
-                            <input 
-                                type="text" 
-                                className="form-control bg-light" 
-                                disabled 
+                            <input
+                                type="text"
+                                className="form-control bg-light"
+                                disabled
                                 placeholder="Champ calculé"
                             />
                         </div>
-                        <button 
+                        <button
                             className="btn btn-outline-primary btn-sm px-4"
                             disabled={isReadOnly}
                             title="Valider le formulaire"

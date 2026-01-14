@@ -23,8 +23,8 @@ export const deleteStockMouvement = (id) => api.delete(`/stock-mouvement/delete/
 // ============================================
 // ÉTAT DU STOCK
 // ============================================
-export const getStockState = () => api.get("/stock/state");
-export const getArticleState = () => api.get("/article-state");
+export const getStockState = () => api.get("/stock-management/stock/state");
+export const getArticleState = () => api.get("/stock-management/article-state");
 
 // ============================================
 // UTILITY FUNCTIONS - TRANSFORMATION DES DONNÉES

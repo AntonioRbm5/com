@@ -7,12 +7,16 @@ import "../form/DocumentForm.css";
 import ListFactureComptablisée from './ListFactureComptablisée';
 import FormFactureComptabilise from './FormFactureComptabilise';
 import { createMouvement } from '../../../services/stockManagementService';
+import { getAllFournisseurs } from '../../../services/fournisseurService';
 
 const InvoiceForm = ({ document, onClose }) => {
     const [lignes, setLignes] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [fournisseurs, setFournisseurs] = useState([]);
+
     const [formData, setFormData] = useState({
-        fournisseur: '',
+        fournisseur_id: '',
+        fournisseur_name: '',
         statut: 'A comptabiliser',
         date: new Date().toLocaleDateString('fr-FR'),
         numeroDocument: document?.id || 'FACT0001',
@@ -29,17 +33,31 @@ const InvoiceForm = ({ document, onClose }) => {
         poidsNet: 0,
         poidsBrut: 0
     });
-
+    useEffect(() => {
+        fetchFournisseurs();
+    }, []);
     useEffect(() => {
         if (document) {
             // Charger les données du document existant
             loadDocumentData(document);
+
         }
     }, [document]);
 
     useEffect(() => {
         calculateTotaux();
     }, [lignes]);
+
+    const fetchFournisseurs = async () => {
+        try {
+            const response = await getAllFournisseurs();
+            if (response.data.status === 'success') {
+                setFournisseurs(response.data.data);
+            }
+        } catch (error) {
+            console.error('Erreur chargement fournisseurs', error);
+        }
+    };
 
     const loadDocumentData = async (doc) => {
         try {
@@ -48,7 +66,8 @@ const InvoiceForm = ({ document, onClose }) => {
             setFormData({
                 ...formData,
                 numeroDocument: doc.id,
-                fournisseur: doc.client,
+                fournisseur_name: doc.client,
+                fournisseur_id: doc.rawData?.fournisseur_id || '',
                 reference: doc.id
             });
         } catch (error) {
@@ -84,7 +103,8 @@ const InvoiceForm = ({ document, onClose }) => {
                 unite_id: parseInt(ligneData.unite_id) || 1,
                 mouvement_quantity: parseFloat(ligneData.quantite),
                 mouvement_valeur: parseFloat(ligneData.montantHT),
-                mouvement_reference: formData.numeroDocument
+                mouvement_reference: formData.numeroDocument,
+                fournisseur_id: formData.fournisseur_id
             };
 
             const response = await createMouvement(mouvementData);
@@ -176,6 +196,7 @@ const InvoiceForm = ({ document, onClose }) => {
                     <FormFactureComptabilise
                         formData={formData}
                         setFormData={setFormData}
+                        fournisseurs={fournisseurs}
                         isReadOnly={loading}
                     />
 
