@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaHome, FaUsers, FaSignOutAlt, FaBars, FaBox, FaWarehouse, FaClipboardList, FaTruck, FaDollarSign } from "react-icons/fa";
+import { FaHome, FaUsers, FaSignOutAlt, FaBars, FaBox, FaWarehouse, FaClipboardList, FaTruck, FaDollarSign, FaBuilding } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Sidebar() {
@@ -11,6 +11,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { label: "Home", icon: <FaHome className="ft-2"/>, path: "/home-commercial" },
+    { label: "Entreprise", icon: <FaBuilding className="ft-2"/>, path: "/entreprise"},
     { label: "Articles", icon: <FaBox className="ft-2"/>, path: "/article"},
     { label: "Stocks", icon: <FaWarehouse className="ft-2"/>, path: "/not-found"},
     { label: "Inventaires", icon: <FaClipboardList className="ft-2"/>, path: "/inventaire"},

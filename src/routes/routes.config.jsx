@@ -7,6 +7,12 @@ import InitEntrepriseForm from "../pages/init_entreprise";
 import Entreprise from "../pages/Entreprises/entreprises";
 import Global_info_entreprise from "../pages/Entreprises/global_info_entreprise";
 import Identification_entreprise from "../pages/Entreprises/identification_entreprise";
+import Monnaie_formats from "../pages/Entreprises/monnaie_formats"; 
+import Loi_anti_fraude_tva from "../pages/Entreprises/loi_anti_fraude_tva";
+import Ifrs from "../pages/Entreprises/ifrs";
+import Fichiers_lie from "../pages/Entreprises/fichiers_lie";
+import Preferences from "../pages/Entreprises/preferences";
+import LogoEtp from "../pages/Entreprises/logo"; 
 import EntrepriseSuccess from "../pages/success_create_entreprise";
 import HomeCom from "../pages/Home/home-commercial";
 import HomeCompt from "../pages/Home/home-compta";
@@ -50,6 +56,26 @@ export const routesConfig = [
       {
         path: "identity",
         element: <Identification_entreprise />
+      },
+      {
+        path: "monnaie-format",
+        element: <Monnaie_formats/>
+      },
+      {
+        path: "loi-anti-fraude-tva",
+        element: <Loi_anti_fraude_tva/>
+      },
+      {
+        path: "ifrs",
+        element: <Ifrs/>
+      },
+      {
+        path: "preference",
+        element: <Preferences/>
+      },
+      {
+        path: "logo-entreprise",
+        element: <LogoEtp/>
       }
     ]
   },

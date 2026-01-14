@@ -1,0 +1,326 @@
+/* Modal Overlay */
+.entreprise-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Modal Container */
+.entreprise-modal {
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    width: 500px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Modal Header */
+.entreprise-modal-header {
+    background: linear-gradient(to bottom, #ffffff 0%, #e5e5e5 100%);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+.entreprise-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.entreprise-modal-icon {
+    color: #0078d4;
+    font-size: 16px;
+}
+
+.entreprise-modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
+
+.entreprise-modal-close-btn:hover {
+    background-color: #e81123;
+    color: white;
+}
+
+/* Modal Body */
+.entreprise-modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    background-color: #f0f0f0;
+}
+
+/* Criteria Toggle Button */
+.criteria-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #e0e0e0;
+    border: 1px solid #adadad;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    color: #333;
+    margin-bottom: 16px;
+    transition: background-color 0.2s;
+}
+
+.criteria-toggle:hover {
+    background-color: #d0d0d0;
+}
+
+.toggle-icon {
+    font-size: 14px;
+}
+
+/* Form Section */
+.form-section {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+/* Form Rows */
+.form-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.form-row label {
+    font-size: 11px;
+    color: #333;
+    text-align: right;
+    padding-right: 8px;
+}
+
+.form-row select,
+.form-row input[type="text"] {
+    padding: 4px 6px;
+    font-size: 11px;
+    border: 1px solid #7a7a7a;
+    background-color: white;
+    border-radius: 2px;
+    outline: none;
+}
+
+.form-row select:focus,
+.form-row input[type="text"]:focus {
+    border-color: #0078d4;
+    box-shadow: 0 0 0 1px #0078d4;
+}
+
+/* Date Input Group */
+.date-input-group {
+    display: flex;
+    gap: 4px;
+}
+
+.date-input-group input {
+    flex: 1;
+}
+
+.calendar-btn {
+    padding: 4px 8px;
+    background-color: #e0e0e0;
+    border: 1px solid #7a7a7a;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.calendar-btn:hover {
+    background-color: #d0d0d0;
+}
+
+/* Form Row Double (De...à) */
+.form-row-double {
+    display: grid;
+    grid-template-columns: 140px 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.form-row-double label {
+    font-size: 11px;
+    color: #333;
+    text-align: right;
+    padding-right: 8px;
+}
+
+.form-row-double select {
+    padding: 4px 6px;
+    font-size: 11px;
+    border: 1px solid #7a7a7a;
+    background-color: white;
+    border-radius: 2px;
+}
+
+.separator {
+    font-size: 11px;
+    color: #666;
+    padding: 0 4px;
+}
+
+/* Watermark */
+.watermark {
+    margin-top: 20px;
+    padding: 16px;
+    text-align: center;
+}
+
+.watermark-text {
+    font-size: 32px;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.08);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.watermark-subtext {
+    font-size: 11px;
+    color: #666;
+}
+
+/* Modal Footer */
+.modal-footer {
+    padding: 12px 16px;
+    background: linear-gradient(to bottom, #f0f0f0 0%, #e5e5e5 100%);
+    border-top: 1px solid #c0c0c0;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.btn-ok,
+.btn-cancel {
+    padding: 6px 24px;
+    font-size: 11px;
+    border: 1px solid #adadad;
+    border-radius: 3px;
+    cursor: pointer;
+    min-width: 80px;
+    transition: all 0.2s;
+}
+
+.btn-ok {
+    background: linear-gradient(to bottom, #0078d4 0%, #0063b1 100%);
+    color: white;
+    border-color: #0063b1;
+}
+
+.btn-ok:hover {
+    background: linear-gradient(to bottom, #006cc1 0%, #005a9e 100%);
+}
+
+.btn-ok:active {
+    background: #005a9e;
+}
+
+.btn-cancel {
+    background: linear-gradient(to bottom, #ffffff 0%, #e5e5e5 100%);
+    color: #333;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(to bottom, #f0f0f0 0%, #d8d8d8 100%);
+}
+
+.btn-cancel:active {
+    background: #d0d0d0;
+}
+
+/* Scrollbar Styling */
+.modal-body::-webkit-scrollbar {
+    width: 16px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border: 3px solid #f0f0f0;
+    border-radius: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+.sidebar-erp a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar-erp a:hover {
+  text-decoration: none;
+}
+.entreprise-table-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    overflow: hidden;
+}
+/* Scrollbar */
+.entreprise-table-container::-webkit-scrollbar,
+.entreprise-sidebar::-webkit-scrollbar {
+    width: 16px;
+}
+
+.entreprise-table-container::-webkit-scrollbar-track,
+.entreprise-sidebar::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.entreprise-table-container::-webkit-scrollbar-thumb,
+.entreprise-sidebar::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border: 3px solid #f0f0f0;
+    border-radius: 8px;
+}
+
+.entreprise-table-container::-webkit-scrollbar-thumb:hover,
+.entreprise-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
