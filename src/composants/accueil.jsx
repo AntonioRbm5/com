@@ -1,66 +1,40 @@
-
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { 
   FaUser, 
-  FaShoppingCart, 
   FaPlus, 
   FaClipboardList, 
   FaPrint, 
   FaBox, 
-  FaCalendarAlt, 
-  FaCog,
-  FaChartLine,   // <-- ajouté
-  FaFolder       // <-- ajouté
+  FaFolderPlus,
 } from "react-icons/fa";
-
 
 const DashboardHome = () => {
   const sections = [
     {
       title: "Gestion des Ventes",
       items: [
-        { icon: <FaUser />, label: "Liste des clients" },
-        { icon: <FaShoppingCart />, label: "Liste des documents de vente" },
-        { icon: <FaPlus />, label: "Saisir un document de vente" },
-        { icon: <FaClipboardList />, label: "Gestion des comptes clients" },
-        { icon: <FaClipboardList />, label: "Recherche de lignes de documents" },
-        { icon: <FaPrint />, label: "Relevés d'échéances clients" },
+        { icon: <FaUser />, label: "Liste des clients", color: "#6f42c1" },
+        { icon: <FaFolderPlus />, label: "Saisir un document de vente", color: "#0d6efd" },
+        { icon: <FaPlus />, label: "Relevés d'échéances clients", color: "#198754" },
+        { icon: <FaClipboardList />, label: "Gestion des comptes clients", color: "#fd7e14" },
       ],
     },
     {
       title: "Gestion des Achats",
       items: [
-        { icon: <FaUser />, label: "Liste des fournisseurs" },
-        { icon: <FaShoppingCart />, label: "Liste des documents d'achat" },
-        { icon: <FaPlus />, label: "Saisir un document d'achat" },
-        { icon: <FaClipboardList />, label: "Gestion des comptes fournisseurs" },
+        { icon: <FaUser />, label: "Liste des fournisseurs", color: "#6f42c1" },
+        { icon: <FaFolderPlus />, label: "Saisir un document d'achat", color: "#0d6efd" },
+        { icon: <FaPlus />, label: "Saisir un règlement fournisseur", color: "#198754" },
+        { icon: <FaClipboardList />, label: "Gestion des comptes fournisseurs", color: "#fd7e14" },
       ],
     },
     {
       title: "Gestion des Stocks",
       items: [
-        { icon: <FaBox />, label: "Liste des articles" },
-        { icon: <FaPlus />, label: "Saisir un document de stock" },
-        { icon: <FaClipboardList />, label: "Gestion des comptes articles" },
-        { icon: <FaPrint />, label: "Livre d'inventaire" },
-        { icon: <FaBox />, label: "Colonnage" },
-      ],
-    },
-    {
-      title: "Gestion des Prestations de Service",
-      items: [
-        { icon: <FaClipboardList />, label: "Liste des documents internes" },
-        { icon: <FaUser />, label: "Liste des ressources" },
-        { icon: <FaCalendarAlt />, label: "Réservation planning" },
-      ],
-    },
-    {
-      title: "Gestion de la Fabrication",
-      items: [
-        { icon: <FaBox />, label: "Liste nomenclatures" },
-        { icon: <FaClipboardList />, label: "Liste des documents de fabrication" },
-        { icon: <FaChartLine />, label: "Simulation de fabrication" },
-        { icon: <FaFolder />, label: "ETATS STANDARDS - Raccourci" },
+        { icon: <FaBox />, label: "Liste des articles", color: "#6f42c1" },
+        { icon: <FaFolderPlus />, label: "Saisir un document de stock", color: "#0d6efd" },
+        { icon: <FaClipboardList />, label: "Gestion des comptes articles", color: "#198754" },
+        { icon: <FaPrint />, label: "Livre d'inventaire", color: "#fd7e14" },
       ],
     },
   ];
@@ -69,19 +43,38 @@ const DashboardHome = () => {
     <Container className="mt-4">
       {sections.map((section, idx) => (
         <div key={idx} className="mb-5">
-          <h4 className="mb-3">{section.title}</h4>
+          <h6 className="mb-2 text-primary">{section.title}</h6>
           <Row>
             {section.items.map((item, i) => (
-              <Col key={i} xs={6} md={3} lg={2} className="mb-3">
-                <Card className="text-center h-100">
-                  <Card.Body>
-                    <div className="mb-2" style={{ fontSize: "2rem" }}>
+              <Col key={i} xs={6} md={3} lg={2} className="mb-4">
+                <Card className="text-center h-100 shadow-sm border-0 rounded-3 hover-card">
+                  <Card.Body className="d-flex flex-column align-items-center justify-content-center">
+                    <div
+                      className="mb-1 icon-circle d-flex align-items-center justify-content-center"
+                      style={{
+                        fontSize: "1rem",
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        backgroundColor: item.color,
+                        color: "white",
+                        transition: "transform 0.3s",
+                      }}
+                    >
                       {item.icon}
                     </div>
-                    <Card.Text style={{ fontSize: "0.9rem" }}>{item.label}</Card.Text>
+                    <Card.Text
+                      style={{ fontSize: "0.95rem", fontWeight: 500 }}
+                    >
+                      {item.label}
+                    </Card.Text>
                   </Card.Body>
-                  <Card.Footer>
-                    <Button variant="primary" size="sm">
+                  <Card.Footer className="bg-white border-0 text-center">
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="rounded-pill px-4"
+                    >
                       Ouvrir
                     </Button>
                   </Card.Footer>
@@ -91,6 +84,16 @@ const DashboardHome = () => {
           </Row>
         </div>
       ))}
+
+      <style jsx>{`
+        .hover-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+        .hover-card:hover .icon-circle {
+          transform: scale(1.2);
+        }
+      `}</style>
     </Container>
   );
 };
