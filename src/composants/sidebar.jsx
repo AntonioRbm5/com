@@ -16,7 +16,7 @@ export default function Sidebar() {
     { label: "Stocks", icon: <FaWarehouse className="ft-2"/>, path: "/not-found"},
     { label: "Inventaires", icon: <FaClipboardList className="ft-2"/>, path: "/inventaire"},
     { label: "Clients", icon: <FaUsers className="ft-2"/>, path: "/clients" },
-    { label: "Fournisseurs", icon: <FaTruck className="ft-2"/>, path: "/not-found"},
+    { label: "Fournisseurs", icon: <FaTruck className="ft-2"/>, path: "/fournisseur"},
     { label: "Ventes", icon: <FaDollarSign className="ft-2"/>, path: "/not-found"},
     { label: "Logout", icon: <FaSignOutAlt className="ft-2"/>, path: "/login" }
   ];

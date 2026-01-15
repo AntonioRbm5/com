@@ -104,7 +104,7 @@ const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpe
           </button>
           <div className="stock-footer-right">
             <button
-              className="btn-custom btn-secondary-custom"
+              className="btn-custom btn-secondary"
               onClick={() => {
                 if (selectedRow !== null) {
                   onSelectDocument(documents[selectedRow]);
@@ -114,15 +114,15 @@ const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpe
               Ouvrir
             </button>
             <button
-              className="btn-custom btn-primary-custom"
+              className="btn-custom btn-primary"
               onClick={onNewDocument}
             >
               Nouveau
             </button>
-            <button className="btn-custom btn-secondary-custom">
+            <button className="btn-custom btn-secondary">
               Supprimer
             </button>
-            <button className="btn-custom btn-secondary-custom">
+            <button className="btn-custom btn-secondary">
               Fermer
             </button>
           </div>

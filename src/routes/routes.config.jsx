@@ -7,12 +7,12 @@ import InitEntrepriseForm from "../pages/init_entreprise";
 import Entreprise from "../pages/Entreprises/entreprises";
 import Global_info_entreprise from "../pages/Entreprises/global_info_entreprise";
 import Identification_entreprise from "../pages/Entreprises/identification_entreprise";
-import Monnaie_formats from "../pages/Entreprises/monnaie_formats"; 
+import Monnaie_formats from "../pages/Entreprises/monnaie_formats";
 import Loi_anti_fraude_tva from "../pages/Entreprises/loi_anti_fraude_tva";
 import Ifrs from "../pages/Entreprises/ifrs";
 import Fichiers_lie from "../pages/Entreprises/fichiers_lie";
 import Preferences from "../pages/Entreprises/preferences";
-import LogoEtp from "../pages/Entreprises/logo"; 
+import LogoEtp from "../pages/Entreprises/logo";
 import EntrepriseSuccess from "../pages/success_create_entreprise";
 import HomeCom from "../pages/Home/home-commercial";
 import HomeCompt from "../pages/Home/home-compta";
@@ -23,6 +23,8 @@ import GestionStock from "../pages/stock/GestionStock";
 import ERPSystem from "../pages/ERPSystem/ERPSystem";
 import InventoryListView from "../pages/inventaire/InventoryListView";
 import InventoryEntryModal from "../pages/inventaire/InventoryEntryModal";
+import FournisseurListPage from "../pages/fournisseur/FournisseurListPage";
+import FournisseurFormPage from "../pages/fournisseur/FournisseurFormPage";
 
 export const routesConfig = [
   {
@@ -59,23 +61,23 @@ export const routesConfig = [
       },
       {
         path: "monnaie-format",
-        element: <Monnaie_formats/>
+        element: <Monnaie_formats />
       },
       {
         path: "loi-anti-fraude-tva",
-        element: <Loi_anti_fraude_tva/>
+        element: <Loi_anti_fraude_tva />
       },
       {
         path: "ifrs",
-        element: <Ifrs/>
+        element: <Ifrs />
       },
       {
         path: "preference",
-        element: <Preferences/>
+        element: <Preferences />
       },
       {
         path: "logo-entreprise",
-        element: <LogoEtp/>
+        element: <LogoEtp />
       }
     ]
   },
@@ -137,6 +139,14 @@ export const routesConfig = [
   {
     path: "/inventaire/nouveaux",
     element: <InventoryEntryModal />
-  }
+  },
+  {
+    path: "/fournisseur/*",
+    element: <FournisseurListPage />
+  },
+  {
+    path: "/fournisseur/new",
+    element: <FournisseurFormPage />
+  },
 
 ];
