@@ -7,8 +7,8 @@ import Header from '../Layout/Header';
 import Navbar from '../../composants/navbar';
 import Sidebar from '../../composants/sidebar';
 import { getAllArticles } from '../../services/articleService';
-import { getStockState } from '../../services/stockManagementService';
 import { getAllArticleStockDepot } from '../../services/articleStockDepotService';
+import { createStockMouvement } from '../../services/stockMouvementService';
 
 const InventoryListView = () => {
     const [activeTab, setActiveTab] = useState('tous');
@@ -20,6 +20,7 @@ const InventoryListView = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedItems, setSelectedItems] = useState([]);
     const [adjustedValues, setAdjustedValues] = useState({});
+    const [modalFilters, setModalFilters] = useState(null);
 
     const sidebarItems = [
         { id: 'tous', label: 'Tous' },
@@ -35,7 +36,7 @@ const InventoryListView = () => {
 
     useEffect(() => {
         filterData();
-    }, [activeTab, inventoryData, searchTerm]);
+    }, [activeTab, inventoryData, searchTerm, modalFilters]);
 
     const loadInventoryData = async () => {
         try {
@@ -44,51 +45,73 @@ const InventoryListView = () => {
 
             // Charger tous les articles
             const articlesResponse = await getAllArticles();
-            
-            // Charger l'état du stock
-            let stockData = [];
-            try {
-                const stockResponse = await getAllArticleStockDepot();
-                if (stockResponse.data.status === 'success') {
-                    stockData = stockResponse.data.data || [];
-                }
-            } catch (stockErr) {
-                console.warn('Erreur lors du chargement du stock:', stockErr);
-            }
+
+            // Charger les données de stock par dépôt
+            const stockResponse = await getAllArticleStockDepot();
 
             if (articlesResponse.data.status === 'success') {
-                const articles = articlesResponse.data.data;
-                
-                // Fusionner les données d'articles avec les données de stock
+                const articles = articlesResponse.data.data || [];
+                const stockData = stockResponse.data.status === 'success'
+                    ? stockResponse.data.data || []
+                    : [];
+
+                console.log('Articles chargés:', articles.length);
+                console.log('Stocks chargés:', stockData.length);
+
+                // Créer un map pour accès rapide au stock par article_id
+                const stockMap = {};
+                stockData.forEach(stock => {
+                    if (!stockMap[stock.article_id]) {
+                        stockMap[stock.article_id] = [];
+                    }
+                    stockMap[stock.article_id].push(stock);
+                });
+
+                // Fusionner les données
                 const mergedData = articles.map(article => {
-                    // Trouver le stock correspondant à cet article
-                    const stockInfo = stockData.find(s => s.article_id === article.article_id);
-                    
+                    // Obtenir tous les stocks pour cet article
+                    const articleStocks = stockMap[article.article_id] || [];
+
+                    // Calculer la quantité totale (somme de tous les dépôts)
+                    const totalQuantity = articleStocks.reduce((sum, stock) =>
+                        sum + (parseFloat(stock.quantity) || 0), 0
+                    );
+
+                    // Prix unitaire
+                    const priceUnit = parseFloat(article.article_prix_vente) || 0;
+
+                    // Valeur totale
+                    const totalValue = totalQuantity * priceUnit;
+
                     return {
                         article_id: article.article_id,
-                        ref: article.article_reference,
-                        designation: article.article_name,
-                        description: article.article_description,
-                        quantity: stockInfo?.quantity || 0,
-                        priceUnit: article.article_prix_vente || 0,
-                        value: (stockInfo?.quantity || 0) * (article.article_prix_vente || 0),
+                        ref: article.article_reference || '-',
+                        designation: article.article_name || '-',
+                        description: article.article_description || '',
+                        quantity: totalQuantity,
+                        priceUnit: priceUnit,
+                        value: totalValue,
                         condition: article.unite_stock?.unite_code || 'PIECE',
                         unite_libelle: article.unite_stock?.unite_libelle || 'Pièce',
+                        unite_id: article.unite_stock?.unite_id || 1,
                         famille: article.famille?.famille_name || '-',
+                        famille_id: article.famille?.famille_id || null,
                         fournisseur: article.fournisseur?.fournisseur_name || '-',
-                        is_serialized: article.article_is_serialized,
-                        depot_id: stockInfo?.depot_id || null
+                        fournisseur_id: article.fournisseur?.fournisseur_id || null,
+                        is_serialized: article.article_is_serialized || false,
+                        stocks_by_depot: articleStocks // Garder les détails par dépôt
                     };
                 });
 
+                console.log('Données fusionnées:', mergedData.length);
                 setInventoryData(mergedData);
-                setFilteredData(mergedData);
             } else {
-                setError('Erreur lors du chargement des données');
+                throw new Error('Erreur lors du chargement des données');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur de connexion au serveur');
-            console.error('Erreur:', err);
+            const errorMsg = err.response?.data?.message || err.message || 'Erreur de connexion au serveur';
+            setError(errorMsg);
+            console.error('Erreur complète:', err);
         } finally {
             setLoading(false);
         }
@@ -97,27 +120,85 @@ const InventoryListView = () => {
     const filterData = () => {
         let filtered = [...inventoryData];
 
+        console.log('Filtrage - Données initiales:', filtered.length);
+
+        // Appliquer les filtres du modal en premier
+        if (modalFilters && modalFilters.criteres) {
+            const { criteres } = modalFilters;
+
+            // Filtrer par famille
+            if (criteres.famille_range) {
+                const { de, a } = criteres.famille_range;
+                if (de || a) {
+                    filtered = filtered.filter(item => {
+                        if (!item.famille_id) return false;
+                        const familleId = parseInt(item.famille_id);
+                        const deFamille = de ? parseInt(de) : 0;
+                        const aFamille = a ? parseInt(a) : Infinity;
+                        return familleId >= deFamille && familleId <= aFamille;
+                    });
+                    console.log('Après filtre famille:', filtered.length);
+                }
+            }
+
+            // Filtrer par article
+            if (criteres.article_range) {
+                const { de, a } = criteres.article_range;
+                if (de || a) {
+                    filtered = filtered.filter(item => {
+                        const articleId = parseInt(item.article_id);
+                        const deArticle = de ? parseInt(de) : 0;
+                        const aArticle = a ? parseInt(a) : Infinity;
+                        return articleId >= deArticle && articleId <= aArticle;
+                    });
+                    console.log('Après filtre article:', filtered.length);
+                }
+            }
+
+            // Filtrer par fournisseur
+            if (criteres.fournisseur_range) {
+                const { de, a } = criteres.fournisseur_range;
+                if (de || a) {
+                    filtered = filtered.filter(item => {
+                        if (!item.fournisseur_id) return false;
+                        const fournisseurId = parseInt(item.fournisseur_id);
+                        const deFournisseur = de ? parseInt(de) : 0;
+                        const aFournisseur = a ? parseInt(a) : Infinity;
+                        return fournisseurId >= deFournisseur && fournisseurId <= aFournisseur;
+                    });
+                    console.log('Après filtre fournisseur:', filtered.length);
+                }
+            }
+        }
+
         // Filtrer par recherche
         if (searchTerm) {
+            const search = searchTerm.toLowerCase();
             filtered = filtered.filter(item =>
-                item.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.ref.toLowerCase().includes(searchTerm.toLowerCase())
+                item.designation.toLowerCase().includes(search) ||
+                item.ref.toLowerCase().includes(search) ||
+                item.famille.toLowerCase().includes(search) ||
+                item.fournisseur.toLowerCase().includes(search)
             );
+            console.log('Après recherche:', filtered.length);
         }
 
         // Filtrer par onglet
         switch (activeTab) {
             case 'articles_stock':
                 filtered = filtered.filter(item => item.quantity > 0);
+                console.log('Après filtre stock:', filtered.length);
                 break;
             case 'articles_non_presents':
                 filtered = filtered.filter(item => item.quantity === 0);
+                console.log('Après filtre non présents:', filtered.length);
                 break;
             default:
                 // tous
                 break;
         }
 
+        console.log('Données filtrées finales:', filtered.length);
         setFilteredData(filtered);
     };
 
@@ -130,47 +211,149 @@ const InventoryListView = () => {
     };
 
     const handleValidateModal = (formData) => {
-        console.log('Données du formulaire:', formData);
-        // Recharger les données après validation
-        loadInventoryData();
+        console.log('Données du formulaire modal:', formData);
+        // Stocker les filtres du modal
+        setModalFilters(formData);
         setShowModal(false);
     };
 
     const handleAdjustedValueChange = (articleId, field, value) => {
-        setAdjustedValues(prev => ({
-            ...prev,
-            [articleId]: {
-                ...prev[articleId],
-                [field]: value
+
+        const id = parseInt(articleId);
+
+        const article = inventoryData.find(a => parseInt(a.article_id) === id);
+        if (!article) return;
+
+        setAdjustedValues(prev => {
+
+            const current = prev[id] || {
+                quantity: article.quantity,
+                price: article.priceUnit
+            };
+
+            let newValues = { ...current };
+
+            if (field === 'quantity') {
+                newValues.quantity = value === ''
+                    ? ''
+                    : parseFloat(value);
             }
-        }));
+
+            if (field === 'price') {
+                newValues.price = value === ''
+                    ? ''
+                    : parseFloat(value);
+            }
+
+            return {
+                ...prev,
+                [id]: newValues
+            };
+        });
     };
+
+
 
     const handleSaveAdjustments = async () => {
         try {
             setLoading(true);
-            
-            // Ici vous pouvez envoyer les ajustements à l'API
-            // Pour chaque article ajusté, créer un mouvement de stock
+            setError(null);
+
+            // Filtrer les ajustements valides
             const adjustmentsToSave = Object.entries(adjustedValues).filter(
-                ([_, values]) => values.quantity || values.price
+                ([_, values]) => {
+                    const qty = parseFloat(values.quantity);
+                    const price = parseFloat(values.price);
+                    return !isNaN(qty) && !isNaN(price) && qty > 0;
+                }
             );
 
+            console.log('Ajustements à sauvegarder:', adjustmentsToSave.length);
+
             if (adjustmentsToSave.length === 0) {
-                setError('Aucun ajustement à enregistrer');
+                setError('Aucun ajustement valide à enregistrer');
+                setLoading(false);
                 return;
             }
 
-            // TODO: Appeler l'API pour enregistrer les ajustements
-            console.log('Ajustements à enregistrer:', adjustedValues);
-            
-            // Recharger les données
-            await loadInventoryData();
-            setAdjustedValues({});
-            
+            // Créer les mouvements de stock pour chaque ajustement
+            const promises = adjustmentsToSave.map(async ([articleId, values]) => {
+                const article = inventoryData.find(a => a.article_id === parseInt(articleId));
+                if (!article) {
+                    console.warn(`Article ${articleId} non trouvé`);
+                    return null;
+                }
+
+                const adjustedQty = parseFloat(values.quantity) || 0;
+                const adjustedPrice = parseFloat(values.price) || 0;
+                const currentQty = article.quantity;
+
+                // Calculer la différence
+                const qtyDifference = adjustedQty - currentQty;
+
+                console.log(`Article ${articleId}: Qty actuelle=${currentQty}, Qty ajustée=${adjustedQty}, Différence=${qtyDifference}`);
+
+                if (qtyDifference === 0) {
+                    console.log(`Pas de différence pour l'article ${articleId}, ignoré`);
+                    return null;
+                }
+
+                // Déterminer le dépôt (utiliser le premier dépôt de l'article ou un dépôt par défaut)
+                let depotId = 7; // Valeur par défaut
+                if (article.stocks_by_depot && article.stocks_by_depot.length > 0) {
+                    depotId = article.stocks_by_depot[0].depot_id;
+                } else if (modalFilters && modalFilters.depot) {
+                    depotId = modalFilters.depot;
+                }
+
+                // Créer le mouvement d'inventaire
+                const mouvementData = {
+                    article_id: parseInt(articleId),
+                    mouvement_type: qtyDifference > 0 ? 'ENTREE' : 'SORTIE',
+                    mouvement_quantity: Math.abs(qtyDifference),
+                    mouvement_valeur: Math.abs(qtyDifference) * adjustedPrice,
+                    mouvement_date: new Date().toISOString(),
+                    mouvement_reference: `INV-${Date.now()}-${articleId}`,
+                    unite_id: article.unite_id,
+                    depot_destination_id: qtyDifference > 0 ? depotId : null,
+                    depot_source_id: qtyDifference < 0 ? depotId : null,
+                    lot_id: null
+                };
+
+                console.log('Création mouvement:', mouvementData);
+
+                try {
+                    const response = await createStockMouvement(mouvementData);
+                    console.log('Mouvement créé:', response.data);
+                    return response;
+                } catch (error) {
+                    console.error(`Erreur création mouvement pour article ${articleId}:`, error);
+                    return null;
+                }
+            });
+
+            // Attendre que tous les mouvements soient créés
+            const results = await Promise.all(promises);
+
+            // Compter les succès
+            const successCount = results.filter(r => r !== null && r.data?.status === 'success').length;
+
+            console.log(`${successCount} mouvements créés avec succès`);
+
+            if (successCount > 0) {
+                // Recharger les données
+                await loadInventoryData();
+                setAdjustedValues({});
+                setError(null);
+                alert(`✅ ${successCount} ajustement(s) enregistré(s) avec succès`);
+            } else {
+                setError('❌ Aucun ajustement n\'a pu être enregistré. Vérifiez la console pour plus de détails.');
+            }
+
         } catch (err) {
-            setError('Erreur lors de la sauvegarde des ajustements');
-            console.error('Erreur:', err);
+            const errorMsg = err.response?.data?.message || err.message || 'Erreur lors de la sauvegarde';
+            setError(errorMsg);
+            console.error('Erreur lors de la sauvegarde:', err);
         } finally {
             setLoading(false);
         }
@@ -182,11 +365,18 @@ const InventoryListView = () => {
             return;
         }
 
-        if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedItems.length} article(s) ?`)) {
-            // TODO: Implémenter la suppression
-            console.log('Articles à supprimer:', selectedItems);
+        if (window.confirm(`Êtes-vous sûr de vouloir retirer ${selectedItems.length} article(s) de la sélection ?`)) {
+            // Retirer de la sélection (ne pas supprimer les articles eux-mêmes)
             setSelectedItems([]);
+            setError(null);
         }
+    };
+
+    const handleResetFilters = () => {
+        setModalFilters(null);
+        setSearchTerm('');
+        setActiveTab('tous');
+        setError(null);
     };
 
     const toggleSelectItem = (articleId) => {
@@ -201,9 +391,9 @@ const InventoryListView = () => {
 
     const calculateTotals = () => {
         return filteredData.reduce((acc, item) => {
-            const adjustedQty = adjustedValues[item.article_id]?.quantity || 0;
-            const adjustedPrice = adjustedValues[item.article_id]?.price || 0;
-            
+            const adjustedQty = parseFloat(adjustedValues[item.article_id]?.quantity) || 0;
+            const adjustedPrice = parseFloat(adjustedValues[item.article_id]?.price) || 0;
+
             return {
                 totalValue: acc.totalValue + item.value,
                 totalAdjustedValue: acc.totalAdjustedValue + (adjustedQty * adjustedPrice)
@@ -216,7 +406,7 @@ const InventoryListView = () => {
     return (
         <div className="d-flex">
             <div style={{ width: "8%" }}>
-                <Sidebar/>
+                <Sidebar />
             </div>
 
             <div style={{ width: "92%" }}>
@@ -238,16 +428,49 @@ const InventoryListView = () => {
                             borderRadius: '4px',
                             color: '#c00',
                             display: 'flex',
-                            justifyContent: 'space-between'
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
                         }}>
                             <span>{error}</span>
-                            <button onClick={() => setError(null)} style={{ 
-                                background: 'none', 
-                                border: 'none', 
+                            <button onClick={() => setError(null)} style={{
+                                background: 'none',
+                                border: 'none',
                                 cursor: 'pointer',
                                 color: '#c00',
-                                fontSize: '16px'
-                            }}>✕</button>
+                                fontSize: '20px',
+                                fontWeight: 'bold'
+                            }}>×</button>
+                        </div>
+                    )}
+
+                    {modalFilters && (
+                        <div style={{
+                            padding: '10px',
+                            margin: '10px',
+                            backgroundColor: '#e7f3ff',
+                            border: '1px solid #b3d9ff',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <span>
+                                🔍 Filtres actifs:
+                                {modalFilters.criteres?.famille_range && ' Famille'}
+                                {modalFilters.criteres?.article_range && ' | Article'}
+                                {modalFilters.criteres?.fournisseur_range && ' | Fournisseur'}
+                                {modalFilters.depot && ` | Dépôt: ${modalFilters.depot}`}
+                            </span>
+                            <button onClick={handleResetFilters} style={{
+                                padding: '4px 12px',
+                                backgroundColor: '#007bff',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}>
+                                Réinitialiser filtres
+                            </button>
                         </div>
                     )}
 
@@ -258,8 +481,8 @@ const InventoryListView = () => {
                         >
                             Tous
                         </button>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="tab-input"
                             placeholder="Rechercher..."
                             value={searchTerm}
@@ -280,7 +503,7 @@ const InventoryListView = () => {
                         <div className="inventory-table-container">
                             {loading ? (
                                 <div style={{ padding: '20px', textAlign: 'center' }}>
-                                    Chargement de l'inventaire...
+                                    ⏳ Chargement de l'inventaire...
                                 </div>
                             ) : (
                                 <>
@@ -288,8 +511,9 @@ const InventoryListView = () => {
                                         <thead>
                                             <tr>
                                                 <th style={{ width: '30px' }}>
-                                                    <input 
+                                                    <input
                                                         type="checkbox"
+                                                        checked={selectedItems.length === filteredData.length && filteredData.length > 0}
                                                         onChange={(e) => {
                                                             if (e.target.checked) {
                                                                 setSelectedItems(filteredData.map(item => item.article_id));
@@ -314,23 +538,45 @@ const InventoryListView = () => {
                                             {filteredData.length === 0 ? (
                                                 <tr>
                                                     <td colSpan="10" style={{ textAlign: 'center', padding: '20px' }}>
-                                                        Aucun article trouvé
+                                                        {searchTerm || modalFilters
+                                                            ? '🔍 Aucun article trouvé avec ces critères'
+                                                            : '📦 Aucun article disponible'}
                                                     </td>
                                                 </tr>
                                             ) : (
                                                 filteredData.map((item) => {
-                                                    const adjusted = adjustedValues[item.article_id] || {};
-                                                    const adjustedQty = parseFloat(adjusted.quantity) || 0;
-                                                    const adjustedPrice = parseFloat(adjusted.price) || 0;
-                                                    const adjustedValue = adjustedQty * adjustedPrice;
+
+                                                    const adjusted =
+                                                        adjustedValues[parseInt(item.article_id)] ||
+                                                        {
+                                                            quantity: item.quantity,
+                                                            price: item.priceUnit
+                                                        };
+
+
+                                                    const adjustedQty =
+                                                        adjusted.quantity === ''
+                                                            ? ''
+                                                            : String(adjusted.quantity ?? item.quantity);
+
+                                                    const adjustedPrice =
+                                                        adjusted.price === ''
+                                                            ? ''
+                                                            : String(adjusted.price ?? item.priceUnit);
+
+                                                    const adjustedValue =
+                                                        adjustedQty && adjustedPrice
+                                                            ? adjustedQty * adjustedPrice
+                                                            : 0;
+
 
                                                     return (
-                                                        <tr 
+                                                        <tr
                                                             key={item.article_id}
                                                             className={selectedItems.includes(item.article_id) ? 'selected' : ''}
                                                         >
                                                             <td>
-                                                                <input 
+                                                                <input
                                                                     type="checkbox"
                                                                     checked={selectedItems.includes(item.article_id)}
                                                                     onChange={() => toggleSelectItem(item.article_id)}
@@ -339,20 +585,24 @@ const InventoryListView = () => {
                                                             <td>{item.ref}</td>
                                                             <td>{item.designation}</td>
                                                             <td className="text-right">{item.quantity.toFixed(2)}</td>
-                                                            <td className="text-right">{item.priceUnit.toLocaleString()}</td>
-                                                            <td className="text-right">{item.value.toLocaleString()}</td>
+                                                            <td className="text-right">{item.priceUnit.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="text-right">{item.value.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
                                                             <td>{item.condition}</td>
                                                             <td>
                                                                 <input
                                                                     type="number"
                                                                     step="0.01"
                                                                     className="adjustment-input"
-                                                                    value={adjusted.quantity || ''}
-                                                                    onChange={(e) => handleAdjustedValueChange(
-                                                                        item.article_id, 
-                                                                        'quantity', 
-                                                                        e.target.value
-                                                                    )}
+                                                                    value={adjustedQty ?? ''}
+                                                                    onChange={(e) =>
+                                                                    
+                                                                        handleAdjustedValueChange(
+                                                                            item.article_id,
+                                                                            'quantity',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    placeholder={item.quantity.toFixed(2)}
                                                                     style={{ width: '80px', padding: '4px' }}
                                                                 />
                                                             </td>
@@ -361,17 +611,21 @@ const InventoryListView = () => {
                                                                     type="number"
                                                                     step="0.01"
                                                                     className="adjustment-input"
-                                                                    value={adjusted.price || ''}
-                                                                    onChange={(e) => handleAdjustedValueChange(
-                                                                        item.article_id, 
-                                                                        'price', 
-                                                                        e.target.value
-                                                                    )}
+                                                                    value={adjustedPrice}
+                                                                    onChange={(e) =>
+                                                                        handleAdjustedValueChange(
+                                                                            item.article_id,
+                                                                            'price',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    placeholder={item.priceUnit.toFixed(2)}
                                                                     style={{ width: '100px', padding: '4px' }}
                                                                 />
                                                             </td>
+
                                                             <td className="text-right">
-                                                                {adjustedValue > 0 ? adjustedValue.toLocaleString() : ''}
+                                                                {adjustedValue > 0 ? adjustedValue.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) : ''}
                                                             </td>
                                                         </tr>
                                                     );
@@ -380,13 +634,13 @@ const InventoryListView = () => {
                                         </tbody>
                                         <tfoot>
                                             <tr style={{ fontWeight: 'bold', backgroundColor: '#f0f0f0' }}>
-                                                <td colSpan="5" style={{ textAlign: 'right' }}>Total:</td>
-                                                <td className="text-right">{totals.totalValue.toLocaleString()}</td>
+                                                <td colSpan="5" style={{ textAlign: 'right', padding: '8px' }}>Total:</td>
+                                                <td className="text-right">{totals.totalValue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td className="text-right">
-                                                    {totals.totalAdjustedValue > 0 ? totals.totalAdjustedValue.toLocaleString() : ''}
+                                                    {totals.totalAdjustedValue > 0 ? totals.totalAdjustedValue.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) : ''}
                                                 </td>
                                             </tr>
                                         </tfoot>
@@ -397,21 +651,28 @@ const InventoryListView = () => {
                                             className="action-btn primary"
                                             onClick={handleNewInventory}
                                         >
-                                            Nouveau
+                                            📋 Nouveau
                                         </button>
-                                        <button 
+                                        <button
                                             className="action-btn"
                                             onClick={handleDeleteSelected}
                                             disabled={selectedItems.length === 0}
                                         >
-                                            Supprimer
+                                            ❌ Retirer sélection
                                         </button>
-                                        <button 
+                                        <button
                                             className="action-btn primary"
                                             onClick={handleSaveAdjustments}
-                                            disabled={Object.keys(adjustedValues).length === 0}
+                                            disabled={Object.keys(adjustedValues).length === 0 || loading}
                                         >
-                                            Enregistrer
+                                            {loading ? '⏳ Enregistrement...' : '💾 Enregistrer ajustements'}
+                                        </button>
+                                        <button
+                                            className="action-btn"
+                                            onClick={loadInventoryData}
+                                            disabled={loading}
+                                        >
+                                            🔄 Actualiser
                                         </button>
                                     </div>
                                 </>
@@ -421,7 +682,17 @@ const InventoryListView = () => {
 
                     <div className="inventory-status-bar">
                         <div className="status-left">
-                            <span>Articles: {filteredData.length} / {inventoryData.length}</span>
+                            <span>📦 Articles: {filteredData.length} / {inventoryData.length}</span>
+                            {selectedItems.length > 0 && (
+                                <span style={{ marginLeft: '15px', color: '#007bff' }}>
+                                    ✅ Sélectionnés: {selectedItems.length}
+                                </span>
+                            )}
+                            {Object.keys(adjustedValues).length > 0 && (
+                                <span style={{ marginLeft: '15px', color: '#28a745' }}>
+                                    ✏️ Ajustements: {Object.keys(adjustedValues).length}
+                                </span>
+                            )}
                         </div>
                         <div className="status-right">
                             <button className="btn-close" onClick={() => window.history.back()}>
