@@ -2,7 +2,7 @@
 
 import './Layout.css';
 
-const Sidebar = ({ items = [], activeItem, onItemClick }) => {
+const SidebarLayout = ({ items = [], activeItem, onItemClick }) => {
     return (
         <div className="sidebar-erp">
             {items.map((item, index) => (
@@ -19,4 +19,4 @@ const Sidebar = ({ items = [], activeItem, onItemClick }) => {
     );
 };
 
-export default Sidebar;
+export default SidebarLayout;

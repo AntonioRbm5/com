@@ -5,6 +5,9 @@ import { getAllFournisseurs, searchFournisseur, deleteFournisseur, updateFournis
 import Header from '../Layout/Header';
 import Toolbar from '../Layout/Toolbar';
 
+import Sidebar from '../../composants/sidebar';
+import Navbar from '../../composants/navbar';
+
 const FournisseurListPage = () => {
     const navigate = useNavigate();
     const [fournisseurs, setFournisseurs] = useState([]);
@@ -137,7 +140,7 @@ const FournisseurListPage = () => {
                 await loadFournisseurs();
                 const updatedFournisseur = fournisseurs.find(f => f.fournisseur_id === selectedId);
                 if (updatedFournisseur) {
-                    setSelectedFournisseur({...updatedFournisseur, ...editedData});
+                    setSelectedFournisseur({ ...updatedFournisseur, ...editedData });
                 }
                 setError(null);
             } else {
@@ -153,7 +156,7 @@ const FournisseurListPage = () => {
 
     const handlePrint = (type) => {
         setShowPrintModal(false);
-        
+
         if (type === 'all') {
             window.print();
         } else if (type === 'selected' && selectedFournisseur) {
@@ -192,7 +195,7 @@ const FournisseurListPage = () => {
                     <td>${f.articles?.length || 0}</td>
                 </tr>
             `).join('');
-            
+
             printWindow.document.write(`
                 <html>
                     <head>
@@ -229,305 +232,315 @@ const FournisseurListPage = () => {
     };
 
     const toolbarConfig = [
-        { label: 'Tous', icon: '📋', active: true, onClick: () => {
-            setSearchTerm('');
-            setFilteredFournisseurs(fournisseurs);
-            setShowSearch(false);
-        }},
+        {
+            label: 'Tous', icon: '📋', active: true, onClick: () => {
+                setSearchTerm('');
+                setFilteredFournisseurs(fournisseurs);
+                setShowSearch(false);
+            }
+        },
         { label: 'Rechercher', icon: '🔍', onClick: () => setShowSearch(!showSearch) },
         { label: 'Imprimer', icon: '🖨️', onClick: () => setShowPrintModal(true) },
-        { label: 'Assistant', icon: '❓', onClick: () => {} }
+        { label: 'Assistant', icon: '❓', onClick: () => { } }
     ];
 
     return (
-        <div className="window">
-            <Header
-                title="Fournisseurs"
-                showWindowControls={true}
-            />
-
-            <Toolbar customButtons={toolbarConfig} />
-
-            {error && (
-                <div style={{
-                    padding: '10px',
-                    margin: '10px',
-                    backgroundColor: '#fee',
-                    border: '1px solid #fcc',
-                    borderRadius: '4px',
-                    color: '#c00',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <span>{error}</span>
-                    <button 
-                        onClick={() => setError(null)}
-                        style={{ 
-                            background: 'none', 
-                            border: 'none', 
-                            cursor: 'pointer',
-                            fontSize: '18px',
-                            color: '#c00'
-                        }}
-                    >
-                        ✕
-                    </button>
-                </div>
-            )}
-
-            {showPrintModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        padding: '30px',
-                        borderRadius: '8px',
-                        minWidth: '400px',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                    }}>
-                        <h3 style={{ marginTop: 0, color: '#007bff' }}>Options d'impression</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
-                            <button 
-                                className="btn btn-primary"
-                                onClick={() => handlePrint('list')}
-                                style={{ padding: '12px', fontSize: '14px' }}
-                            >
-                                📄 Imprimer la liste
-                            </button>
-                            {selectedFournisseur && (
-                                <button 
-                                    className="btn btn-primary"
-                                    onClick={() => handlePrint('selected')}
-                                    style={{ padding: '12px', fontSize: '14px' }}
-                                >
-                                    📋 Imprimer le fournisseur sélectionné
-                                </button>
-                            )}
-                            <button 
-                                className="btn btn-primary"
-                                onClick={() => handlePrint('all')}
-                                style={{ padding: '12px', fontSize: '14px' }}
-                            >
-                                🖨️ Imprimer la page complète
-                            </button>
-                            <button 
-                                className="btn"
-                                onClick={() => setShowPrintModal(false)}
-                                style={{ padding: '12px', fontSize: '14px' }}
-                            >
-                                Annuler
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showSearch && (
-                <div style={{
-                    padding: '10px',
-                    margin: '10px',
-                    backgroundColor: '#f5f5f5',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    gap: '10px',
-                    alignItems: 'center'
-                }}>
-                    <input
-                        type="text"
-                        className="form-input"
-                        placeholder="Rechercher par nom ou référence..."
-                        value={searchTerm}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                        style={{ flex: 1 }}
+        <div className="d-flex">
+            <div style={{ width: "8%" }}>
+                <Sidebar />
+            </div>
+            <div style={{ width: "92%" }}>
+                <Navbar />
+                <div className="window">
+                    <Header
+                        title="Fournisseurs"
+                        showWindowControls={true}
                     />
-                    <button className="btn btn-primary" onClick={handleSearch}>
-                        Rechercher
-                    </button>
-                    <button className="btn" onClick={() => {
-                        setSearchTerm('');
-                        setFilteredFournisseurs(fournisseurs);
-                    }}>
-                        Réinitialiser
-                    </button>
-                </div>
-            )}
 
-            <div style={{ display: 'flex', gap: '10px', height: 'calc(100% - 200px)' }}>
-                <div className="famille-list-container" style={{ flex: showDetails ? '1' : '1' }}>
-                    {loading ? (
-                        <div style={{ padding: '20px', textAlign: 'center' }}>
-                            Chargement des fournisseurs...
-                        </div>
-                    ) : (
-                        <table className="famille-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ width: '20px' }}></th>
-                                    <th>Code</th>
-                                    <th>Nom du fournisseur</th>
-                                    <th>Référence</th>
-                                    <th>Articles</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredFournisseurs.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
-                                            Aucun fournisseur trouvé
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    filteredFournisseurs.map(fournisseur => (
-                                        <tr
-                                            key={fournisseur.fournisseur_id}
-                                            onClick={() => handleRowClick(fournisseur)}
-                                            className={selectedId === fournisseur.fournisseur_id ? 'selected' : ''}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <td>🏢</td>
-                                            <td>{fournisseur.fournisseur_id}</td>
-                                            <td>{fournisseur.fournisseur_name}</td>
-                                            <td>{fournisseur.fournisseur_reference || '-'}</td>
-                                            <td>{fournisseur.articles?.length || 0}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                    <Toolbar customButtons={toolbarConfig} />
 
-                {showDetails && selectedFournisseur && (
-                    <div style={{
-                        width: '350px',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        padding: '15px',
-                        backgroundColor: '#fff',
-                        overflowY: 'auto'
-                    }}>
+                    {error && (
                         <div style={{
+                            padding: '10px',
+                            margin: '10px',
+                            backgroundColor: '#fee',
+                            border: '1px solid #fcc',
+                            borderRadius: '4px',
+                            color: '#c00',
                             display: 'flex',
                             justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '15px',
-                            borderBottom: '2px solid #007bff',
-                            paddingBottom: '10px'
+                            alignItems: 'center'
                         }}>
-                            <h3 style={{ margin: 0, color: '#007bff' }}>Détails</h3>
+                            <span>{error}</span>
                             <button
-                                onClick={() => setShowDetails(false)}
+                                onClick={() => setError(null)}
                                 style={{
                                     background: 'none',
                                     border: 'none',
-                                    fontSize: '20px',
                                     cursor: 'pointer',
-                                    color: '#666'
+                                    fontSize: '18px',
+                                    color: '#c00'
                                 }}
                             >
                                 ✕
                             </button>
                         </div>
+                    )}
 
-                        <div style={{ marginBottom: '15px' }}>
-                            <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
-                                Code:
-                            </strong>
-                            <div style={{ padding: '8px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-                                {selectedFournisseur.fournisseur_id}
+                    {showPrintModal && (
+                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 1000
+                        }}>
+                            <div style={{
+                                backgroundColor: 'white',
+                                padding: '30px',
+                                borderRadius: '8px',
+                                minWidth: '400px',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                            }}>
+                                <h3 style={{ marginTop: 0, color: '#007bff' }}>Options d'impression</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => handlePrint('list')}
+                                        style={{ padding: '12px', fontSize: '14px' }}
+                                    >
+                                        📄 Imprimer la liste
+                                    </button>
+                                    {selectedFournisseur && (
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={() => handlePrint('selected')}
+                                            style={{ padding: '12px', fontSize: '14px' }}
+                                        >
+                                            📋 Imprimer le fournisseur sélectionné
+                                        </button>
+                                    )}
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => handlePrint('all')}
+                                        style={{ padding: '12px', fontSize: '14px' }}
+                                    >
+                                        🖨️ Imprimer la page complète
+                                    </button>
+                                    <button
+                                        className="btn"
+                                        onClick={() => setShowPrintModal(false)}
+                                        style={{ padding: '12px', fontSize: '14px' }}
+                                    >
+                                        Annuler
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                    )}
 
-                        <div style={{ marginBottom: '15px' }}>
-                            <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
-                                Nom: *
-                            </strong>
+                    {showSearch && (
+                        <div style={{
+                            padding: '10px',
+                            margin: '10px',
+                            backgroundColor: '#f5f5f5',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            gap: '10px',
+                            alignItems: 'center'
+                        }}>
                             <input
                                 type="text"
                                 className="form-input"
-                                value={editedData.fournisseur_name}
-                                onChange={(e) => setEditedData({...editedData, fournisseur_name: e.target.value})}
-                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: '15px' }}>
-                            <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
-                                Référence:
-                            </strong>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={editedData.fournisseur_reference}
-                                onChange={(e) => setEditedData({...editedData, fournisseur_reference: e.target.value})}
-                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: '15px' }}>
-                            <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
-                                Nombre d'articles:
-                            </strong>
-                            <div style={{ padding: '8px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-                                {selectedFournisseur.articles?.length || 0}
-                            </div>
-                        </div>
-
-                        <div style={{ marginBottom: '15px' }}>
-                            <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
-                                Date d'ajout:
-                            </strong>
-                            <div style={{ padding: '8px', backgroundColor: '#f5f5f5', borderRadius: '4px', fontSize: '12px' }}>
-                                {new Date(selectedFournisseur.fournisseur_added_date).toLocaleString('fr-FR')}
-                            </div>
-                        </div>
-
-                        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                            <button
-                                className="btn btn-primary"
-                                onClick={handleSaveDetails}
-                                disabled={isSaving}
+                                placeholder="Rechercher par nom ou référence..."
+                                value={searchTerm}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                                 style={{ flex: 1 }}
-                            >
-                                {isSaving ? '💾 Sauvegarde...' : '💾 Sauvegarder'}
+                            />
+                            <button className="btn btn-primary" onClick={handleSearch}>
+                                Rechercher
                             </button>
-                            <button
-                                className="btn"
-                                onClick={handleEdit}
-                                style={{ flex: 1 }}
-                            >
-                                ✏️ Éditer
+                            <button className="btn" onClick={() => {
+                                setSearchTerm('');
+                                setFilteredFournisseurs(fournisseurs);
+                            }}>
+                                Réinitialiser
                             </button>
                         </div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: '10px', height: 'calc(100% - 200px)' }}>
+                        <div className="famille-list-container" style={{ flex: showDetails ? '1' : '1' }}>
+                            {loading ? (
+                                <div style={{ padding: '20px', textAlign: 'center' }}>
+                                    Chargement des fournisseurs...
+                                </div>
+                            ) : (
+                                <table className="famille-table">
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: '20px' }}></th>
+                                            <th>Code</th>
+                                            <th>Nom du fournisseur</th>
+                                            <th>Référence</th>
+                                            <th>Articles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredFournisseurs.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                                                    Aucun fournisseur trouvé
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            filteredFournisseurs.map(fournisseur => (
+                                                <tr
+                                                    key={fournisseur.fournisseur_id}
+                                                    onClick={() => handleRowClick(fournisseur)}
+                                                    className={selectedId === fournisseur.fournisseur_id ? 'selected' : ''}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <td>🏢</td>
+                                                    <td>{fournisseur.fournisseur_id}</td>
+                                                    <td>{fournisseur.fournisseur_name}</td>
+                                                    <td>{fournisseur.fournisseur_reference || '-'}</td>
+                                                    <td>{fournisseur.articles?.length || 0}</td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+
+                        {showDetails && selectedFournisseur && (
+                            <div style={{
+                                width: '350px',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                padding: '15px',
+                                backgroundColor: '#fff',
+                                overflowY: 'auto'
+                            }}>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '15px',
+                                    borderBottom: '2px solid #007bff',
+                                    paddingBottom: '10px'
+                                }}>
+                                    <h3 style={{ margin: 0, color: '#007bff' }}>Détails</h3>
+                                    <button
+                                        onClick={() => setShowDetails(false)}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            fontSize: '20px',
+                                            cursor: 'pointer',
+                                            color: '#666'
+                                        }}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
+                                        Code:
+                                    </strong>
+                                    <div style={{ padding: '8px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+                                        {selectedFournisseur.fournisseur_id}
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
+                                        Nom: *
+                                    </strong>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={editedData.fournisseur_name}
+                                        onChange={(e) => setEditedData({ ...editedData, fournisseur_name: e.target.value })}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
+                                        Référence:
+                                    </strong>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={editedData.fournisseur_reference}
+                                        onChange={(e) => setEditedData({ ...editedData, fournisseur_reference: e.target.value })}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
+                                        Nombre d'articles:
+                                    </strong>
+                                    <div style={{ padding: '8px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+                                        {selectedFournisseur.articles?.length || 0}
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '15px' }}>
+                                    <strong style={{ color: '#555', display: 'block', marginBottom: '5px' }}>
+                                        Date d'ajout:
+                                    </strong>
+                                    <div style={{ padding: '8px', backgroundColor: '#f5f5f5', borderRadius: '4px', fontSize: '12px' }}>
+                                        {new Date(selectedFournisseur.fournisseur_added_date).toLocaleString('fr-FR')}
+                                    </div>
+                                </div>
+
+                                <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleSaveDetails}
+                                        disabled={isSaving}
+                                        style={{ flex: 1 }}
+                                    >
+                                        {isSaving ? '💾 Sauvegarde...' : '💾 Sauvegarder'}
+                                    </button>
+                                    <button
+                                        className="btn"
+                                        onClick={handleEdit}
+                                        style={{ flex: 1 }}
+                                    >
+                                        ✏️ Éditer
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
 
-            <div className="form-actions">
-                <button className="btn" onClick={handleEdit} disabled={!selectedId}>
-                    Ouvrir
-                </button>
-                <button className="btn btn-primary" onClick={handleNew}>
-                    Nouveau
-                </button>
-                <button className="btn" onClick={handleDelete} disabled={!selectedId}>
-                    Supprimer
-                </button>
-                <button className="btn" onClick={() => navigate('/')}>
-                    Fermer
-                </button>
+                    <div className="form-actions">
+                        <button className="btn" onClick={handleEdit} disabled={!selectedId}>
+                            Ouvrir
+                        </button>
+                        <button className="btn btn-primary" onClick={handleNew}>
+                            Nouveau
+                        </button>
+                        <button className="btn" onClick={handleDelete} disabled={!selectedId}>
+                            Supprimer
+                        </button>
+                        <button className="btn" onClick={() => navigate('/')}>
+                            Fermer
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -13,7 +13,7 @@ export default function Sidebar() {
     { label: "Home", icon: <FaHome className="ft-2"/>, path: "/home-commercial" },
     { label: "Entreprise", icon: <FaBuilding className="ft-2"/>, path: "/entreprise"},
     { label: "Articles", icon: <FaBox className="ft-2"/>, path: "/article"},
-    { label: "Stocks", icon: <FaWarehouse className="ft-2"/>, path: "/not-found"},
+    { label: "Stocks", icon: <FaWarehouse className="ft-2"/>, path: "/gestionstock"},
     { label: "Inventaires", icon: <FaClipboardList className="ft-2"/>, path: "/inventaire"},
     { label: "Clients", icon: <FaUsers className="ft-2"/>, path: "/clients" },
     { label: "Fournisseurs", icon: <FaTruck className="ft-2"/>, path: "/fournisseur"},

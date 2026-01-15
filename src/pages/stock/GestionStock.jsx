@@ -17,6 +17,8 @@ import {
     transformStockStateFromAPI
 } from '../../services/stockService';
 import "./stock.css";
+import Sidebar from '../../composants/sidebar';
+import Navbar from '../../composants/navbar';
 
 const GestionStock = () => {
     // États pour les données
@@ -88,32 +90,32 @@ const GestionStock = () => {
     const handleSaveDocument = async (documentData) => {
         try {
             setLoading(true);
-            
+
             // Validation des données avant transformation
             console.log('📥 Données reçues du modal:', documentData);
-            
+
             if (!documentData?.header) {
                 throw new Error('Données du formulaire incomplètes: header manquant');
             }
-            
+
             if (!documentData.header.date) {
                 throw new Error('Date manquante dans le formulaire');
             }
-            
+
             if (!documentData.header.depotId) {
                 throw new Error('Dépôt non sélectionné');
             }
-            
+
             if (!documentData.header.articleId) {
                 throw new Error('Article non sélectionné');
             }
-            
+
             if (!documentData.totaux) {
                 throw new Error('Totaux manquants');
             }
-            
+
             console.log('✅ Validation des données réussie');
-            
+
             // Transformation des données pour l'API
             const apiData = transformMouvementForAPI(documentData);
             console.log('🔄 Transformation terminée:', apiData);
@@ -136,7 +138,7 @@ const GestionStock = () => {
 
                 if (selectedDocument && selectedDocument.id) {
                     // Mettre à jour dans la liste
-                    setDocuments(prev => prev.map(d => 
+                    setDocuments(prev => prev.map(d =>
                         d.id === selectedDocument.id ? savedMouvement : d
                     ));
                 } else {
@@ -146,7 +148,7 @@ const GestionStock = () => {
 
                 setShowMouvementModal(false);
                 alert('Document sauvegardé avec succès');
-                
+
                 // Recharger l'état du stock
                 const stockStateResponse = await getStockState();
                 if (stockStateResponse?.data?.status === 'success') {
@@ -161,16 +163,16 @@ const GestionStock = () => {
         } catch (err) {
             console.error('❌ Erreur sauvegarde document:', err);
             console.error('❌ Stack trace:', err.stack);
-            
+
             // Message d'erreur plus détaillé
             let errorMessage = 'Erreur lors de la sauvegarde';
-            
+
             if (err.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err.message) {
                 errorMessage = err.message;
             }
-            
+
             alert(`Erreur: ${errorMessage}`);
         } finally {
             setLoading(false);
@@ -185,11 +187,11 @@ const GestionStock = () => {
         try {
             setLoading(true);
             const response = await deleteStockMouvement(docId);
-            
+
             if (response?.data?.status === 'success') {
                 setDocuments(prev => prev.filter(d => d.id !== docId));
                 alert('Document supprimé avec succès');
-                
+
                 // Recharger l'état du stock
                 const stockStateResponse = await getStockState();
                 if (stockStateResponse?.data?.status === 'success') {
@@ -314,67 +316,76 @@ const GestionStock = () => {
     }
 
     return (
-        <div className="stock-container">
-            {loading && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.3)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 9999
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        padding: '20px 40px',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                    }}>
-                        Chargement...
-                    </div>
+        <div className="d-flex">
+            <div style={{ width: "8%" }}>
+                <Sidebar />
+            </div>
+            <div style={{ width: "92%" }}>
+                <Navbar />
+                <div className="stock-container">
+                    {loading && (
+                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(0,0,0,0.3)',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 9999
+                        }}>
+                            <div style={{
+                                backgroundColor: 'white',
+                                padding: '20px 40px',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                            }}>
+                                Chargement...
+                            </div>
+                        </div>
+                    )}
+
+                    <DocumentsStockListe
+                        documents={documents}
+                        onSelectDocument={handleSelectDocument}
+                        onNewDocument={handleNewDocument}
+                        onOpenFiltres={() => setShowFiltresModal(true)}
+                        onDeleteDocument={handleDeleteDocument}
+                    />
+
+                    <MouvementEntreeModal
+                        show={showMouvementModal}
+                        onHide={() => setShowMouvementModal(false)}
+                        mouvement={selectedDocument}
+                        onSave={handleSaveDocument}
+                        depots={depots}
+                    />
+
+                    <FiltresMouvementModal
+                        show={showFiltresModal}
+                        onHide={() => setShowFiltresModal(false)}
+                        onApply={handleApplyFiltres}
+                        depots={depots}
+                    />
+
+                    <ImpressionModal
+                        show={showImpressionModal}
+                        onHide={() => setShowImpressionModal(false)}
+                        onPrint={handlePrint}
+                        onPreview={handlePreview}
+                    />
+
+                    <ApercuImpressionModal
+                        show={showApercuModal}
+                        onHide={() => setShowApercuModal(false)}
+                        data={dataForPreview}
+                    />
                 </div>
-            )}
-
-            <DocumentsStockListe
-                documents={documents}
-                onSelectDocument={handleSelectDocument}
-                onNewDocument={handleNewDocument}
-                onOpenFiltres={() => setShowFiltresModal(true)}
-                onDeleteDocument={handleDeleteDocument}
-            />
-
-            <MouvementEntreeModal
-                show={showMouvementModal}
-                onHide={() => setShowMouvementModal(false)}
-                mouvement={selectedDocument}
-                onSave={handleSaveDocument}
-                depots={depots}
-            />
-
-            <FiltresMouvementModal
-                show={showFiltresModal}
-                onHide={() => setShowFiltresModal(false)}
-                onApply={handleApplyFiltres}
-                depots={depots}
-            />
-
-            <ImpressionModal
-                show={showImpressionModal}
-                onHide={() => setShowImpressionModal(false)}
-                onPrint={handlePrint}
-                onPreview={handlePreview}
-            />
-
-            <ApercuImpressionModal
-                show={showApercuModal}
-                onHide={() => setShowApercuModal(false)}
-                data={dataForPreview}
-            />
+            </div>    
         </div>
+
     );
 };
 

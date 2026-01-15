@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import './InventoryListView.css';
 import InventoryEntryModal from './InventoryEntryModal';
-import Sidebar from '../Layout/Sidebar';
+import SidebarLayout from '../Layout/SidebarLayout';
 import Toolbar from '../Layout/Toolbar';
 import Header from '../Layout/Header';
+import Navbar from '../../composants/navbar';
+import Sidebar from '../../composants/sidebar';
+
 
 const InventoryListView = () => {
     const [activeTab, setActiveTab] = useState('tous');
@@ -52,111 +55,119 @@ const InventoryListView = () => {
     };
 
     return (
-        <>
-            <div className="inventory-container">
-                <Header
-                    title="Saisie inventaire au 07/07/22 : SIEGE"
-                    showWindowControls={true}
-                />
-
-                {/* Toolbar centralisé */}
-                <Toolbar buttons={toolbarButtons} />
-                {/* Tabs */}
-                <div className="inventory-tabs">
-                    <button
-                        className={`tab-btn ${activeTab === 'tous' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('tous')}
-                    >
-                        Tous
-                    </button>
-                    <input type="text" className="tab-input" />
-                    <div className="tab-labels">
-                        <span>Désignation</span>
-                    </div>
-                </div>
-
-                {/* Left Sidebar */}
-                <div className="inventory-content">
-
-                    <Sidebar
-                        items={sidebarItems}
-                        activeItem={activeTab}
-                        onItemClick={setActiveTab}
-                    />
-                    {/* Main Table */}
-                    <div className="inventory-table-container">
-                        <table className="inventory-table">
-                            <thead>
-                                <tr>
-                                    <th>Référence a...</th>
-                                    <th>Désignation</th>
-                                    <th className="text-right">Quantité</th>
-                                    <th className="text-right">PR unitaire</th>
-                                    <th className="text-right">Valeur</th>
-                                    <th>Conditionn...</th>
-                                    <th>Qté ajustée</th>
-                                    <th>PR ajusté</th>
-                                    <th>Valeur ajustée</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {inventoryData.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item.ref}</td>
-                                        <td>{item.designation}</td>
-                                        <td className="text-right">{item.quantity.toFixed(2)}</td>
-                                        <td className="text-right">{item.priceUnit.toLocaleString()}</td>
-                                        <td className="text-right">{item.value.toLocaleString()}</td>
-                                        <td>{item.condition}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                        {/* Action Buttons */}
-                        <div className="table-actions">
-                            <button
-                                className="action-btn primary"
-                                onClick={handleNewInventory}
-                            >
-                                Nouveau
-                            </button>
-                            <button className="action-btn">Supprimer</button>
-                            <button className="action-btn primary">Enregistrer</button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Status Bar */}
-                <div className="inventory-status-bar">
-                    <div className="status-left">
-                        <button className="status-toggle">◀</button>
-                        <button className="status-toggle">▼</button>
-                        <button className="status-toggle">◀</button>
-                    </div>
-                    <div className="status-right">
-                        <button className="btn-close">Fermer</button>
-                    </div>
-                </div>
-
-                {/* Page Indicator */}
-                <div className="page-indicator">
-                    14/96
-                </div>
+        <div className="d-flex">
+            <div style={{ width: "8%" }}>
+                <Sidebar/>
             </div>
 
-            {/* Modal - S'affiche par-dessus quand showModal est true */}
-            <InventoryEntryModal
-                show={showModal}
-                onClose={handleCloseModal}
-                onValidate={handleValidateModal}
-            />
-        </>
+            <div style={{ width: "92%" }}>
+                <Navbar />
+                <div className="inventory-container">
+                    <Header
+                        title="Saisie inventaire au 07/07/22 : SIEGE"
+                        showWindowControls={true}
+                    />
+
+                    {/* Toolbar centralisé */}
+                    <Toolbar buttons={toolbarButtons} />
+                    {/* Tabs */}
+                    <div className="inventory-tabs">
+                        <button
+                            className={`tab-btn ${activeTab === 'tous' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('tous')}
+                        >
+                            Tous
+                        </button>
+                        <input type="text" className="tab-input" />
+                        <div className="tab-labels">
+                            <span>Désignation</span>
+                        </div>
+                    </div>
+
+                    {/* Left Sidebar */}
+                    <div className="inventory-content">
+
+                        <SidebarLayout
+                            items={sidebarItems}
+                            activeItem={activeTab}
+                            onItemClick={setActiveTab}
+                        />
+                        {/* Main Table */}
+                        <div className="inventory-table-container">
+                            <table className="inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Référence a...</th>
+                                        <th>Désignation</th>
+                                        <th className="text-right">Quantité</th>
+                                        <th className="text-right">PR unitaire</th>
+                                        <th className="text-right">Valeur</th>
+                                        <th>Conditionn...</th>
+                                        <th>Qté ajustée</th>
+                                        <th>PR ajusté</th>
+                                        <th>Valeur ajustée</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {inventoryData.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{item.ref}</td>
+                                            <td>{item.designation}</td>
+                                            <td className="text-right">{item.quantity.toFixed(2)}</td>
+                                            <td className="text-right">{item.priceUnit.toLocaleString()}</td>
+                                            <td className="text-right">{item.value.toLocaleString()}</td>
+                                            <td>{item.condition}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+
+                            {/* Action Buttons */}
+                            <div className="table-actions">
+                                <button
+                                    className="action-btn primary"
+                                    onClick={handleNewInventory}
+                                >
+                                    Nouveau
+                                </button>
+                                <button className="action-btn">Supprimer</button>
+                                <button className="action-btn primary">Enregistrer</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Status Bar */}
+                    <div className="inventory-status-bar">
+                        <div className="status-left">
+                            <button className="status-toggle">◀</button>
+                            <button className="status-toggle">▼</button>
+                            <button className="status-toggle">◀</button>
+                        </div>
+                        <div className="status-right">
+                            <button className="btn-close">Fermer</button>
+                        </div>
+                    </div>
+
+                    {/* Page Indicator */}
+                    <div className="page-indicator">
+                        14/96
+                    </div>
+                </div>
+
+                {/* Modal - S'affiche par-dessus quand showModal est true */}
+                <InventoryEntryModal
+                    show={showModal}
+                    onClose={handleCloseModal}
+                    onValidate={handleValidateModal}
+                />
+            </div>
+
+        </div>
     );
 };
 

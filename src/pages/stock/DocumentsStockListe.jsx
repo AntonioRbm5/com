@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../stock/stock.css';
-import Sidebar from '../Layout/Sidebar';
+import Sidebar from '../Layout/SidebarLayout';
 import Toolbar from '../Layout/Toolbar';
 
 const DocumentsStockListe = ({ documents, onSelectDocument, onNewDocument, onOpenFiltres }) => {

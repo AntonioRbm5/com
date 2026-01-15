@@ -12,7 +12,7 @@ import './erp.css';
 import InvoiceForm from './Facture_comptabilisée/InvoiceForm';
 import BonCommande from './Bon_de_commande/BonCommande';
 import Header from '../Layout/Header';
-import Sidebar from '../Layout/Sidebar';
+import Sidebar from '../Layout/SidebarLayout';
 import Toolbar from '../Layout/Toolbar';
 
 const ERPSystem = () => {
@@ -112,49 +112,49 @@ const ERPSystem = () => {
                     activeItem={currentView}
                     onItemClick={handleViewChange}
                 />
-                
+
                 <div className="content-area">
                     {currentView === 'sales' && (
-                        <SalesView 
+                        <SalesView
                             key={`sales-${refreshKey}`}
-                            documents={documents} 
-                            onDocumentClick={setShowDocument} 
+                            documents={documents}
+                            onDocumentClick={setShowDocument}
                         />
                     )}
 
                     {currentView === 'facture' && (
-                        <InvoiceForm 
+                        <InvoiceForm
                             key={`invoice-${refreshKey}`}
-                            documents={documents} 
-                            onDocumentClick={setShowDocument} 
+                            documents={documents}
+                            onDocumentClick={setShowDocument}
                         />
                     )}
 
                     {currentView === 'commande' && (
-                        <BonCommande 
+                        <BonCommande
                             key={`commande-${refreshKey}`}
-                            documents={documents} 
-                            onDocumentClick={setShowDocument} 
+                            documents={documents}
+                            onDocumentClick={setShowDocument}
                         />
                     )}
 
                     {currentView === 'purchases' && (
-                        <PurchasesView 
+                        <PurchasesView
                             key={`purchases-${refreshKey}`}
-                            documents={purchaseDocuments} 
+                            documents={purchaseDocuments}
                         />
                     )}
 
                     {currentView === 'stock' && (
-                        <InventoryView 
+                        <InventoryView
                             key={`inventory-${refreshKey}`}
                         />
                     )}
 
                     {currentView === 'analysis' && (
-                        <AnalysisView 
+                        <AnalysisView
                             key={`analysis-${refreshKey}`}
-                            data={clientAnalysis} 
+                            data={clientAnalysis}
                         />
                     )}
 
@@ -188,9 +188,9 @@ const ERPSystem = () => {
                 onTransformTypeChange={setTransformType}
             />
 
-            <DocumentModal 
-                document={showDocument} 
-                onClose={() => setShowDocument(null)} 
+            <DocumentModal
+                document={showDocument}
+                onClose={() => setShowDocument(null)}
             />
         </div>
     );
