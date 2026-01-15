@@ -21,9 +21,9 @@ export default function Sidebar() {
     { label: "Ventes", icon: <FaDollarSign className="ft-2" />, path: "/not-found" },
     { label: "Mouvement", icon: <GrTransaction className="ft-2" />, path: "/mouvement" },
     { label: "Logout", icon: <FaSignOutAlt className="ft-2" />, path: "/login" }
-
   ];
 
+  
   const handleClick = (path) => {
     navigate(path);
   };

@@ -72,7 +72,7 @@ body {
 
 .ToolbarERP-btn:hover {
     background: linear-gradient(180deg, #e5f3ff 0%, #cfe8ff 100%);
-    border-color: #0078d7;
+    border-color: #1F2041;
 }
 
 .ToolbarERP-separator {
@@ -108,7 +108,7 @@ body {
 }
 
 .SidebarERP-item.active {
-    background: #0078d7;
+    background: #1F2041;
     color: white;
 }
 
@@ -220,8 +220,8 @@ body {
 
 .form-control:focus {
     outline: none;
-    border-color: #0078d7;
-    box-shadow: 0 0 0 1px #0078d7;
+    border-color: #1F2041;
+    box-shadow: 0 0 0 1px #1F2041;
 }
 
 .radio-group {
@@ -256,7 +256,7 @@ body {
 
 .btn-primary {
     padding: 6px 20px;
-    background: #0078d7;
+    background: #1F2041;
     color: white;
     border: 1px solid #005a9e;
     font-size: 11px;
@@ -334,7 +334,7 @@ body {
 }
 
 .icon-blue {
-    color: #0078d7;
+    color: #1F2041;
 }
 
 .document-preview {
