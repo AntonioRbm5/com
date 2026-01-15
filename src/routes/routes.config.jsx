@@ -129,7 +129,7 @@ export const routesConfig = [
     element: <GestionStock />,
   },
   {
-    path: "/erp",
+    path: "/mouvement",
     element: <ERPSystem />,
   },
   {

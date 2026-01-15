@@ -12,8 +12,10 @@ import './erp.css';
 import InvoiceForm from './Facture_comptabilisée/InvoiceForm';
 import BonCommande from './Bon_de_commande/BonCommande';
 import Header from '../Layout/Header';
-import Sidebar from '../Layout/SidebarLayout';
 import Toolbar from '../Layout/Toolbar';
+import SidebarLayout from '../Layout/SidebarLayout';
+import Sidebar from '../../composants/sidebar';
+import Navbar from '../../composants/navbar';
 
 const ERPSystem = () => {
     const [currentView, setCurrentView] = useState('sales');
@@ -93,105 +95,113 @@ const ERPSystem = () => {
     };
 
     return (
-        <div className="app-container">
-            <Header
-                title="Système de Gestion ERP"
-                showWindowControls={true}
-                onClose={() => console.log('Fermer')}
-                onMinimize={() => console.log('Minimiser')}
-                onMaximize={() => console.log('Maximiser')}
-            />
+        <div className="d-flex">
+            <div style={{ width: "8%" }}>
+                <Sidebar />
+            </div>
+            <div style={{ width: "92%" }}>
+                <Navbar />
+                <div className="app-container">
+                    <Header
+                        title="Système de Gestion ERP"
+                        showWindowControls={true}
+                        onClose={() => console.log('Fermer')}
+                        onMinimize={() => console.log('Minimiser')}
+                        onMaximize={() => console.log('Maximiser')}
+                    />
 
-            <Toolbar
-                customButtons={[...toolbarCustomButtons, ...toolbarCustomButtons2]}
-            />
+                    <Toolbar
+                        customButtons={[...toolbarCustomButtons, ...toolbarCustomButtons2]}
+                    />
 
-            <div className="main-content">
-                <Sidebar
-                    items={sidebarItems}
-                    activeItem={currentView}
-                    onItemClick={handleViewChange}
-                />
-
-                <div className="content-area">
-                    {currentView === 'sales' && (
-                        <SalesView
-                            key={`sales-${refreshKey}`}
-                            documents={documents}
-                            onDocumentClick={setShowDocument}
+                    <div className="main-content">
+                        <SidebarLayout
+                            items={sidebarItems}
+                            activeItem={currentView}
+                            onItemClick={handleViewChange}
                         />
-                    )}
 
-                    {currentView === 'facture' && (
-                        <InvoiceForm
-                            key={`invoice-${refreshKey}`}
-                            documents={documents}
-                            onDocumentClick={setShowDocument}
-                        />
-                    )}
+                        <div className="content-area">
+                            {currentView === 'sales' && (
+                                <SalesView
+                                    key={`sales-${refreshKey}`}
+                                    documents={documents}
+                                    onDocumentClick={setShowDocument}
+                                />
+                            )}
 
-                    {currentView === 'commande' && (
-                        <BonCommande
-                            key={`commande-${refreshKey}`}
-                            documents={documents}
-                            onDocumentClick={setShowDocument}
-                        />
-                    )}
+                            {currentView === 'facture' && (
+                                <InvoiceForm
+                                    key={`invoice-${refreshKey}`}
+                                    documents={documents}
+                                    onDocumentClick={setShowDocument}
+                                />
+                            )}
 
-                    {currentView === 'purchases' && (
-                        <PurchasesView
-                            key={`purchases-${refreshKey}`}
-                            documents={purchaseDocuments}
-                        />
-                    )}
+                            {currentView === 'commande' && (
+                                <BonCommande
+                                    key={`commande-${refreshKey}`}
+                                    documents={documents}
+                                    onDocumentClick={setShowDocument}
+                                />
+                            )}
 
-                    {currentView === 'stock' && (
-                        <InventoryView
-                            key={`inventory-${refreshKey}`}
-                        />
-                    )}
+                            {currentView === 'purchases' && (
+                                <PurchasesView
+                                    key={`purchases-${refreshKey}`}
+                                    documents={purchaseDocuments}
+                                />
+                            )}
 
-                    {currentView === 'analysis' && (
-                        <AnalysisView
-                            key={`analysis-${refreshKey}`}
-                            data={clientAnalysis}
-                        />
-                    )}
+                            {currentView === 'stock' && (
+                                <InventoryView
+                                    key={`inventory-${refreshKey}`}
+                                />
+                            )}
 
-                    {currentView === 'stats' && (
-                        <div style={{ padding: '20px', textAlign: 'center' }}>
-                            <h3>📊 Statistiques clients</h3>
-                            <p>Fonctionnalité à venir...</p>
-                            <div style={{ marginTop: '20px' }}>
-                                <button className="btn-primary">
-                                    Générer un rapport
-                                </button>
-                            </div>
+                            {currentView === 'analysis' && (
+                                <AnalysisView
+                                    key={`analysis-${refreshKey}`}
+                                    data={clientAnalysis}
+                                />
+                            )}
+
+                            {currentView === 'stats' && (
+                                <div style={{ padding: '20px', textAlign: 'center' }}>
+                                    <h3>📊 Statistiques clients</h3>
+                                    <p>Fonctionnalité à venir...</p>
+                                    <div style={{ marginTop: '20px' }}>
+                                        <button className="btn-primary">
+                                            Générer un rapport
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!['sales', 'facture', 'commande', 'purchases', 'stock', 'analysis', 'stats'].includes(currentView) && (
+                                <div style={{ padding: '20px', textAlign: 'center' }}>
+                                    <h3>🚧 {sidebarItems.find(item => item.id === currentView)?.label}</h3>
+                                    <p style={{ color: '#666', marginTop: '12px' }}>
+                                        Cette fonctionnalité est en cours de développement
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
-                    {!['sales', 'facture', 'commande', 'purchases', 'stock', 'analysis', 'stats'].includes(currentView) && (
-                        <div style={{ padding: '20px', textAlign: 'center' }}>
-                            <h3>🚧 {sidebarItems.find(item => item.id === currentView)?.label}</h3>
-                            <p style={{ color: '#666', marginTop: '12px' }}>
-                                Cette fonctionnalité est en cours de développement
-                            </p>
-                        </div>
-                    )}
+                    <TransformModal
+                        show={showTransformModal}
+                        onClose={() => setShowTransformModal(false)}
+                        transformType={transformType}
+                        onTransformTypeChange={setTransformType}
+                    />
+
+                    <DocumentModal
+                        document={showDocument}
+                        onClose={() => setShowDocument(null)}
+                    />
                 </div>
             </div>
-
-            <TransformModal
-                show={showTransformModal}
-                onClose={() => setShowTransformModal(false)}
-                transformType={transformType}
-                onTransformTypeChange={setTransformType}
-            />
-
-            <DocumentModal
-                document={showDocument}
-                onClose={() => setShowDocument(null)}
-            />
         </div>
     );
 };

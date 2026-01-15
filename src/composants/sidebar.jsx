@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaHome, FaUsers, FaSignOutAlt, FaBars, FaBox, FaWarehouse, FaClipboardList, FaTruck, FaDollarSign, FaBuilding } from "react-icons/fa";
+import { GrTransaction } from "react-icons/gr";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Sidebar() {
@@ -10,15 +11,17 @@ export default function Sidebar() {
   const location = useLocation();
 
   const menuItems = [
-    { label: "Home", icon: <FaHome className="ft-2"/>, path: "/home-commercial" },
-    { label: "Entreprise", icon: <FaBuilding className="ft-2"/>, path: "/entreprise"},
-    { label: "Articles", icon: <FaBox className="ft-2"/>, path: "/article"},
-    { label: "Stocks", icon: <FaWarehouse className="ft-2"/>, path: "/gestionstock"},
-    { label: "Inventaires", icon: <FaClipboardList className="ft-2"/>, path: "/inventaire"},
-    { label: "Clients", icon: <FaUsers className="ft-2"/>, path: "/clients" },
-    { label: "Fournisseurs", icon: <FaTruck className="ft-2"/>, path: "/fournisseur"},
-    { label: "Ventes", icon: <FaDollarSign className="ft-2"/>, path: "/not-found"},
-    { label: "Logout", icon: <FaSignOutAlt className="ft-2"/>, path: "/login" }
+    { label: "Home", icon: <FaHome className="ft-2" />, path: "/home-commercial" },
+    { label: "Entreprise", icon: <FaBuilding className="ft-2" />, path: "/entreprise" },
+    { label: "Articles", icon: <FaBox className="ft-2" />, path: "/article" },
+    { label: "Stocks", icon: <FaWarehouse className="ft-2" />, path: "/gestionstock" },
+    { label: "Inventaires", icon: <FaClipboardList className="ft-2" />, path: "/inventaire" },
+    { label: "Clients", icon: <FaUsers className="ft-2" />, path: "/clients" },
+    { label: "Fournisseurs", icon: <FaTruck className="ft-2" />, path: "/fournisseur" },
+    { label: "Ventes", icon: <FaDollarSign className="ft-2" />, path: "/not-found" },
+    { label: "Mouvement", icon: <GrTransaction className="ft-2" />, path: "/mouvement" },
+    { label: "Logout", icon: <FaSignOutAlt className="ft-2" />, path: "/login" }
+
   ];
 
   const handleClick = (path) => {
@@ -31,7 +34,7 @@ export default function Sidebar() {
         className={`d-flex flex-column flex-shrink-0 p-2 text-white bg-primary position-relative transition-width ${collapsed ? 'collapsed' : ''}`}
         style={{ width: collapsed ? '65px' : '150px', minHeight: '100vh', transition: 'width 0.3s' }}
       >
-        <div className={`d-flex align-items-center mb-4 justify-content-${collapsed ? 'center': 'between'}`}>
+        <div className={`d-flex align-items-center mb-4 justify-content-${collapsed ? 'center' : 'between'}`}>
           <a
             href="/"
             className="d-flex align-items-center text-white text-decoration-none"
