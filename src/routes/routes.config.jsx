@@ -25,6 +25,8 @@ import InventoryListView from "../pages/inventaire/InventoryListView";
 import InventoryEntryModal from "../pages/inventaire/InventoryEntryModal";
 import FournisseurListPage from "../pages/fournisseur/FournisseurListPage";
 import FournisseurFormPage from "../pages/fournisseur/FournisseurFormPage";
+import DepotListView from "../pages/stock/DepotListView";
+
 
 export const routesConfig = [
   {
@@ -148,5 +150,8 @@ export const routesConfig = [
     path: "/fournisseur/new",
     element: <FournisseurFormPage />
   },
-
+  {
+    path: "/depots",
+    element:<DepotListView />
+  }
 ];

@@ -7,8 +7,7 @@ import Header from '../Layout/Header';
 import Navbar from '../../composants/navbar';
 import Sidebar from '../../composants/sidebar';
 import { getAllArticles } from '../../services/articleService';
-import { getAllArticleStockDepot } from '../../services/articleStockDepotService';
-import { createStockMouvement } from '../../services/stockMouvementService';
+import { getAllArticleStockDepot, updateArticleStockDepot, createArticleStockDepot } from '../../services/articleStockDepotService';
 
 const InventoryListView = () => {
     const [activeTab, setActiveTab] = useState('tous');
@@ -43,20 +42,26 @@ const InventoryListView = () => {
             setLoading(true);
             setError(null);
 
+            console.log('🔄 Chargement des données d\'inventaire...');
+
             // Charger tous les articles
             const articlesResponse = await getAllArticles();
 
             // Charger les données de stock par dépôt
-            const stockResponse = await getAllArticleStockDepot();
+            let stockData = [];
+            try {
+                const stockResponse = await getAllArticleStockDepot();
+                if (stockResponse.data.status === 'success') {
+                    stockData = stockResponse.data.data || [];
+                    console.log('📦 Stocks chargés:', stockData.length);
+                }
+            } catch (stockErr) {
+                console.warn('⚠️ Erreur chargement stock (normal si vide):', stockErr.message);
+            }
 
             if (articlesResponse.data.status === 'success') {
                 const articles = articlesResponse.data.data || [];
-                const stockData = stockResponse.data.status === 'success'
-                    ? stockResponse.data.data || []
-                    : [];
-
-                console.log('Articles chargés:', articles.length);
-                console.log('Stocks chargés:', stockData.length);
+                console.log('📋 Articles chargés:', articles.length);
 
                 // Créer un map pour accès rapide au stock par article_id
                 const stockMap = {};
@@ -69,18 +74,14 @@ const InventoryListView = () => {
 
                 // Fusionner les données
                 const mergedData = articles.map(article => {
-                    // Obtenir tous les stocks pour cet article
                     const articleStocks = stockMap[article.article_id] || [];
 
-                    // Calculer la quantité totale (somme de tous les dépôts)
+                    // Calculer la quantité totale
                     const totalQuantity = articleStocks.reduce((sum, stock) =>
                         sum + (parseFloat(stock.quantity) || 0), 0
                     );
 
-                    // Prix unitaire
                     const priceUnit = parseFloat(article.article_prix_vente) || 0;
-
-                    // Valeur totale
                     const totalValue = totalQuantity * priceUnit;
 
                     return {
@@ -99,19 +100,19 @@ const InventoryListView = () => {
                         fournisseur: article.fournisseur?.fournisseur_name || '-',
                         fournisseur_id: article.fournisseur?.fournisseur_id || null,
                         is_serialized: article.article_is_serialized || false,
-                        stocks_by_depot: articleStocks // Garder les détails par dépôt
+                        stocks_by_depot: articleStocks
                     };
                 });
 
-                console.log('Données fusionnées:', mergedData.length);
+                console.log('✅ Données fusionnées:', mergedData.length);
                 setInventoryData(mergedData);
             } else {
-                throw new Error('Erreur lors du chargement des données');
+                throw new Error('Erreur lors du chargement des articles');
             }
         } catch (err) {
             const errorMsg = err.response?.data?.message || err.message || 'Erreur de connexion au serveur';
             setError(errorMsg);
-            console.error('Erreur complète:', err);
+            console.error('❌ Erreur complète:', err);
         } finally {
             setLoading(false);
         }
@@ -120,54 +121,37 @@ const InventoryListView = () => {
     const filterData = () => {
         let filtered = [...inventoryData];
 
-        console.log('Filtrage - Données initiales:', filtered.length);
-
-        // Appliquer les filtres du modal en premier
-        if (modalFilters && modalFilters.criteres) {
+        // Appliquer les filtres du modal
+        if (modalFilters?.criteres) {
             const { criteres } = modalFilters;
 
-            // Filtrer par famille
-            if (criteres.famille_range) {
-                const { de, a } = criteres.famille_range;
-                if (de || a) {
-                    filtered = filtered.filter(item => {
-                        if (!item.famille_id) return false;
-                        const familleId = parseInt(item.famille_id);
-                        const deFamille = de ? parseInt(de) : 0;
-                        const aFamille = a ? parseInt(a) : Infinity;
-                        return familleId >= deFamille && familleId <= aFamille;
-                    });
-                    console.log('Après filtre famille:', filtered.length);
-                }
+            if (criteres.famille_range?.de || criteres.famille_range?.a) {
+                filtered = filtered.filter(item => {
+                    if (!item.famille_id) return false;
+                    const familleId = parseInt(item.famille_id);
+                    const deFamille = criteres.famille_range.de ? parseInt(criteres.famille_range.de) : 0;
+                    const aFamille = criteres.famille_range.a ? parseInt(criteres.famille_range.a) : Infinity;
+                    return familleId >= deFamille && familleId <= aFamille;
+                });
             }
 
-            // Filtrer par article
-            if (criteres.article_range) {
-                const { de, a } = criteres.article_range;
-                if (de || a) {
-                    filtered = filtered.filter(item => {
-                        const articleId = parseInt(item.article_id);
-                        const deArticle = de ? parseInt(de) : 0;
-                        const aArticle = a ? parseInt(a) : Infinity;
-                        return articleId >= deArticle && articleId <= aArticle;
-                    });
-                    console.log('Après filtre article:', filtered.length);
-                }
+            if (criteres.article_range?.de || criteres.article_range?.a) {
+                filtered = filtered.filter(item => {
+                    const articleId = parseInt(item.article_id);
+                    const deArticle = criteres.article_range.de ? parseInt(criteres.article_range.de) : 0;
+                    const aArticle = criteres.article_range.a ? parseInt(criteres.article_range.a) : Infinity;
+                    return articleId >= deArticle && articleId <= aArticle;
+                });
             }
 
-            // Filtrer par fournisseur
-            if (criteres.fournisseur_range) {
-                const { de, a } = criteres.fournisseur_range;
-                if (de || a) {
-                    filtered = filtered.filter(item => {
-                        if (!item.fournisseur_id) return false;
-                        const fournisseurId = parseInt(item.fournisseur_id);
-                        const deFournisseur = de ? parseInt(de) : 0;
-                        const aFournisseur = a ? parseInt(a) : Infinity;
-                        return fournisseurId >= deFournisseur && fournisseurId <= aFournisseur;
-                    });
-                    console.log('Après filtre fournisseur:', filtered.length);
-                }
+            if (criteres.fournisseur_range?.de || criteres.fournisseur_range?.a) {
+                filtered = filtered.filter(item => {
+                    if (!item.fournisseur_id) return false;
+                    const fournisseurId = parseInt(item.fournisseur_id);
+                    const deFournisseur = criteres.fournisseur_range.de ? parseInt(criteres.fournisseur_range.de) : 0;
+                    const aFournisseur = criteres.fournisseur_range.a ? parseInt(criteres.fournisseur_range.a) : Infinity;
+                    return fournisseurId >= deFournisseur && fournisseurId <= aFournisseur;
+                });
             }
         }
 
@@ -180,25 +164,20 @@ const InventoryListView = () => {
                 item.famille.toLowerCase().includes(search) ||
                 item.fournisseur.toLowerCase().includes(search)
             );
-            console.log('Après recherche:', filtered.length);
         }
 
         // Filtrer par onglet
         switch (activeTab) {
             case 'articles_stock':
                 filtered = filtered.filter(item => item.quantity > 0);
-                console.log('Après filtre stock:', filtered.length);
                 break;
             case 'articles_non_presents':
                 filtered = filtered.filter(item => item.quantity === 0);
-                console.log('Après filtre non présents:', filtered.length);
                 break;
             default:
-                // tous
                 break;
         }
 
-        console.log('Données filtrées finales:', filtered.length);
         setFilteredData(filtered);
     };
 
@@ -211,48 +190,150 @@ const InventoryListView = () => {
     };
 
     const handleValidateModal = (formData) => {
-        console.log('Données du formulaire modal:', formData);
-        // Stocker les filtres du modal
+        console.log('📋 Filtres appliqués:', formData);
         setModalFilters(formData);
         setShowModal(false);
     };
 
     const handleAdjustedValueChange = (articleId, field, value) => {
-
         const id = parseInt(articleId);
-
         const article = inventoryData.find(a => parseInt(a.article_id) === id);
         if (!article) return;
 
         setAdjustedValues(prev => {
-
             const current = prev[id] || {
-                quantity: article.quantity,
-                price: article.priceUnit
+                quantity: '',
+                price: ''
             };
-
-            let newValues = { ...current };
-
-            if (field === 'quantity') {
-                newValues.quantity = value === ''
-                    ? ''
-                    : parseFloat(value);
-            }
-
-            if (field === 'price') {
-                newValues.price = value === ''
-                    ? ''
-                    : parseFloat(value);
-            }
 
             return {
                 ...prev,
-                [id]: newValues
+                [id]: {
+                    ...current,
+                    [field]: value
+                }
             };
         });
     };
 
+    // const handleSaveAdjustments = async () => {
+    //     try {
+    //         setLoading(true);
+    //         setError(null);
 
+    //         // Filtrer les ajustements valides
+    //         const adjustmentsToSave = Object.entries(adjustedValues).filter(
+    //             ([_, values]) => {
+    //                 const qty = values.quantity !== '' ? parseFloat(values.quantity) : null;
+    //                 return qty !== null && !isNaN(qty);
+    //             }
+    //         );
+
+    //         console.log('💾 Ajustements à sauvegarder:', adjustmentsToSave.length);
+
+    //         if (adjustmentsToSave.length === 0) {
+    //             setError('Aucun ajustement valide à enregistrer');
+    //             setLoading(false);
+    //             return;
+    //         }
+
+    //         // Déterminer le dépôt à utiliser
+    //         const selectedDepotId = modalFilters?.depot ? parseInt(modalFilters.depot) : 1;
+    //         console.log('🏢 Dépôt sélectionné:', selectedDepotId);
+
+    //         // Mettre à jour ou créer les stocks
+    //         const results = [];
+    //         let successCount = 0;
+    //         let errorCount = 0;
+
+    //         for (const [articleId, values] of adjustmentsToSave) {
+    //             const article = inventoryData.find(a => a.article_id === parseInt(articleId));
+    //             if (!article) {
+    //                 console.warn(`⚠️ Article ${articleId} non trouvé`);
+    //                 errorCount++;
+    //                 continue;
+    //             }
+
+    //             const newQuantity = parseFloat(values.quantity);
+    //             console.log(`📦 Article ${article.ref}: Nouvelle quantité=${newQuantity}`);
+
+    //             // Vérifier si cet article a déjà un stock dans ce dépôt
+    //             const existingStock = article.stocks_by_depot.find(
+    //                 stock => parseInt(stock.depot_id) === selectedDepotId
+    //             );
+
+    //             try {
+    //                 let response;
+
+    //                 if (existingStock) {
+    //                     // MISE À JOUR du stock existant
+    //                     const updateData = {
+    //                         quantity: newQuantity
+    //                     };
+
+    //                     console.log(`🔄 Mise à jour stock ID ${existingStock.id}:`, updateData);
+    //                     response = await updateArticleStockDepot(existingStock.id, updateData);
+    //                 } else {
+    //                     // CRÉATION d'un nouveau stock
+    //                     const createData = {
+    //                         article_id: parseInt(articleId),
+    //                         depot_id: selectedDepotId,
+    //                         quantity: newQuantity
+    //                     };
+
+    //                     console.log(`➕ Création nouveau stock:`, createData);
+    //                     response = await createArticleStockDepot(createData);
+    //                 }
+
+    //                 if (response.data.status === 'success') {
+    //                     console.log('✅ Stock sauvegardé:', response.data);
+    //                     successCount++;
+    //                     results.push({ success: true, article: article.ref });
+    //                 } else {
+    //                     console.error('❌ Échec sauvegarde:', response.data);
+    //                     errorCount++;
+    //                     results.push({ success: false, article: article.ref, error: response.data.message });
+    //                 }
+    //             } catch (error) {
+    //                 console.error(`❌ Erreur pour ${article.ref}:`, error);
+    //                 if (error.response) {
+    //                     console.error('📋 Détails erreur API:', {
+    //                         status: error.response.status,
+    //                         data: error.response.data
+    //                     });
+    //                 }
+    //                 errorCount++;
+    //                 const errorMsg = error.response?.data?.message || error.message;
+    //                 results.push({ success: false, article: article.ref, error: errorMsg });
+    //             }
+    //         }
+
+    //         console.log(`📊 Résultats: ${successCount} succès, ${errorCount} erreurs`);
+
+    //         if (successCount > 0) {
+    //             // Recharger les données
+    //             await loadInventoryData();
+    //             setAdjustedValues({});
+
+    //             const message = errorCount > 0
+    //                 ? `✅ ${successCount} ajustement(s) enregistré(s)\n⚠️ ${errorCount} erreur(s)`
+    //                 : `✅ ${successCount} ajustement(s) enregistré(s) avec succès`;
+
+    //             alert(message);
+    //         } else {
+    //             setError('❌ Aucun ajustement n\'a pu être enregistré. Vérifiez la console.');
+    //         }
+
+    //     } catch (err) {
+    //         const errorMsg = err.response?.data?.message || err.message || 'Erreur lors de la sauvegarde';
+    //         setError(errorMsg);
+    //         console.error('❌ Erreur sauvegarde:', err);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    // Extrait corrigé de la fonction handleSaveAdjustments dans InventoryListView.js
 
     const handleSaveAdjustments = async () => {
         try {
@@ -262,13 +343,12 @@ const InventoryListView = () => {
             // Filtrer les ajustements valides
             const adjustmentsToSave = Object.entries(adjustedValues).filter(
                 ([_, values]) => {
-                    const qty = parseFloat(values.quantity);
-                    const price = parseFloat(values.price);
-                    return !isNaN(qty) && !isNaN(price) && qty > 0;
+                    const qty = values.quantity !== '' ? parseFloat(values.quantity) : null;
+                    return qty !== null && !isNaN(qty);
                 }
             );
 
-            console.log('Ajustements à sauvegarder:', adjustmentsToSave.length);
+            console.log('💾 Ajustements à sauvegarder:', adjustmentsToSave.length);
 
             if (adjustmentsToSave.length === 0) {
                 setError('Aucun ajustement valide à enregistrer');
@@ -276,84 +356,101 @@ const InventoryListView = () => {
                 return;
             }
 
-            // Créer les mouvements de stock pour chaque ajustement
-            const promises = adjustmentsToSave.map(async ([articleId, values]) => {
+            // Déterminer le dépôt à utiliser
+            const selectedDepotId = modalFilters?.depot ? parseInt(modalFilters.depot) : 1;
+            console.log('🏢 Dépôt sélectionné:', selectedDepotId);
+
+            // Mettre à jour ou créer les stocks
+            const results = [];
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const [articleId, values] of adjustmentsToSave) {
                 const article = inventoryData.find(a => a.article_id === parseInt(articleId));
                 if (!article) {
-                    console.warn(`Article ${articleId} non trouvé`);
-                    return null;
+                    console.warn(`⚠️ Article ${articleId} non trouvé`);
+                    errorCount++;
+                    continue;
                 }
 
-                const adjustedQty = parseFloat(values.quantity) || 0;
-                const adjustedPrice = parseFloat(values.price) || 0;
-                const currentQty = article.quantity;
+                const newQuantity = parseFloat(values.quantity);
+                console.log(`📦 Article ${article.ref}: Nouvelle quantité=${newQuantity}`);
 
-                // Calculer la différence
-                const qtyDifference = adjustedQty - currentQty;
-
-                console.log(`Article ${articleId}: Qty actuelle=${currentQty}, Qty ajustée=${adjustedQty}, Différence=${qtyDifference}`);
-
-                if (qtyDifference === 0) {
-                    console.log(`Pas de différence pour l'article ${articleId}, ignoré`);
-                    return null;
-                }
-
-                // Déterminer le dépôt (utiliser le premier dépôt de l'article ou un dépôt par défaut)
-                let depotId = 7; // Valeur par défaut
-                if (article.stocks_by_depot && article.stocks_by_depot.length > 0) {
-                    depotId = article.stocks_by_depot[0].depot_id;
-                } else if (modalFilters && modalFilters.depot) {
-                    depotId = modalFilters.depot;
-                }
-
-                // Créer le mouvement d'inventaire
-                const mouvementData = {
-                    article_id: parseInt(articleId),
-                    mouvement_type: qtyDifference > 0 ? 'ENTREE' : 'SORTIE',
-                    mouvement_quantity: Math.abs(qtyDifference),
-                    mouvement_valeur: Math.abs(qtyDifference) * adjustedPrice,
-                    mouvement_date: new Date().toISOString(),
-                    mouvement_reference: `INV-${Date.now()}-${articleId}`,
-                    unite_id: article.unite_id,
-                    depot_destination_id: qtyDifference > 0 ? depotId : null,
-                    depot_source_id: qtyDifference < 0 ? depotId : null,
-                    lot_id: null
-                };
-
-                console.log('Création mouvement:', mouvementData);
+                // Vérifier si cet article a déjà un stock dans ce dépôt
+                const existingStock = article.stocks_by_depot.find(
+                    stock => parseInt(stock.depot_id) === selectedDepotId
+                );
 
                 try {
-                    const response = await createStockMouvement(mouvementData);
-                    console.log('Mouvement créé:', response.data);
-                    return response;
+                    let response;
+
+                    if (existingStock) {
+                        // MISE À JOUR du stock existant
+                        const updateData = {
+                            stock_quantity: newQuantity  // ⚠️ Utiliser stock_quantity comme l'API l'attend
+                        };
+
+                        console.log(`🔄 Mise à jour stock ID ${existingStock.id}:`, updateData);
+                        response = await updateArticleStockDepot(existingStock.id, updateData);
+                    } else {
+                        // CRÉATION d'un nouveau stock
+                        const createData = {
+                            stock_article_id: parseInt(articleId),  // ⚠️ Utiliser stock_article_id
+                            stock_depot_id: selectedDepotId,        // ⚠️ Utiliser stock_depot_id
+                            stock_quantity: newQuantity             // ⚠️ Utiliser stock_quantity
+                        };
+
+                        console.log(`➕ Création nouveau stock:`, createData);
+                        response = await createArticleStockDepot(createData);
+                    }
+
+                    if (response.data.status === 'success') {
+                        console.log('✅ Stock sauvegardé:', response.data);
+                        successCount++;
+                        results.push({ success: true, article: article.ref });
+                    } else {
+                        console.error('❌ Échec sauvegarde:', response.data);
+                        errorCount++;
+                        results.push({
+                            success: false,
+                            article: article.ref,
+                            error: response.data.message
+                        });
+                    }
                 } catch (error) {
-                    console.error(`Erreur création mouvement pour article ${articleId}:`, error);
-                    return null;
+                    console.error(`❌ Erreur pour ${article.ref}:`, error);
+                    if (error.response) {
+                        console.error('📋 Détails erreur API:', {
+                            status: error.response.status,
+                            data: error.response.data
+                        });
+                    }
+                    errorCount++;
+                    const errorMsg = error.response?.data?.message || error.message;
+                    results.push({ success: false, article: article.ref, error: errorMsg });
                 }
-            });
+            }
 
-            // Attendre que tous les mouvements soient créés
-            const results = await Promise.all(promises);
-
-            // Compter les succès
-            const successCount = results.filter(r => r !== null && r.data?.status === 'success').length;
-
-            console.log(`${successCount} mouvements créés avec succès`);
+            console.log(`📊 Résultats: ${successCount} succès, ${errorCount} erreurs`);
 
             if (successCount > 0) {
                 // Recharger les données
                 await loadInventoryData();
                 setAdjustedValues({});
-                setError(null);
-                alert(`✅ ${successCount} ajustement(s) enregistré(s) avec succès`);
+
+                const message = errorCount > 0
+                    ? `✅ ${successCount} ajustement(s) enregistré(s)\n⚠️ ${errorCount} erreur(s)`
+                    : `✅ ${successCount} ajustement(s) enregistré(s) avec succès`;
+
+                alert(message);
             } else {
-                setError('❌ Aucun ajustement n\'a pu être enregistré. Vérifiez la console pour plus de détails.');
+                setError('❌ Aucun ajustement n\'a pu être enregistré. Vérifiez la console.');
             }
 
         } catch (err) {
             const errorMsg = err.response?.data?.message || err.message || 'Erreur lors de la sauvegarde';
             setError(errorMsg);
-            console.error('Erreur lors de la sauvegarde:', err);
+            console.error('❌ Erreur sauvegarde:', err);
         } finally {
             setLoading(false);
         }
@@ -366,7 +463,6 @@ const InventoryListView = () => {
         }
 
         if (window.confirm(`Êtes-vous sûr de vouloir retirer ${selectedItems.length} article(s) de la sélection ?`)) {
-            // Retirer de la sélection (ne pas supprimer les articles eux-mêmes)
             setSelectedItems([]);
             setError(null);
         }
@@ -391,8 +487,9 @@ const InventoryListView = () => {
 
     const calculateTotals = () => {
         return filteredData.reduce((acc, item) => {
-            const adjustedQty = parseFloat(adjustedValues[item.article_id]?.quantity) || 0;
-            const adjustedPrice = parseFloat(adjustedValues[item.article_id]?.price) || 0;
+            const adjusted = adjustedValues[item.article_id];
+            const adjustedQty = adjusted?.quantity !== '' ? parseFloat(adjusted?.quantity) : 0;
+            const adjustedPrice = adjusted?.price !== '' ? parseFloat(adjusted?.price) : item.priceUnit;
 
             return {
                 totalValue: acc.totalValue + item.value,
@@ -545,30 +642,14 @@ const InventoryListView = () => {
                                                 </tr>
                                             ) : (
                                                 filteredData.map((item) => {
+                                                    const adjusted = adjustedValues[item.article_id] || { quantity: '', price: '' };
 
-                                                    const adjusted =
-                                                        adjustedValues[parseInt(item.article_id)] ||
-                                                        {
-                                                            quantity: item.quantity,
-                                                            price: item.priceUnit
-                                                        };
+                                                    const displayQty = adjusted.quantity !== '' ? adjusted.quantity : '';
+                                                    const displayPrice = adjusted.price !== '' ? adjusted.price : '';
 
-
-                                                    const adjustedQty =
-                                                        adjusted.quantity === ''
-                                                            ? ''
-                                                            : String(adjusted.quantity ?? item.quantity);
-
-                                                    const adjustedPrice =
-                                                        adjusted.price === ''
-                                                            ? ''
-                                                            : String(adjusted.price ?? item.priceUnit);
-
-                                                    const adjustedValue =
-                                                        adjustedQty && adjustedPrice
-                                                            ? adjustedQty * adjustedPrice
-                                                            : 0;
-
+                                                    const calcQty = adjusted.quantity !== '' ? parseFloat(adjusted.quantity) : 0;
+                                                    const calcPrice = adjusted.price !== '' ? parseFloat(adjusted.price) : item.priceUnit;
+                                                    const adjustedValue = calcQty * calcPrice;
 
                                                     return (
                                                         <tr
@@ -593,15 +674,8 @@ const InventoryListView = () => {
                                                                     type="number"
                                                                     step="0.01"
                                                                     className="adjustment-input"
-                                                                    value={adjustedQty ?? ''}
-                                                                    onChange={(e) =>
-                                                                    
-                                                                        handleAdjustedValueChange(
-                                                                            item.article_id,
-                                                                            'quantity',
-                                                                            e.target.value
-                                                                        )
-                                                                    }
+                                                                    value={displayQty}
+                                                                    onChange={(e) => handleAdjustedValueChange(item.article_id, 'quantity', e.target.value)}
                                                                     placeholder={item.quantity.toFixed(2)}
                                                                     style={{ width: '80px', padding: '4px' }}
                                                                 />
@@ -611,19 +685,12 @@ const InventoryListView = () => {
                                                                     type="number"
                                                                     step="0.01"
                                                                     className="adjustment-input"
-                                                                    value={adjustedPrice}
-                                                                    onChange={(e) =>
-                                                                        handleAdjustedValueChange(
-                                                                            item.article_id,
-                                                                            'price',
-                                                                            e.target.value
-                                                                        )
-                                                                    }
+                                                                    value={displayPrice}
+                                                                    onChange={(e) => handleAdjustedValueChange(item.article_id, 'price', e.target.value)}
                                                                     placeholder={item.priceUnit.toFixed(2)}
                                                                     style={{ width: '100px', padding: '4px' }}
                                                                 />
                                                             </td>
-
                                                             <td className="text-right">
                                                                 {adjustedValue > 0 ? adjustedValue.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) : ''}
                                                             </td>
@@ -647,31 +714,16 @@ const InventoryListView = () => {
                                     </table>
 
                                     <div className="table-actions">
-                                        <button
-                                            className="action-btn primary"
-                                            onClick={handleNewInventory}
-                                        >
+                                        <button className="action-btn primary" onClick={handleNewInventory}>
                                             📋 Nouveau
                                         </button>
-                                        <button
-                                            className="action-btn"
-                                            onClick={handleDeleteSelected}
-                                            disabled={selectedItems.length === 0}
-                                        >
+                                        <button className="action-btn" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
                                             ❌ Retirer sélection
                                         </button>
-                                        <button
-                                            className="action-btn primary"
-                                            onClick={handleSaveAdjustments}
-                                            disabled={Object.keys(adjustedValues).length === 0 || loading}
-                                        >
+                                        <button className="action-btn primary" onClick={handleSaveAdjustments} disabled={Object.keys(adjustedValues).length === 0 || loading}>
                                             {loading ? '⏳ Enregistrement...' : '💾 Enregistrer ajustements'}
                                         </button>
-                                        <button
-                                            className="action-btn"
-                                            onClick={loadInventoryData}
-                                            disabled={loading}
-                                        >
+                                        <button className="action-btn" onClick={loadInventoryData} disabled={loading}>
                                             🔄 Actualiser
                                         </button>
                                     </div>

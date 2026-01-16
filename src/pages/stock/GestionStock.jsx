@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DocumentsStockListe from './DocumentsStockListe';
 import MouvementEntreeModal from './MouvementEntreeModal';
 import FiltresMouvementModal from './FiltresMouvementModal';
@@ -21,6 +22,8 @@ import Sidebar from '../../composants/sidebar';
 import Navbar from '../../composants/navbar';
 
 const GestionStock = () => {
+    const navigate = useNavigate();
+
     // États pour les données
     const [documents, setDocuments] = useState([]);
     const [depots, setDepots] = useState([]);
@@ -91,44 +94,30 @@ const GestionStock = () => {
         try {
             setLoading(true);
 
-            // Validation des données avant transformation
             console.log('📥 Données reçues du modal:', documentData);
 
-            if (!documentData?.header) {
-                throw new Error('Données du formulaire incomplètes: header manquant');
+            // Validation basique pour le nouveau format
+            if (!documentData.mouvement_reference) {
+                throw new Error('Référence du mouvement manquante');
             }
 
-            if (!documentData.header.date) {
-                throw new Error('Date manquante dans le formulaire');
+            if (!documentData.depot_destination_id) {
+                throw new Error('Dépôt de destination manquant');
             }
 
-            if (!documentData.header.depotId) {
-                throw new Error('Dépôt non sélectionné');
-            }
-
-            if (!documentData.header.articleId) {
+            if (!documentData.article_id) {
                 throw new Error('Article non sélectionné');
-            }
-
-            if (!documentData.totaux) {
-                throw new Error('Totaux manquants');
             }
 
             console.log('✅ Validation des données réussie');
 
-            // Transformation des données pour l'API
-            const apiData = transformMouvementForAPI(documentData);
-            console.log('🔄 Transformation terminée:', apiData);
-
             let response;
             if (selectedDocument && selectedDocument.id) {
-                // Modification d'un mouvement existant
                 console.log('🔄 Mode UPDATE - ID:', selectedDocument.id);
-                response = await updateStockMouvement(apiData, selectedDocument.id);
+                response = await updateStockMouvement(documentData, selectedDocument.id);
             } else {
-                // Création d'un nouveau mouvement
                 console.log('✨ Mode CREATE');
-                response = await createStockMouvement(apiData);
+                response = await createStockMouvement(documentData);
             }
 
             console.log('📨 Réponse API:', response?.data);
@@ -137,17 +126,15 @@ const GestionStock = () => {
                 const savedMouvement = transformMouvementFromAPI(response.data.data);
 
                 if (selectedDocument && selectedDocument.id) {
-                    // Mettre à jour dans la liste
                     setDocuments(prev => prev.map(d =>
                         d.id === selectedDocument.id ? savedMouvement : d
                     ));
                 } else {
-                    // Ajouter à la liste
                     setDocuments(prev => [...prev, savedMouvement]);
                 }
 
                 setShowMouvementModal(false);
-                alert('Document sauvegardé avec succès');
+                alert('✅ Document sauvegardé avec succès');
 
                 // Recharger l'état du stock
                 const stockStateResponse = await getStockState();
@@ -158,13 +145,12 @@ const GestionStock = () => {
             } else {
                 const errorMsg = response?.data?.message || 'Erreur lors de la sauvegarde';
                 console.error('❌ Erreur API:', errorMsg);
-                alert(errorMsg);
+                alert(`❌ ${errorMsg}`);
             }
         } catch (err) {
             console.error('❌ Erreur sauvegarde document:', err);
             console.error('❌ Stack trace:', err.stack);
 
-            // Message d'erreur plus détaillé
             let errorMessage = 'Erreur lors de la sauvegarde';
 
             if (err.response?.data?.message) {
@@ -173,7 +159,7 @@ const GestionStock = () => {
                 errorMessage = err.message;
             }
 
-            alert(`Erreur: ${errorMessage}`);
+            alert(`❌ Erreur: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
@@ -190,7 +176,7 @@ const GestionStock = () => {
 
             if (response?.data?.status === 'success') {
                 setDocuments(prev => prev.filter(d => d.id !== docId));
-                alert('Document supprimé avec succès');
+                alert('✅ Document supprimé avec succès');
 
                 // Recharger l'état du stock
                 const stockStateResponse = await getStockState();
@@ -201,7 +187,7 @@ const GestionStock = () => {
             }
         } catch (err) {
             console.error('Erreur suppression document:', err);
-            alert(`Erreur: ${err.response?.data?.message || 'Erreur lors de la suppression'}`);
+            alert(`❌ Erreur: ${err.response?.data?.message || 'Erreur lors de la suppression'}`);
         } finally {
             setLoading(false);
         }
@@ -213,14 +199,11 @@ const GestionStock = () => {
             setLoading(true);
             console.log('Filtres appliqués:', filtres);
 
-            // Pour l'instant, on recharge tous les mouvements
-            // TODO: Implémenter le filtrage côté API
             const mouvementsResponse = await getAllStockMouvement();
             if (mouvementsResponse?.data?.status === 'success') {
                 const mouvements = mouvementsResponse.data.data || [];
                 let transformedMouvements = mouvements.map(transformMouvementFromAPI);
 
-                // Filtrage côté client (à améliorer avec des filtres API)
                 if (filtres.depot && filtres.depot !== 'Tous') {
                     transformedMouvements = transformedMouvements.filter(
                         m => m.depotOrigine === filtres.depot
@@ -243,7 +226,7 @@ const GestionStock = () => {
             }
         } catch (err) {
             console.error('Erreur application filtres:', err);
-            alert(`Erreur: ${err.response?.data?.message || 'Erreur lors de l\'application des filtres'}`);
+            alert(`❌ Erreur: ${err.response?.data?.message || 'Erreur lors de l\'application des filtres'}`);
         } finally {
             setLoading(false);
         }
@@ -277,6 +260,11 @@ const GestionStock = () => {
 
         setShowImpressionModal(false);
         setShowApercuModal(true);
+    };
+
+    // Navigation vers la gestion des dépôts
+    const handleGoToDepots = () => {
+        navigate('/depots');
     };
 
     // Afficher un loader pendant le chargement initial
@@ -347,6 +335,30 @@ const GestionStock = () => {
                         </div>
                     )}
 
+                    {/* Toolbar avec accès aux dépôts */}
+                    <div className="mouvement-toolbar" style={{
+                        marginBottom: '15px',
+                        borderBottom: '1px solid #ddd',
+                        paddingBottom: '10px'
+                    }}>
+                        <button
+                            className="mouvement-toolbar-btn"
+                            onClick={handleGoToDepots}
+                            style={{ backgroundColor: '#007bff', color: 'white' }}
+                        >
+                            🏢 Gérer les Dépôts
+                        </button>
+                        <button className="mouvement-toolbar-btn">
+                            📊 État du Stock
+                        </button>
+                        <button className="mouvement-toolbar-btn">
+                            📈 Statistiques
+                        </button>
+                        <div style={{ marginLeft: 'auto', fontSize: '13px', color: '#666' }}>
+                            {depots.length} dépôt(s) • {documents.length} mouvement(s)
+                        </div>
+                    </div>
+
                     <DocumentsStockListe
                         documents={documents}
                         onSelectDocument={handleSelectDocument}
@@ -383,9 +395,8 @@ const GestionStock = () => {
                         data={dataForPreview}
                     />
                 </div>
-            </div>    
+            </div>
         </div>
-
     );
 };
 
