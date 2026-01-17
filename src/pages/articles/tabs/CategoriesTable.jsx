@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './CategoriesTable.css';
 import { getAllCategories, createCategorie, updateCategorie, deleteCategorie } from '../../../services/categorieService';
+import UniteTab from './UniteTab';
 
 const CategoriesTable = () => {
     const [activeTab, setActiveTab] = useState('categories');
@@ -12,6 +13,7 @@ const CategoriesTable = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [editIndex, setEditIndex] = useState(null);
     const [editData, setEditData] = useState(null);
+    const uniteRef = useRef();
 
     // État pour la création de nouvelle catégorie
     const [newCategoryData, setNewCategoryData] = useState({
@@ -105,6 +107,10 @@ const CategoriesTable = () => {
 
     // Ouvrir le modal de création d'une nouvelle catégorie
     const handleOpenCreateModal = () => {
+        if (activeTab === 'unite') {
+            uniteRef.current.openCreateModal();
+            return;
+        }
         setShowSelectModal(false);
         setShowCreateModal(true);
         setNewCategoryData({
@@ -237,7 +243,9 @@ const CategoriesTable = () => {
                         )}
                     </>
                 )}
-
+                {activeTab === 'unite' && (
+                    <UniteTab ref={uniteRef} />
+                )}
                 {activeTab !== 'categories' && (
                     <div className="empty-tab">
                         Contenu {activeTab.replace('-', ' ')}
@@ -403,7 +411,7 @@ const CategoriesTable = () => {
                                 onChange={(e) =>
                                     setEditData({ ...editData, remise: e.target.value })
                                 }
-                                
+
                             />
                         </div>
 

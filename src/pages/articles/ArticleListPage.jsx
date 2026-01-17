@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './article.css';
-import { getAllArticles } from '../../services/articleService';
+import { getAllArticles, searchArticle } from '../../services/articleService';
 import Sidebar from '../../composants/sidebar';
 import Navbar from '../../composants/navbar';
 
@@ -11,6 +11,8 @@ const ArticleListPage = () => {
     const [selectedId, setSelectedId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showSearch, setShowSearch] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         loadArticles();
@@ -42,6 +44,31 @@ const ArticleListPage = () => {
     const handleNew = () => {
         navigate('/article/new');
     };
+    const handleSearch = async () => {
+        try {
+            setLoading(true);
+
+            // si vide → on recharge tout
+            if (!searchTerm.trim()) {
+                loadArticles();
+                return;
+            }
+
+            const response = await searchArticle(searchTerm);
+
+            if (response.data.status === 'success') {
+                setArticles(response.data.data);
+            }
+
+        } catch (err) {
+            setError("Erreur lors de la recherche");
+        } finally {
+            setLoading(false);
+        }
+    };
+    const handleGoToFamille = () => {
+        navigate('/famille');
+    };
 
     return (
         <div className="d-flex">
@@ -65,10 +92,14 @@ const ArticleListPage = () => {
                             <span className="toolbar-icon">📋</span>
                             Tous
                         </button>
-                        <button className="toolbar-btn">
+                        <button
+                            className="toolbar-btn"
+                            onClick={() => setShowSearch(!showSearch)}
+                        >
                             <span className="toolbar-icon">🔍</span>
                             Rechercher
                         </button>
+
                         <button className="toolbar-btn">
                             <span className="toolbar-icon">🖨️</span>
                             Imprimer
@@ -77,7 +108,48 @@ const ArticleListPage = () => {
                             <span className="toolbar-icon">❓</span>
                             Assistant
                         </button>
+                        <button
+                            className="mouvement-toolbar-btn"
+                            onClick={handleGoToFamille}
+                            style={{ backgroundColor: '#007bff', color: 'white' }}
+                        >
+                            🏢 Gérer les Familles
+                        </button>
                     </div>
+                    {showSearch && (
+                        <div style={{
+                            padding: '10px',
+                            background: '#f8f9fa',
+                            borderBottom: '1px solid #ddd'
+                        }}>
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Rechercher un article..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                style={{ width: '300px', marginRight: '10px' }}
+                            />
+
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleSearch}
+                            >
+                                Rechercher
+                            </button>
+
+                            <button
+                                className="btn"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    loadArticles();
+                                }}
+                            >
+                                Réinitialiser
+                            </button>
+                        </div>
+                    )}
 
                     {error && (
                         <div style={{
@@ -98,7 +170,7 @@ const ArticleListPage = () => {
                                 Chargement des articles...
                             </div>
                         ) : (
-                            <table className="article-table">
+                            <table className="document-table">
                                 <thead>
                                     <tr>
                                         <th style={{ width: '20px' }}></th>

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import IdentificationTab from './tabs/IdentificationTab';
 import ParametresTab from './parametres/ParametresTab';
 import './article.css';
-import { createArticle } from '../../services/articleService';
+import { createArticle, getArticleById, updateArticle } from '../../services/articleService';
 import { getAllFamilles } from '../../services/familleService';
 import Sidebar from '../../composants/sidebar';
 import Navbar from '../../composants/navbar';
@@ -41,13 +41,16 @@ const ArticleFormPage = ({ mode = 'edit' }) => {
     });
 
     useEffect(() => {
+        console.log("MODE =", mode, "ID =", id);
+
         loadFamilles();
-        // Si mode edit, charger l'article
+
         if (mode === 'edit' && id) {
-            // TODO: Implémenter le chargement de l'article existant
-            // loadArticle(id);
+            console.log("➡ Appel loadArticle avec id =", id);
+            loadArticle(id);
         }
     }, [mode, id]);
+
 
     const loadFamilles = async () => {
         try {
@@ -64,32 +67,74 @@ const ArticleFormPage = ({ mode = 'edit' }) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
+    // const handleSubmit = async () => {
+    //     setLoading(true);
+    //     setError(null);
+
+    //     try {
+    //         // Préparer les données pour l'API
+    //         const apiData = {
+    //             article_name: formData.article_name,
+    //             article_reference: formData.article_reference,
+    //             article_description: formData.article_description || '--',
+    //             article_prix_vente: parseFloat(formData.article_prix_vente) || 0,
+    //             article_is_serialized: formData.article_is_serialized,
+    //             famille_id: formData.famille_id,
+    //             categorie_id: formData.categorie_id,
+    //             fournisseur_id: formData.fournisseur_id,
+    //             unite_stock_id: formData.unite_stock_id,
+    //             unite_vente_defaut_id: formData.unite_vente_defaut_id
+    //         };
+
+    //         const response = await createArticle(apiData);
+
+    //         if (response.data.status === 'success') {
+    //             navigate('/article');
+    //         } else {
+    //             setError(response.data.message || 'Erreur lors de la création');
+    //         }
+    //     } catch (err) {
+    //         setError(err.response?.data?.message || 'Erreur lors de la sauvegarde');
+    //         console.error('Erreur:', err);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            // Préparer les données pour l'API
             const apiData = {
                 article_name: formData.article_name,
                 article_reference: formData.article_reference,
                 article_description: formData.article_description || '--',
                 article_prix_vente: parseFloat(formData.article_prix_vente) || 0,
                 article_is_serialized: formData.article_is_serialized,
+
                 famille_id: formData.famille_id,
                 categorie_id: formData.categorie_id,
                 fournisseur_id: formData.fournisseur_id,
+
                 unite_stock_id: formData.unite_stock_id,
                 unite_vente_defaut_id: formData.unite_vente_defaut_id
             };
 
-            const response = await createArticle(apiData);
+            let response;
+
+            if (mode === 'edit') {
+                response = await updateArticle(id, apiData);
+            } else {
+                response = await createArticle(apiData);
+            }
 
             if (response.data.status === 'success') {
                 navigate('/article');
             } else {
-                setError(response.data.message || 'Erreur lors de la création');
+                setError(response.data.message || 'Erreur lors de l\'enregistrement');
             }
+
         } catch (err) {
             setError(err.response?.data?.message || 'Erreur lors de la sauvegarde');
             console.error('Erreur:', err);
@@ -97,6 +142,55 @@ const ArticleFormPage = ({ mode = 'edit' }) => {
             setLoading(false);
         }
     };
+    const loadArticle = async (articleId) => {
+        try {
+            setLoading(true);
+
+            const response = await getArticleById(articleId);
+
+            if (response.data.status !== 'success') {
+                setError("Erreur chargement article");
+                return;
+            }
+
+            // 👉 ICI : l'article est direct
+            const a = response.data.data;
+
+            setFormData({
+                article_name: a.article_name || '',
+                article_reference: a.article_reference || '',
+                article_description: a.article_description || '',
+
+                article_prix_vente: a.article_prix_vente || 0,
+                article_is_serialized: a.article_is_serialized || false,
+
+                famille_id: a.famille?.famille_id || null,
+                categorie_id: a.categorie?.categorie_id || null,
+                fournisseur_id: a.fournisseur?.fournisseur_id || null,
+
+                unite_stock_id: a.unite_stock?.unite_id || null,
+                unite_vente_defaut_id: a.unite_vente_defaut?.unite_id || null,
+
+                // valeurs par défaut de l’UI
+                unitVente: 'PIECE',
+                suiviStock: 'Aucun',
+                type: 'Détail',
+                publierSurSite: true,
+                suiviStockParam: 'CMUP',
+                niveauCriticite: 'Mineur',
+                unitesPoids: 'Kilogramme',
+                delaiLivraison: 0,
+                garantie: 0
+            });
+
+        } catch (err) {
+            console.error(err);
+            setError("Erreur chargement article");
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     return (
         <div className="d-flex">
