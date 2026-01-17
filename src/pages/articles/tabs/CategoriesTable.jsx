@@ -171,7 +171,8 @@ const CategoriesTable = () => {
                     ['categories', 'Catégories tarifaires'],
                     ['tarifs-clients', 'Tarifs clients'],
                     ['fournisseurs', 'Fournisseurs'],
-                    ['nouveau-tarif', 'Nouveau tarif']
+                    ['nouveau-tarif', 'Nouveau tarif'],
+                    ['unite', 'unité'],
                 ].map(([key, label]) => (
                     <button
                         key={key}
@@ -245,7 +246,8 @@ const CategoriesTable = () => {
 
                 <div className="actions">
                     <button onClick={handleOpenSelectModal}>Ouvrir…</button>
-                    <button onClick={handleOpenCreateModal}>Nouveau</button>
+                    <button onClick={handleOpenCreateModal}
+                        className="action-btn primary">Nouveau</button>
                     <button>Défaut</button>
                 </div>
             </div>
@@ -253,13 +255,13 @@ const CategoriesTable = () => {
             {/* Modal Sélection d'une catégorie existante */}
             {showSelectModal && (
                 <>
-                    <div className="modal-overlay" onClick={() => setShowSelectModal(false)} />
-                    <div className="modal">
-                        <div className="modal-header">
+                    <div className="categorie-modal-overlay" onClick={() => setShowSelectModal(false)} />
+                    <div className="categorie-modal">
+                        <div className="categorie-modal-header">
                             Sélectionner une catégorie existante
-                            <button onClick={() => setShowSelectModal(false)}>✕</button>
+                            <button onClick={() => setShowSelectModal(false)} className='action-btn primary'>✕</button>
                         </div>
-                        <div className="modal-body">
+                        <div className="categorie-modal-body">
                             {categories.length === 0 ? (
                                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                                     Aucune catégorie disponible. Créez-en une nouvelle.
@@ -276,8 +278,8 @@ const CategoriesTable = () => {
                                 ))
                             )}
                         </div>
-                        <div className="modal-footer">
-                            <button onClick={() => setShowSelectModal(false)}>Annuler</button>
+                        <div className="categorie-modal-footer">
+                            <button onClick={() => setShowSelectModal(false)} className='action-btn'>Annuler</button>
                             <button onClick={handleAddExistingCategory} disabled={!selectedCategory}>
                                 Ajouter
                             </button>
@@ -289,16 +291,17 @@ const CategoriesTable = () => {
             {/* Modal Création d'une nouvelle catégorie */}
             {showCreateModal && (
                 <>
-                    <div className="modal-overlay" onClick={() => setShowCreateModal(false)} />
-                    <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
+                    <div className="categorie-modal-overlay" onClick={() => setShowCreateModal(false)} />
+                    <div className="categorie-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="categorie-modal-header">
                             Créer une nouvelle catégorie tarifaire
-                            <button onClick={() => setShowCreateModal(false)}>✕</button>
+                            <button onClick={() => setShowCreateModal(false)} className='action-btn primary'>✕</button>
                         </div>
 
-                        <div className="modal-body form-modal">
-                            <label>Catégorie *</label>
+                        <div className="categorie-modal-body form-modal">
+                            <label className='form-label'>Catégorie *</label>
                             <input
+                                className='form-input'
                                 type="text"
                                 placeholder="Nom de la catégorie"
                                 value={newCategoryData.categorie}
@@ -308,8 +311,9 @@ const CategoriesTable = () => {
                                 autoFocus
                             />
 
-                            <label>Coefficient</label>
+                            <label className='form-label'>Coefficient</label>
                             <input
+                                className='form-input'
                                 type="text"
                                 placeholder="Ex: 1.5"
                                 value={newCategoryData.coefficient}
@@ -318,8 +322,9 @@ const CategoriesTable = () => {
                                 }
                             />
 
-                            <label>Prix de vente</label>
+                            <label className='form-label'>Prix de vente</label>
                             <input
+                                className='form-input'
                                 type="text"
                                 placeholder="Ex: 100.00"
                                 value={newCategoryData.prixVente}
@@ -328,8 +333,9 @@ const CategoriesTable = () => {
                                 }
                             />
 
-                            <label>Remise</label>
+                            <label className='form-label'>Remise</label>
                             <input
+                                className='form-input'
                                 type="text"
                                 placeholder="Ex: 10%"
                                 value={newCategoryData.remise}
@@ -339,11 +345,12 @@ const CategoriesTable = () => {
                             />
                         </div>
 
-                        <div className="modal-footer">
-                            <button onClick={() => setShowCreateModal(false)}>Annuler</button>
+                        <div className="categorie-modal-footer">
+                            <button onClick={() => setShowCreateModal(false)} className='action-btn'>Annuler</button>
                             <button
                                 onClick={handleCreateCategory}
                                 disabled={!newCategoryData.categorie.trim()}
+                                className='action-btn primary'
                             >
                                 Créer
                             </button>
@@ -355,31 +362,33 @@ const CategoriesTable = () => {
             {/* Modal Édition d'une catégorie */}
             {editData && (
                 <>
-                    <div className="modal-overlay" onClick={() => setEditData(null)} />
-                    <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
+                    <div className="categorie-modal-overlay" onClick={() => setEditData(null)} />
+                    <div className="categorie-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="categorie-modal-header">
                             Modifier catégorie tarifaire
                             <button onClick={() => setEditData(null)}>✕</button>
                         </div>
 
-                        <div className="modal-body form-modal">
-                            <label>Catégorie</label>
+                        <div className="categorie-modal-body form-modal">
+                            <label className='form-label'>Catégorie</label>
                             <input
+                                className='form-input'
                                 value={editData.categorie}
                                 onChange={(e) =>
                                     setEditData({ ...editData, categorie: e.target.value })
                                 }
                             />
 
-                            <label>Coefficient</label>
+                            <label className='form-label'>Coefficient</label>
                             <input
+                                className='form-input'
                                 value={editData.coefficient}
                                 onChange={(e) =>
                                     setEditData({ ...editData, coefficient: e.target.value })
                                 }
                             />
 
-                            <label>Prix de vente</label>
+                            <label className='form-label'>Prix de vente</label>
                             <input
                                 value={editData.prixVente}
                                 onChange={(e) =>
@@ -387,17 +396,19 @@ const CategoriesTable = () => {
                                 }
                             />
 
-                            <label>Remise</label>
+                            <label className='form-label'>Remise</label>
                             <input
+                                className='form-input'
                                 value={editData.remise}
                                 onChange={(e) =>
                                     setEditData({ ...editData, remise: e.target.value })
                                 }
+                                
                             />
                         </div>
 
-                        <div className="modal-footer">
-                            <button onClick={() => setEditData(null)}>Annuler</button>
+                        <div className="categorie-modal-footer">
+                            <button onClick={() => setEditData(null)} className='action-btn'>Annuler</button>
                             <button onClick={handleEditSave}>Enregistrer</button>
                         </div>
                     </div>

@@ -4,6 +4,8 @@ import './famille.css';
 import { getAllFamilles } from '../../services/familleService';
 import Header from '../Layout/Header';
 import Toolbar from '../Layout/Toolbar';
+import Sidebar from '../../composants/sidebar';
+import Navbar from '../../composants/navbar';
 
 const FamilleListPage = () => {
     const navigate = useNavigate();
@@ -50,6 +52,12 @@ const FamilleListPage = () => {
     };
 
     return (
+        <div className="d-flex">
+                    <div style={{ width: "8%" }}>
+                        <Sidebar />
+                    </div>
+                    <div style={{ width: "92%" }}>
+                        <Navbar />
         <div className="window">
            <Header
                 title="Familles d'articles"
@@ -126,6 +134,8 @@ const FamilleListPage = () => {
                 <button className="btn">Fermer</button>
             </div>
         </div>
+        </div>
+    </div>
     );
 };
 
