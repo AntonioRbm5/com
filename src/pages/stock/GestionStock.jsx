@@ -13,7 +13,6 @@ import {
     deleteStockMouvement,
     getStockState,
     transformDepotResponse,
-    transformMouvementForAPI,
     transformMouvementFromAPI,
     transformStockStateFromAPI
 } from '../../services/stockService';
