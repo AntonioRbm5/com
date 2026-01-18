@@ -26,6 +26,10 @@ import InventoryEntryModal from "../pages/inventaire/InventoryEntryModal";
 import FournisseurListPage from "../pages/fournisseur/FournisseurListPage";
 import FournisseurFormPage from "../pages/fournisseur/FournisseurFormPage";
 import DepotListView from "../pages/stock/DepotListView";
+import ClientListPage from "../pages/clients/ClientListPage";
+import ClientFormPage from "../pages/clients/ClientFormPage";
+import ClientCategoryListPage from "../pages/clientCategories/ClientCategoryListPage";
+import ClientCategoryFormPage from "../pages/clientCategories/ClientCategoryFormPage";
 
 
 export const routesConfig = [
@@ -152,6 +156,26 @@ export const routesConfig = [
   },
   {
     path: "/depots",
-    element:<DepotListView />
+    element: <DepotListView />
+  },
+  {
+    path: "/clients/*",
+    element: <ClientListPage />
+  },
+  {
+    path: "/clients/new",
+    element: <ClientFormPage />
+  },
+  {
+    path: "/clients-categories/*",
+    element: <ClientCategoryListPage />
+  },
+  {
+    path: "/clients-categories/new",
+    element: <ClientCategoryFormPage mode="new" />
+  },
+  {
+    path: "/clients-categories/edit/:id",
+    element: <ClientCategoryFormPage mode="edit" />
   }
 ];
