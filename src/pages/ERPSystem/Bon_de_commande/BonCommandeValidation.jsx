@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
-import { createMouvement } from '../../../services/stockManagementService';
 
-const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
+const BonCommandeValidation = ({ articles = [], onAddLigne, disabled = false }) => {
     const [formData, setFormData] = useState({
-        ref: initialRef || '',
+        article_id: '',
+        ref: '',
         designation: '',
         puht: '',
         qte: '',
@@ -12,100 +11,147 @@ const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
         remise: '',
         totalBrut: 0,
         montantRemise: 0,
-        article_id: '', // À remplir depuis une liste d'articles
-        unite_id: 1 // Par défaut
+        montantNet: 0,
+        unite_id: 1
     });
 
     const [saving, setSaving] = useState(false);
 
+    // Recalcul automatique des montants
     useEffect(() => {
         const prix = parseFloat(formData.puht) || 0;
         const quantite = parseFloat(formData.qte) || 0;
         const remisePourcent = parseFloat(formData.remise) || 0;
 
         const totalBrut = prix * quantite;
-        const valeurRemise = (prix * quantite * remisePourcent) / 100;
+        const valeurRemise = (totalBrut * remisePourcent) / 100;
+        const montantNet = totalBrut - valeurRemise;
 
         setFormData(prev => ({
             ...prev,
             totalBrut: totalBrut.toFixed(2),
-            montantRemise: valeurRemise.toFixed(2)
+            montantRemise: valeurRemise.toFixed(2),
+            montantNet: montantNet.toFixed(2)
         }));
     }, [formData.puht, formData.qte, formData.remise]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleArticleChange = (e) => {
+        const articleId = e.target.value;
+
+        if (!articleId) {
+            setFormData(prev => ({
+                ...prev,
+                article_id: '',
+                ref: '',
+                designation: '',
+                puht: ''
+            }));
+            return;
+        }
+
+        const article = articles.find(a => String(a.article_id) === String(articleId));
+
+        if (article) {
+            setFormData(prev => ({
+                ...prev,
+                article_id: articleId,
+                ref: article.article_reference || '',
+                designation: article.article_name || '',
+                puht: article.article_prix_vente || ''
+            }));
+        }
     };
 
     const handleSave = async () => {
+        // Validation
+        if (!formData.article_id) {
+            alert('Veuillez sélectionner un article');
+            return;
+        }
+
+        if (!formData.qte || parseFloat(formData.qte) <= 0) {
+            alert('Veuillez saisir une quantité valide');
+            return;
+        }
+
+        if (!formData.puht || parseFloat(formData.puht) <= 0) {
+            alert('Veuillez saisir un prix unitaire valide');
+            return;
+        }
+
         try {
             setSaving(true);
 
-            // Préparer les données pour l'API
-            const mouvementData = {
-                article_id: parseInt(formData.article_id),
-                quantite: parseFloat(formData.qte),
-                mouvement_type: "ENTREE", // ou selon votre logique
-                unite_id: parseInt(formData.unite_id),
-                mouvement_quantity: parseFloat(formData.qte),
-                mouvement_valeur: parseFloat(formData.totalBrut) - parseFloat(formData.montantRemise),
-                mouvement_reference: formData.ref
-            };
+            // Appeler la fonction callback pour ajouter la ligne
+            await onAddLigne(formData);
 
-            const response = await createMouvement(mouvementData);
-
-            if (response.data.status === 'success') {
-                alert('Ligne ajoutée avec succès !');
-                // Appeler la fonction callback si fournie
-                if (onAddLigne) {
-                    onAddLigne(formData);
-                }
-                // Réinitialiser le formulaire
-                setFormData({
-                    ref: '',
-                    designation: '',
-                    puht: '',
-                    qte: '',
-                    conditionner: 'PIECE',
-                    remise: '',
-                    totalBrut: 0,
-                    montantRemise: 0,
-                    article_id: '',
-                    unite_id: 1
-                });
-            }
+            // Réinitialiser le formulaire
+            setFormData({
+                article_id: '',
+                ref: '',
+                designation: '',
+                puht: '',
+                qte: '',
+                conditionner: 'PIECE',
+                remise: '',
+                totalBrut: 0,
+                montantRemise: 0,
+                montantNet: 0,
+                unite_id: 1
+            });
         } catch (error) {
             console.error('Erreur lors de l\'enregistrement:', error);
-            alert('Erreur lors de l\'enregistrement de la ligne');
         } finally {
             setSaving(false);
         }
     };
 
+    const conditionneurOptions = [
+        { value: 'PIECE', label: 'PIECE' },
+        { value: 'KG', label: 'KG' },
+        { value: 'LITRE', label: 'LITRE' },
+        { value: 'CARTON', label: 'CARTON' },
+        { value: 'METRE', label: 'METRE' }
+    ];
+
     return (
         <div className="saisie-ligne-container border-bottom bg-light">
             <div className="row g-0 align-items-center bg-white border">
-                {/* 1. Référence */}
+                {/* 1. Sélection article */}
+                <div style={{ width: '25%' }}>
+                    <select
+                        name="article_id"
+                        className="form-select form-select-sm border-0 border-end custom-input"
+                        value={formData.article_id}
+                        onChange={handleArticleChange}
+                        disabled={disabled}
+                    >
+                        <option value="">-- Sélectionner un article --</option>
+                        {articles.map((article) => (
+                            <option key={article.article_id} value={article.article_id}>
+                                {article.article_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* 2. Référence (auto-rempli) */}
                 <div style={{ width: '10%' }}>
                     <input
                         type="text"
                         name="ref"
                         placeholder="Ref"
-                        className="form-control form-control-sm border-0 border-end custom-input"
+                        className="form-control form-control-sm border-0 border-end custom-input bg-light"
                         value={formData.ref}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* 2. Désignation */}
-                <div style={{ width: '30%' }}>
-                    <input
-                        type="text"
-                        name="designation"
-                        placeholder="Désignation"
-                        className="form-control form-control-sm border-0 border-end custom-input"
-                        value={formData.designation}
-                        onChange={handleChange}
+                        readOnly
                     />
                 </div>
 
@@ -118,6 +164,8 @@ const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
                         className="form-control form-control-sm border-0 border-end text-end custom-input"
                         value={formData.puht}
                         onChange={handleChange}
+                        disabled={disabled}
+                        step="0.01"
                     />
                 </div>
 
@@ -130,22 +178,26 @@ const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
                         className="form-control form-control-sm border-0 border-end text-center custom-input"
                         value={formData.qte}
                         onChange={handleChange}
+                        disabled={disabled}
+                        step="0.01"
                     />
                 </div>
 
-                {/* 5. Conditionner */}
+                {/* 5. Conditionneur */}
                 <div style={{ width: '8%' }}>
                     <select
                         name="conditionner"
                         className="form-select form-select-sm border-0 border-end custom-input"
                         value={formData.conditionner}
                         onChange={handleChange}
+                        disabled={disabled}
                         style={{ borderRadius: 0, fontSize: '11px' }}
                     >
-                        <option value="PIECE">PIECE</option>
-                        <option value="KG">KG</option>
-                        <option value="LITRE">LITRE</option>
-                        <option value="CARTON">CARTON</option>
+                        {conditionneurOptions.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
@@ -158,10 +210,14 @@ const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
                         className="form-control form-control-sm border-0 border-end text-center custom-input"
                         value={formData.remise}
                         onChange={handleChange}
+                        disabled={disabled}
+                        step="0.01"
+                        min="0"
+                        max="100"
                     />
                 </div>
 
-                {/* 7. Total Brut */}
+                {/* 7. Total Brut (calculé) */}
                 <div style={{ width: '13%' }} className="bg-light">
                     <input
                         type="text"
@@ -171,13 +227,24 @@ const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
                     />
                 </div>
 
-                {/* 8. Montant Remise */}
-                <div style={{ width: '13%' }} className="bg-light">
+                {/* 8. Montant Remise (calculé) */}
+                <div style={{ width: '9%' }} className="bg-light">
+                    <input
+                        type="text"
+                        readOnly
+                        className="form-control form-control-sm border-0 border-end text-end custom-input-readonly"
+                        value={formData.montantRemise}
+                    />
+                </div>
+
+                {/* 9. Montant Net (calculé) */}
+                <div style={{ width: '9%' }} className="bg-light">
                     <input
                         type="text"
                         readOnly
                         className="form-control form-control-sm border-0 text-end custom-input-readonly"
-                        value={formData.montantRemise}
+                        value={formData.montantNet}
+                        style={{ fontWeight: 'bold' }}
                     />
                 </div>
             </div>
@@ -187,6 +254,7 @@ const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
                 <button
                     className="btn btn-sm btn-white border px-3 btn-erp"
                     onClick={() => setFormData({
+                        article_id: '',
                         ref: '',
                         designation: '',
                         puht: '',
@@ -194,18 +262,18 @@ const BonCommandeValidation = ({ onAddLigne, initialRef }) => {
                         remise: '',
                         conditionner: 'PIECE',
                         totalBrut: 0,
-                        montantRemise: 0
+                        montantRemise: 0,
+                        montantNet: 0,
+                        unite_id: 1
                     })}
+                    disabled={disabled}
                 >
                     Nouveau
-                </button>
-                <button className="btn btn-sm btn-white border px-3 btn-erp text-muted" disabled>
-                    Supprimer
                 </button>
                 <button
                     className="btn btn-sm btn-primary px-3 btn-erp-save"
                     onClick={handleSave}
-                    disabled={saving || !formData.qte || !formData.puht}
+                    disabled={saving || disabled || !formData.article_id || !formData.qte || !formData.puht}
                 >
                     {saving ? 'Enregistrement...' : 'Enregistrer'}
                 </button>

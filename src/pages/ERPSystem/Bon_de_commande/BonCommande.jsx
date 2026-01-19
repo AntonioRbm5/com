@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DocumentHeader from '../form/DocumentHeader';
 import DocumentToolbar from '../form/DocumentToolbar';
@@ -7,13 +6,38 @@ import "../form/DocumentForm.css";
 import ListBonCommande from './ListBonCommande';
 import FormBonCommande from './FormBonCommande';
 import BonCommandeValidation from './BonCommandeValidation';
-import { createMouvement } from '../../../services/stockManagementService';
+import {
+    createCommande,
+    getCommandeById,
+    updateCommande,
+    createCommandeDetail,
+    deleteCommandeDetail,
+    searchCommandeDetail
+} from '../../../services/commandeService';
+import { getAllClient } from '../../../services/clientService';
+import { getAllArticles } from '../../../services/articleService';
 
 const BonCommande = ({ document, onClose }) => {
     const [isValidated, setIsValidated] = useState(false);
-    const [headerRef, setHeaderRef] = useState('');
+    const [commandeId, setCommandeId] = useState(null);
     const [lignes, setLignes] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [clients, setClients] = useState([]);
+    const [articles, setArticles] = useState([]);
+
+    const [formData, setFormData] = useState({
+        commande_client_id: '',
+        commande_user_id: 1, // À récupérer depuis le contexte utilisateur
+        commande_status_id: 1, // "A préparer" par défaut
+        commande_action_id: 1, // À définir selon votre logique
+        mode_paiement_id: null,
+        reference: '',
+        date: new Date().toISOString().split('T')[0],
+        dateLivraison: '',
+        affaire: '',
+        expedition: ''
+    });
+
     const [totaux, setTotaux] = useState({
         totalHT: 0,
         totalTTC: 0,
@@ -21,22 +45,96 @@ const BonCommande = ({ document, onClose }) => {
         poidsBrut: 0
     });
 
+    // Chargement initial des données
     useEffect(() => {
-        // Si on édite un document existant
-        if (document) {
-            setHeaderRef(document.id || '');
-            // Charger les lignes du document si disponibles
+        fetchInitialData();
+        if (document?.id) {
+            loadExistingCommande(document.id);
         }
     }, [document]);
 
+    // Calcul des totaux
     useEffect(() => {
         calculateTotaux();
     }, [lignes]);
 
+    /**
+     * Chargement des données de base (clients, articles)
+     */
+    const fetchInitialData = async () => {
+        try {
+            setLoading(true);
+            const [clientsRes, articlesRes] = await Promise.all([
+                getAllClient(),
+                getAllArticles()
+            ]);
+
+            if (clientsRes.data.status === 'success') {
+                setClients(clientsRes.data.data || []);
+            }
+
+            if (articlesRes.data.status === 'success') {
+                setArticles(articlesRes.data.data || []);
+            }
+        } catch (error) {
+            console.error('Erreur chargement données:', error);
+            alert('Erreur lors du chargement des données');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /**
+     * Chargement d'une commande existante
+     */
+    const loadExistingCommande = async (id) => {
+        try {
+            setLoading(true);
+            const response = await getCommandeById(id);
+
+            if (response.data.status === 'success') {
+                const commande = response.data.data;
+                setCommandeId(commande.commande_id);
+                setFormData({
+                    commande_client_id: commande.client?.client_id || '',
+                    commande_user_id: commande.user?.id || 1,
+                    commande_status_id: commande.commande_status?.commande_status_id || 1,
+                    commande_action_id: commande.action?.action_id || 1,
+                    mode_paiement_id: commande.mode_paiement?.mode_paiement_id || null,
+                    reference: `BC${String(commande.commande_id).padStart(6, '0')}`,
+                    date: new Date(commande.commande_added_date).toISOString().split('T')[0]
+                });
+
+                // Charger les lignes de commande
+                if (commande.details && commande.details.length > 0) {
+                    setLignes(commande.details.map(d => ({
+                        id: d.commande_detail_id,
+                        article_id: d.article.article_id,
+                        ref: d.article.article_reference || '',
+                        designation: d.article.article_name,
+                        puht: d.article.article_prix_vente || 0,
+                        qte: d.commande_detail_quantity,
+                        remise: d.commande_detail_remise || 0,
+                        totalBrut: (d.article.article_prix_vente * d.commande_detail_quantity).toFixed(2),
+                        montantNet: d.commande_detail_subtotal.toFixed(2)
+                    })));
+                    setIsValidated(true);
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement commande:', error);
+            alert('Erreur lors du chargement de la commande');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /**
+     * Calcul des totaux
+     */
     const calculateTotaux = () => {
         const totalHT = lignes.reduce((sum, ligne) => {
-            const montant = parseFloat(ligne.totalBrut || 0) - parseFloat(ligne.montantRemise || 0);
-            return sum + montant;
+            return sum + parseFloat(ligne.montantNet || 0);
         }, 0);
 
         const totalTTC = totalHT * 1.2; // TVA 20%
@@ -49,40 +147,91 @@ const BonCommande = ({ document, onClose }) => {
         });
     };
 
-    const handleValidation = () => {
-        if (!headerRef.trim()) {
-            alert('Veuillez renseigner une référence pour le bon de commande');
+    /**
+     * Validation du formulaire et création de la commande
+     */
+    const handleValidation = async () => {
+        if (!formData.commande_client_id) {
+            alert('Veuillez sélectionner un client');
             return;
         }
-        setIsValidated(true);
-    };
 
-    const handleAddLigne = async (formData) => {
         try {
             setLoading(true);
 
-            // Créer le mouvement via l'API
-            const mouvementData = {
-                article_id: parseInt(formData.article_id) || 1,
-                quantite: parseFloat(formData.qte),
-                mouvement_type: "COMMANDE",
-                unite_id: parseInt(formData.unite_id) || 1,
-                mouvement_quantity: parseFloat(formData.qte),
-                mouvement_valeur: parseFloat(formData.totalBrut) - parseFloat(formData.montantRemise),
-                mouvement_reference: headerRef
-            };
-
-            const response = await createMouvement(mouvementData);
-
-            if (response.data.status === 'success') {
-                // Ajouter la ligne à la liste locale
-                const newLigne = {
-                    ...formData,
-                    id: response.data.data.mouvement_id,
-                    montantNet: (parseFloat(formData.totalBrut) - parseFloat(formData.montantRemise)).toFixed(2)
+            // Créer la commande si elle n'existe pas
+            if (!commandeId) {
+                const commandeData = {
+                    commande_client_id: parseInt(formData.commande_client_id),
+                    commande_user_id: parseInt(formData.commande_user_id),
+                    commande_status_id: parseInt(formData.commande_status_id),
+                    commande_action_id: parseInt(formData.commande_action_id),
+                    mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null
                 };
 
-                setLignes([...lignes, newLigne]);
+                const response = await createCommande(commandeData);
+
+                if (response.data.status === 'success') {
+                    const newCommandeId = response.data.data.commande_id;
+                    setCommandeId(newCommandeId);
+                    setFormData(prev => ({
+                        ...prev,
+                        reference: `BC${String(newCommandeId).padStart(6, '0')}`
+                    }));
+                    setIsValidated(true);
+                    alert('Commande créée avec succès !');
+                } else {
+                    throw new Error('Erreur lors de la création de la commande');
+                }
+            } else {
+                setIsValidated(true);
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la validation de la commande');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /**
+     * Ajout d'une ligne de commande
+     */
+    const handleAddLigne = async (ligneData) => {
+        if (!commandeId) {
+            alert('Veuillez d\'abord valider la commande');
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const detailData = {
+                commande_id: commandeId,
+                article_id: parseInt(ligneData.article_id),
+                commande_detail_quantity: parseFloat(ligneData.qte),
+                commande_detail_remise: parseFloat(ligneData.remise) || 0,
+                commande_detail_subtotal: parseFloat(ligneData.montantNet)
+            };
+
+            const response = await createCommandeDetail(detailData);
+
+            if (response.data.status === 'success') {
+                const newDetail = response.data.data;
+
+                setLignes([...lignes, {
+                    id: newDetail.commande_detail_id,
+                    article_id: ligneData.article_id,
+                    ref: ligneData.ref,
+                    designation: ligneData.designation,
+                    puht: ligneData.puht,
+                    qte: ligneData.qte,
+                    conditionner: ligneData.conditionner,
+                    remise: ligneData.remise,
+                    totalBrut: ligneData.totalBrut,
+                    montantNet: ligneData.montantNet
+                }]);
+
                 alert('Ligne ajoutée avec succès !');
             }
         } catch (error) {
@@ -93,13 +242,40 @@ const BonCommande = ({ document, onClose }) => {
         }
     };
 
-    const handleDeleteLigne = (index) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cette ligne ?')) {
-            const newLignes = lignes.filter((_, i) => i !== index);
-            setLignes(newLignes);
+    /**
+     * Suppression d'une ligne de commande
+     */
+    const handleDeleteLigne = async (index) => {
+        const ligne = lignes[index];
+
+        if (!ligne.id) {
+            setLignes(lignes.filter((_, i) => i !== index));
+            return;
+        }
+
+        if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette ligne ?')) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await deleteCommandeDetail(ligne.id);
+
+            if (response.data.status === 'success') {
+                setLignes(lignes.filter((_, i) => i !== index));
+                alert('Ligne supprimée avec succès !');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression de la ligne');
+        } finally {
+            setLoading(false);
         }
     };
 
+    /**
+     * Sauvegarde finale du document
+     */
     const handleSaveDocument = async () => {
         if (lignes.length === 0) {
             alert('Veuillez ajouter au moins une ligne au bon de commande');
@@ -108,7 +284,15 @@ const BonCommande = ({ document, onClose }) => {
 
         try {
             setLoading(true);
-            // Sauvegarder le document complet
+
+            // Mettre à jour le statut ou d'autres informations si nécessaire
+            const updateData = {
+                commande_status_id: formData.commande_status_id,
+                mode_paiement_id: formData.mode_paiement_id
+            };
+
+            await updateCommande(commandeId, updateData);
+
             alert('Bon de commande enregistré avec succès !');
             if (onClose) onClose();
         } catch (error) {
@@ -134,28 +318,30 @@ const BonCommande = ({ document, onClose }) => {
         <div>
             <div className="invoice-wrapper">
                 <DocumentHeader
-                    title={`Bon de commande: ${isValidated ? 'Validé' : 'A préparer'} N° ${headerRef || 'BC00001'}`}
+                    title={`Bon de commande: ${isValidated ? 'Validé' : 'A préparer'} N° ${formData.reference || 'Nouveau'}`}
                     onClose={onClose}
                 />
 
                 <DocumentToolbar
                     onSave={handleSaveDocument}
                     onPrint={handlePrint}
-                    disabled={loading}
+                    disabled={loading || !isValidated}
                 />
 
                 <div className="invoice-body">
                     <FormBonCommande
+                        formData={formData}
+                        setFormData={setFormData}
+                        clients={clients}
                         onValidate={handleValidation}
                         isReadOnly={isValidated}
-                        headerRef={headerRef}
-                        setHeaderRef={setHeaderRef}
                     />
 
                     {isValidated && (
                         <BonCommandeValidation
-                            initialRef={headerRef}
+                            articles={articles}
                             onAddLigne={handleAddLigne}
+                            disabled={loading}
                         />
                     )}
 

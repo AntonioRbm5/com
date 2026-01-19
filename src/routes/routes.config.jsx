@@ -30,6 +30,7 @@ import ClientListPage from "../pages/clients/ClientListPage";
 import ClientFormPage from "../pages/clients/ClientFormPage";
 import ClientCategoryListPage from "../pages/clientCategories/ClientCategoryListPage";
 import ClientCategoryFormPage from "../pages/clientCategories/ClientCategoryFormPage";
+import VenteForm from "../pages/ERPSystem/vente/VenteForm";
 
 
 export const routesConfig = [
@@ -177,5 +178,9 @@ export const routesConfig = [
   {
     path: "/clients-categories/edit/:id",
     element: <ClientCategoryFormPage mode="edit" />
+  },
+  {
+    path: "/ventes",
+    element: <VenteForm />
   }
 ];

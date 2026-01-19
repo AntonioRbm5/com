@@ -18,12 +18,12 @@ export default function Sidebar() {
     { label: "Inventaires", icon: <FaClipboardList className="ft-2" />, path: "/inventaire" },
     { label: "Clients", icon: <FaUsers className="ft-2" />, path: "/clients" },
     { label: "Fournisseurs", icon: <FaTruck className="ft-2" />, path: "/fournisseur" },
-    { label: "Ventes", icon: <FaDollarSign className="ft-2" />, path: "/not-found" },
+    { label: "Ventes", icon: <FaDollarSign className="ft-2" />, path: "/ventes" },
     { label: "Mouvement", icon: <GrTransaction className="ft-2" />, path: "/mouvement" },
     { label: "Logout", icon: <FaSignOutAlt className="ft-2" />, path: "/login" }
   ];
 
-  
+
   const handleClick = (path) => {
     navigate(path);
   };

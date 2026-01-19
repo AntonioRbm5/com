@@ -1,89 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDeleteLigne }) => {
+// const ListLignesVente = ({
+//     lignes = [],
+//     onAddLigne,
+//     onDeleteLigne,
+//     articles = [],
+//     depots = [],
+//     unites = []
+// }) => {
+const ListLignesVente = ({
+    lignes = [],
+    onAddLigne,
+    onDeleteLigne,
+    onSave,
+    onValidate,
+    articles = [],
+    depots = [],
+    unites = [],
+    autoOpen = false
+}) => {
+
+
     const [showAddForm, setShowAddForm] = useState(false);
     const [newLigne, setNewLigne] = useState({
         article_id: '',
-        referenceArticle: '',
-        referenceFournisseur: '',
-        designation: '',
-        puHT: '',
+        article_name: '',
+        depot_id: '',
         quantite: '',
-        conditionneur: 'PIECE',
+        unite_id: '',
+        prix_unitaire: '',
         remise: '',
-        puNet: '',
-        montantHT: ''
+        subtotal: ''
     });
-
-    // Recalcul automatique
     useEffect(() => {
-        if (newLigne.puHT && newLigne.quantite) {
-            const puHT = parseFloat(newLigne.puHT) || 0;
-            const qte = parseFloat(newLigne.quantite) || 0;
-            const remise = parseFloat(newLigne.remise) || 0;
-
-            const montantBrut = puHT * qte;
-            const montantRemise = (montantBrut * remise) / 100;
-            const puNet = remise > 0 ? puHT * (1 - remise / 100) : puHT;
-            const montantHT = montantBrut - montantRemise;
-
-            setNewLigne(prev => ({
-                ...prev,
-                puNet: puNet.toFixed(2),
-                montantHT: montantHT.toFixed(2)
-            }));
+        if (autoOpen) {
+            setShowAddForm(true);
         }
-    }, [newLigne.puHT, newLigne.quantite, newLigne.remise]);
-
+    }, [autoOpen]);
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewLigne(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+        setNewLigne(prev => {
+            const updated = { ...prev, [name]: value };
 
-    const handleArticleChange = (e) => {
-        const articleId = e.target.value;
+            // Récupérer le prix de vente de l'article sélectionné
+            if (name === 'article_id' && value) {
+                const article = articles.find(a => String(a.article_id) === String(value));
+                if (article) {
+                    updated.article_name = article.article_name;
+                    updated.prix_unitaire = article.article_prix_vente || '';
+                    updated.unite_id = article.unite_vente_defaut_id || '';
+                }
+            }
 
-        if (!articleId) {
-            setNewLigne(prev => ({
-                ...prev,
-                article_id: '',
-                referenceArticle: '',
-                designation: '',
-                puHT: ''
-            }));
-            return;
-        }
+            // Calculs automatiques
+            if (name === 'prix_unitaire' || name === 'quantite' || name === 'remise') {
+                const prixUnitaire = parseFloat(updated.prix_unitaire) || 0;
+                const qte = parseFloat(updated.quantite) || 0;
+                const remise = parseFloat(updated.remise) || 0;
 
-        const article = articles.find(a => String(a.article_id) === String(articleId));
+                const montantBrut = prixUnitaire * qte;
+                const montantRemise = (montantBrut * remise) / 100;
+                const subtotal = montantBrut - montantRemise;
 
-        if (article) {
-            setNewLigne(prev => ({
-                ...prev,
-                article_id: articleId,
-                referenceArticle: article.article_reference || '',
-                designation: article.article_name || '',
-                puHT: article.article_prix_vente || ''
-            }));
-        }
+                updated.subtotal = subtotal.toFixed(2);
+            }
+
+            return updated;
+        });
     };
 
     const handleAddLigne = () => {
-        // Validation
-        if (!newLigne.article_id) {
-            alert('Veuillez sélectionner un article');
-            return;
-        }
-
-        if (!newLigne.quantite || parseFloat(newLigne.quantite) <= 0) {
-            alert('Veuillez saisir une quantité valide');
-            return;
-        }
-
-        if (!newLigne.puHT || parseFloat(newLigne.puHT) <= 0) {
-            alert('Veuillez saisir un prix unitaire valide');
+        if (!newLigne.article_id || !newLigne.quantite || !newLigne.depot_id || !newLigne.unite_id) {
+            alert('Veuillez remplir tous les champs obligatoires (Article, Dépôt, Quantité, Unité)');
             return;
         }
 
@@ -92,15 +80,13 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
         // Réinitialiser le formulaire
         setNewLigne({
             article_id: '',
-            referenceArticle: '',
-            referenceFournisseur: '',
-            designation: '',
-            puHT: '',
+            article_name: '',
+            depot_id: '',
             quantite: '',
-            conditionneur: 'PIECE',
+            unite_id: '',
+            prix_unitaire: '',
             remise: '',
-            puNet: '',
-            montantHT: ''
+            subtotal: ''
         });
         setShowAddForm(false);
     };
@@ -112,28 +98,18 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
         });
     };
 
-    const conditionneurOptions = [
-        { value: 'PIECE', label: 'PIECE' },
-        { value: 'KG', label: 'KG' },
-        { value: 'LITRE', label: 'LITRE' },
-        { value: 'CARTON', label: 'CARTON' },
-        { value: 'METRE', label: 'METRE' }
-    ];
-
     return (
         <div className="table-container">
             <div className="table-scroll">
                 <table className="invoice-table">
                     <thead>
                         <tr>
-                            <th style={{ width: '20%' }}>Article</th>
-                            <th style={{ width: '100px' }}>Réf. article</th>
-                            <th style={{ width: '100px' }}>Réf. fourn.</th>
+                            <th style={{ width: '150px' }}>Article</th>
+                            <th style={{ width: '120px' }}>Dépôt</th>
+                            <th className="text-right" style={{ width: '80px' }}>Qté</th>
+                            <th style={{ width: '100px' }}>Unité</th>
                             <th className="text-right" style={{ width: '100px' }}>P.U. HT</th>
-                            <th className="text-right" style={{ width: '100px' }}>Qté</th>
-                            <th style={{ width: '100px' }}>Condition.</th>
                             <th className="text-right" style={{ width: '80px' }}>Remise %</th>
-                            <th className="text-right" style={{ width: '100px' }}>P.U. net</th>
                             <th className="text-right" style={{ width: '120px' }}>Montant HT</th>
                             <th style={{ width: '80px' }}>Actions</th>
                         </tr>
@@ -147,9 +123,9 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                                         name="article_id"
                                         className="form-select form-select-sm"
                                         value={newLigne.article_id}
-                                        onChange={handleArticleChange}
+                                        onChange={handleInputChange}
                                     >
-                                        <option value="">-- Sélectionner --</option>
+                                        <option value="">Sélectionner</option>
                                         {articles.map((article) => (
                                             <option key={article.article_id} value={article.article_id}>
                                                 {article.article_name}
@@ -158,33 +134,19 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                                     </select>
                                 </td>
                                 <td>
-                                    <input
-                                        type="text"
-                                        className="form-control form-control-sm bg-light"
-                                        value={newLigne.referenceArticle}
-                                        readOnly
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        name="referenceFournisseur"
-                                        className="form-control form-control-sm"
-                                        value={newLigne.referenceFournisseur}
+                                    <select
+                                        name="depot_id"
+                                        className="form-select form-select-sm"
+                                        value={newLigne.depot_id}
                                         onChange={handleInputChange}
-                                        placeholder="Réf. fourn."
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        type="number"
-                                        name="puHT"
-                                        className="form-control form-control-sm text-right"
-                                        value={newLigne.puHT}
-                                        onChange={handleInputChange}
-                                        placeholder="0.00"
-                                        step="0.01"
-                                    />
+                                    >
+                                        <option value="">Dépôt</option>
+                                        {depots.map((depot) => (
+                                            <option key={depot.depot_id} value={depot.depot_id}>
+                                                {depot.depot_name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </td>
                                 <td>
                                     <input
@@ -194,22 +156,36 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                                         value={newLigne.quantite}
                                         onChange={handleInputChange}
                                         placeholder="0"
+                                        min="0"
                                         step="0.01"
                                     />
                                 </td>
                                 <td>
                                     <select
-                                        name="conditionneur"
+                                        name="unite_id"
                                         className="form-select form-select-sm"
-                                        value={newLigne.conditionneur}
+                                        value={newLigne.unite_id}
                                         onChange={handleInputChange}
                                     >
-                                        {conditionneurOptions.map((opt) => (
-                                            <option key={opt.value} value={opt.value}>
-                                                {opt.label}
+                                        <option value="">Unité</option>
+                                        {unites.map((unite) => (
+                                            <option key={unite.unite_id} value={unite.unite_id}>
+                                                {unite.unite_code}
                                             </option>
                                         ))}
                                     </select>
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        name="prix_unitaire"
+                                        className="form-control form-control-sm text-right"
+                                        value={newLigne.prix_unitaire}
+                                        onChange={handleInputChange}
+                                        placeholder="0.00"
+                                        min="0"
+                                        step="0.01"
+                                    />
                                 </td>
                                 <td>
                                     <input
@@ -219,16 +195,12 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                                         value={newLigne.remise}
                                         onChange={handleInputChange}
                                         placeholder="0"
-                                        step="0.01"
                                         min="0"
                                         max="100"
                                     />
                                 </td>
                                 <td className="text-right bg-light">
-                                    {formatCurrency(newLigne.puNet)}
-                                </td>
-                                <td className="text-right bg-light">
-                                    {formatCurrency(newLigne.montantHT)}
+                                    {formatCurrency(newLigne.subtotal)}
                                 </td>
                                 <td style={{ textAlign: 'center' }}>
                                     <button
@@ -245,13 +217,13 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                         {/* Lignes existantes */}
                         {lignes.length === 0 && !showAddForm ? (
                             <tr>
-                                <td colSpan="10" className="empty-row-text" style={{
+                                <td colSpan="8" className="empty-row-text" style={{
                                     textAlign: 'center',
                                     padding: '40px',
                                     color: '#999',
                                     fontStyle: 'italic'
                                 }}>
-                                    Aucune ligne de document
+                                    Aucune ligne de vente
                                 </td>
                             </tr>
                         ) : (
@@ -259,16 +231,14 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                                 <tr key={index} style={{
                                     background: index % 2 === 0 ? '#fff' : '#f9f9f9'
                                 }}>
-                                    <td>{ligne.designation}</td>
-                                    <td>{ligne.referenceArticle || '-'}</td>
-                                    <td>{ligne.referenceFournisseur || '-'}</td>
-                                    <td className="text-right">{formatCurrency(ligne.puHT)}</td>
+                                    <td>{ligne.article_name || `Article #${ligne.article_id}`}</td>
+                                    <td>{ligne.depot_name || `Dépôt #${ligne.depot_id}`}</td>
                                     <td className="text-right">{formatCurrency(ligne.quantite)}</td>
-                                    <td>{ligne.conditionneur}</td>
+                                    <td>{ligne.unite_code || `Unité #${ligne.unite_id}`}</td>
+                                    <td className="text-right">{formatCurrency(ligne.prix_unitaire)}</td>
                                     <td className="text-right">{ligne.remise || '0'}%</td>
-                                    <td className="text-right">{formatCurrency(ligne.puNet)}</td>
                                     <td className="text-right" style={{ fontWeight: '500' }}>
-                                        {formatCurrency(ligne.montantHT)}
+                                        {formatCurrency(ligne.subtotal)}
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
                                         <button
@@ -288,12 +258,12 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                     {lignes.length > 0 && (
                         <tfoot style={{ background: '#f0f0f0', fontWeight: 'bold' }}>
                             <tr>
-                                <td colSpan="8" style={{ textAlign: 'right', padding: '12px' }}>
+                                <td colSpan="6" style={{ textAlign: 'right', padding: '12px' }}>
                                     TOTAL HT:
                                 </td>
                                 <td className="text-right">
                                     {formatCurrency(
-                                        lignes.reduce((sum, l) => sum + parseFloat(l.montantHT || 0), 0)
+                                        lignes.reduce((sum, l) => sum + parseFloat(l.subtotal || 0), 0)
                                     )}
                                 </td>
                                 <td></td>
@@ -307,6 +277,8 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                 <button
                     className="btn-action"
                     onClick={() => setShowAddForm(!showAddForm)}
+                    disabled={autoOpen}
+
                 >
                     {showAddForm ? 'Annuler' : 'Nouveau'}
                 </button>
@@ -319,6 +291,7 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
                 <button
                     className="btn-action"
                     disabled={lignes.length === 0}
+                    onClick={onSave}
                 >
                     Enregistrer
                 </button>
@@ -327,4 +300,4 @@ const ListFactureComptablisée = ({ lignes = [], articles = [], onAddLigne, onDe
     );
 };
 
-export default ListFactureComptablisée;
+export default ListLignesVente;

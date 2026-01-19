@@ -189,7 +189,6 @@ const ClientCategoryListPage = () => {
                                         display: 'row',
                                         justifyContent: 'space-around',
                                         alignItems: 'center',
-                                        margin: '10px 0px'
                                     }}>
                                         {selectedCategory.clients.map((cl) => (
                                             <li style={{
