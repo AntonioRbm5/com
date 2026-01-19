@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FormBonCommande = ({ formData, setFormData, clients = [], onValidate, isReadOnly }) => {
+const FormBonCommande = ({ formData, setFormData, clients = [], onValidate, isReadOnly, hasLignes = false, lignesCount = 0 }) => {
     const handleChange = (field, value) => {
         setFormData(prev => ({
             ...prev,
@@ -212,8 +212,14 @@ const FormBonCommande = ({ formData, setFormData, clients = [], onValidate, isRe
                         <button
                             className="btn btn-outline-primary btn-sm px-4"
                             onClick={onValidate}
-                            disabled={isReadOnly || !formData.commande_client_id}
-                            title="Valider le bon de commande pour pouvoir ajouter des lignes"
+                            disabled={isReadOnly || !formData.commande_client_id || !hasLignes}
+                            title={
+                                !formData.commande_client_id
+                                    ? "Sélectionnez d'abord un client"
+                                    : !hasLignes
+                                        ? "Ajoutez au moins une ligne avant de valider"
+                                        : "Valider et enregistrer le bon de commande"
+                            }
                         >
                             Valider
                         </button>
@@ -221,8 +227,8 @@ const FormBonCommande = ({ formData, setFormData, clients = [], onValidate, isRe
                 </div>
             </div>
 
-            {/* Message d'information */}
-            {!isReadOnly && (
+            {/* Messages d'information dynamiques */}
+            {!isReadOnly && !formData.commande_client_id && (
                 <div className="row mt-2">
                     <div className="col-12">
                         <div style={{
@@ -233,7 +239,41 @@ const FormBonCommande = ({ formData, setFormData, clients = [], onValidate, isRe
                             fontSize: '11px',
                             color: '#856404'
                         }}>
-                            ⚠️ <strong>Attention:</strong> Veuillez sélectionner un client et valider le bon de commande avant d'ajouter des lignes
+                            ⚠️ <strong>Étape 1:</strong> Sélectionnez un client pour commencer
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {!isReadOnly && formData.commande_client_id && !hasLignes && (
+                <div className="row mt-2">
+                    <div className="col-12">
+                        <div style={{
+                            padding: '8px',
+                            background: '#d1ecf1',
+                            borderLeft: '4px solid #0c5460',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            color: '#0c5460'
+                        }}>
+                            ℹ️ <strong>Étape 2:</strong> Ajoutez des lignes de commande ci-dessous, puis cliquez sur "Valider" pour enregistrer
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {!isReadOnly && formData.commande_client_id && hasLignes && (
+                <div className="row mt-2">
+                    <div className="col-12">
+                        <div style={{
+                            padding: '8px',
+                            background: '#d4edda',
+                            borderLeft: '4px solid #28a745',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            color: '#155724'
+                        }}>
+                            ✓ <strong>Prêt à valider:</strong> Vous avez {lignesCount} ligne(s). Cliquez sur "Valider" pour enregistrer la commande
                         </div>
                     </div>
                 </div>
@@ -250,7 +290,7 @@ const FormBonCommande = ({ formData, setFormData, clients = [], onValidate, isRe
                             fontSize: '11px',
                             color: '#155724'
                         }}>
-                            ✓ <strong>Bon de commande validé</strong> - Vous pouvez maintenant ajouter des lignes
+                            ✓ <strong>Commande validée et enregistrée</strong> - N° {formData.reference}
                         </div>
                     </div>
                 </div>

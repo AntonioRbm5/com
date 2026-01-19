@@ -31,6 +31,12 @@ import ClientFormPage from "../pages/clients/ClientFormPage";
 import ClientCategoryListPage from "../pages/clientCategories/ClientCategoryListPage";
 import ClientCategoryFormPage from "../pages/clientCategories/ClientCategoryFormPage";
 import VenteForm from "../pages/ERPSystem/vente/VenteForm";
+import PaymentListPage from "../pages/ERPSystem/mode_payment/PaymentListPage";
+import PaymentFormPage from "../pages/ERPSystem/mode_payment/PaymentFormPage";
+import ActionTypeFormPage from "../pages/ERPSystem/Action/ActionTypeFormPage";
+import ActionTypeListPage from "../pages/ERPSystem/Action/ActionTypeListPage";
+import VenteStatusListPage from "../pages/ERPSystem/StatusVente/VenteStatusListPage";
+import VenteStatusFormPage from "../pages/ERPSystem/StatusVente/VenteStatusFormPage";
 
 
 export const routesConfig = [
@@ -182,5 +188,38 @@ export const routesConfig = [
   {
     path: "/ventes",
     element: <VenteForm />
+  },
+  {
+    path: "/mode_payement/*",
+    element: <PaymentListPage />
+  },
+  {
+    path: "/mode_payement/new",
+    element: <PaymentFormPage />
+  },
+  {
+    path: "/action_type/*",
+    element: <ActionTypeListPage />
+  },
+  {
+    path: "/action_type/new",
+    element: <ActionTypeFormPage mode="new" />
+  },
+  {
+    path: "/action_type/edit/:id",
+    element: <ActionTypeFormPage mode="edit" />
+  },
+  {
+    path: "/vente_status/*",
+    elements: <VenteStatusListPage/>
+  },
+  {
+    path: "/vente_status/new",
+    element: <VenteStatusFormPage mode="new" />
+  },
+  {
+    path: "/vente_status/edit/:id",
+    element: <VenteStatusFormPage mode="edit" />
   }
+
 ];

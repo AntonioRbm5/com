@@ -16,6 +16,9 @@ import Toolbar from '../Layout/Toolbar';
 import SidebarLayout from '../Layout/SidebarLayout';
 import Sidebar from '../../composants/sidebar';
 import Navbar from '../../composants/navbar';
+import PaymentListPage from './mode_payment/PaymentListPage';
+import ActionTypeListPage from './Action/ActionTypeListPage';
+import VenteStatusListPage from './StatusVente/VenteStatusListPage';
 
 const ERPSystem = () => {
     const [currentView, setCurrentView] = useState('sales');
@@ -38,7 +41,11 @@ const ERPSystem = () => {
         { id: 'purchases', label: 'Documents des achats', icon: '🛒' },
         { id: 'stock', label: 'Mouvements de stock', icon: '📊' },
         { id: 'analysis', label: 'Analyse clients', icon: '📈' },
-        { id: 'stats', label: 'Statistiques clients', icon: '📉' }
+        { id: 'stats', label: 'Statistiques clients', icon: '📉' },
+        { id: 'payment', label: 'Mode de payment', icon: '💳' },
+        { id: 'action_type', label: 'Action type', icon: '⚙️' },
+        { id: 'vente_status', label: 'Ventes status'}
+
     ];
 
     const toolbarCustomButtons = [
@@ -162,6 +169,24 @@ const ERPSystem = () => {
                             {currentView === 'analysis' && (
                                 <AnalysisView
                                     key={`analysis-${refreshKey}`}
+                                    data={clientAnalysis}
+                                />
+                            )}
+                            {currentView === 'payment' && (
+                                <PaymentListPage
+                                    key={`payment-${refreshKey}`}
+                                    data={clientAnalysis}
+                                />
+                            )}
+                            {currentView === 'action_type' && (
+                                <ActionTypeListPage
+                                    key={`action_type-${refreshKey}`}
+                                    data={clientAnalysis}
+                                />
+                            )}
+                            {currentView === 'vente_status' && (
+                                <VenteStatusListPage
+                                    key={`vente_status-${refreshKey}`}
                                     data={clientAnalysis}
                                 />
                             )}
