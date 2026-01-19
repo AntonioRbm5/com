@@ -1,0 +1,54 @@
+/* Sidebar container */
+.sidebar-erp {
+    width: 240px;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+/* Sidebar items */
+.sidebar-item {
+    text-decoration: none;
+    color: #495057;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover */
+.sidebar-item:hover {
+    background-color: #f1f3f5;
+    color: #0d6efd;
+}
+
+/* Active link */
+.sidebar-item.active {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+/* Active indicator (left border) */
+.sidebar-item.active {
+    border-left: 4px solid #0d6efd;
+}
+
+/* Icons */
+.sidebar-item i {
+    font-size: 1.1rem;
+}
+
+.erp-form .card-header {
+    font-size: 0.95rem;
+}
+
+.erp-form .form-label,
+.erp-form .col-form-label {
+    color: #495057;
+}
+
+.erp-form .form-control {
+    border-radius: 0.375rem;
+}
+
+.erp-form textarea {
+    resize: vertical;
+}

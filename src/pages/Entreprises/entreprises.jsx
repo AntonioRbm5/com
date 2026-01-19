@@ -1,10 +1,11 @@
 import { Outlet, useMatch, NavLink } from "react-router-dom";
+import "./entreprise_style.css"
 const Entreprise = () => {
     const isGlobalRoute = useMatch("/entreprise/global");
     // return (
-    //     <div class="p-3">
-    //         <div class="card">
-    //             <div class="card-body">
+    //     <div className="p-3">
+    //         <div className="card">
+    //             <div className="card-body">
     //                 <div className="row">
     //                     <div className="col-4">
     //                         {isGlobalRoute ? (
@@ -51,35 +52,39 @@ const Entreprise = () => {
     ];
     return (
         <div className="entreprise-container">
-            <div class="erp-header">
-                <div class="header-title">
-                    <span class="header-icon">⚙</span><span>#Identification de votre société</span>
+            <div className="erp-header">
+                <div className="header-title">
+                    <span className="header-icon">⚙</span><span>#Identification de votre société</span>
                 </div>
-                <div class="window-controls">
-                    <button class="window-btn">−</button>
-                    <button class="window-btn">□</button>
-                    <button class="window-btn close">×</button>
+                <div className="window-controls">
+                    <button className="window-btn">−</button>
+                    <button className="window-btn">□</button>
+                    <button className="window-btn close">×</button>
                 </div>
             </div>
-            <div className="entreprise-content">
+            <div className="entreprise-content d-flex">
                 {/* SIDEBAR */}
-                <div className="sidebar-erp">
+                <div className="sidebar-erp d-flex flex-column p-3 border-end">
+              
                     {MENU.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        end
-                        className={({ isActive }) =>
-                        `sidebar-item ${isActive ? "active" : ""}`
-                        }
-                    >
-                        {item.label}
-                    </NavLink>
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            end
+                            className={({ isActive }) =>
+                                `sidebar-item d-flex align-items-center gap-2 px-3 py-2 rounded 
+                                ${isActive ? "active" : ""}`
+                            }
+                        >
+                            {item.icon && <i className={item.icon}></i>}
+                            <span>{item.label}</span>
+                        </NavLink>
                     ))}
                 </div>
 
+
                 {/* CONTENT */}
-                <div className="entreprise-table-container">
+                <div style={{width:"80%"}} className="p-3">
                     <Outlet />
                 </div>
             </div>
