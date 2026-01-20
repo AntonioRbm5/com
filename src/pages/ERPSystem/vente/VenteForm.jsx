@@ -15,6 +15,7 @@ import { getAllUnites } from '../../../services/uniteService';
 import Sidebar from '../../../composants/sidebar';
 import Navbar from '../../../composants/navbar';
 import { getAllVenteStatus, getVenteStatusById } from '../../../services/venteStatusService';
+import { getAllModePaiement } from '../../../services/modePaiementService';
 
 const VenteForm = ({ document, onClose }) => {
     const [lignes, setLignes] = useState([]);
@@ -28,6 +29,7 @@ const VenteForm = ({ document, onClose }) => {
     const [depots, setDepots] = useState([]);
     const [unites, setUnites] = useState([]);
     const [isValidated, setIsValidated] = useState(false);
+    const [modesPaiement, setModesPaiement] = useState([]);
 
     const [formData, setFormData] = useState({
         client_id: '',
@@ -72,7 +74,7 @@ const VenteForm = ({ document, onClose }) => {
             const [
                 clientsRes,
                 statusRes,
-                usersRes, articlesRes, depotsRes, unitesRes,
+                usersRes, articlesRes, depotsRes, unitesRes, modesPaiementRes,
             ] =
                 await Promise.all([
                     getAllClient(),
@@ -80,7 +82,8 @@ const VenteForm = ({ document, onClose }) => {
                     getAllUsers(),
                     getAllArticles(),
                     getAllDepots(),
-                    getAllUnites()
+                    getAllUnites(),
+                    getAllModePaiement()
                 ]);
 
             if (clientsRes.data.status === 'success') setClients(clientsRes.data.data || []);
@@ -89,6 +92,8 @@ const VenteForm = ({ document, onClose }) => {
             if (articlesRes.data.status === 'success') setArticles(articlesRes.data.data || []);
             if (depotsRes.data.status === 'success') setDepots(depotsRes.data.data || []);
             if (unitesRes.data.status === 'success') setUnites(unitesRes.data.data || []);
+            if (modesPaiementRes.data.status === 'success') setModesPaiement(modesPaiementRes.data.data || []);  // ✅ AJOUT ICI
+
         } catch (error) {
             console.error('Erreur chargement données:', error);
             alert('Erreur lors du chargement des données de référence');
@@ -190,23 +195,23 @@ const VenteForm = ({ document, onClose }) => {
 
             setLoading(true);
 
-            // const payload = {
-            //     user_id: parseInt(formData.user_id),
-            //     status_id: parseInt(formData.status_id),
-            //     client_id: parseInt(formData.client_id),
-            //     mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null,
-            //     vente_has_discount: formData.vente_has_discount,
-            //     vente_date: formData.date,
-            //     vente_reference: formData.reference,
-            //     vente_notes: formData.notes
-            // };
             const payload = {
                 user_id: parseInt(formData.user_id),
                 status_id: parseInt(formData.status_id),
                 client_id: parseInt(formData.client_id),
                 mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null,
-                vente_has_discount: formData.vente_has_discount
+                vente_has_discount: formData.vente_has_discount,
+                vente_date: formData.date,
+                vente_reference: formData.reference,
+                vente_notes: formData.notes
             };
+            // const payload = {
+            //     user_id: parseInt(formData.user_id),
+            //     status_id: parseInt(formData.status_id),
+            //     client_id: parseInt(formData.client_id),
+            //     mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null,
+            //     vente_has_discount: formData.vente_has_discount
+            // };
 
             const details = lignes.map(ligne => ({
                 article_id: parseInt(ligne.article_id),
@@ -289,6 +294,7 @@ const VenteForm = ({ document, onClose }) => {
                             clients={clients}
                             users={users}
                             venteStatuses={venteStatuses}
+                            modesPaiement={modesPaiement}
                             isReadOnly={isValidated}
                         />
 

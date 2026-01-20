@@ -7,7 +7,7 @@ const FormVenteHeader = ({
     clients = [],
     users = [],
     venteStatuses = [],
-    // modesPaiement = [],
+    modesPaiement = [],
     isReadOnly = false
 }) => {
     const handleChange = (field, value) => {
@@ -102,7 +102,7 @@ const FormVenteHeader = ({
                         </select>
                     </div>
 
-                    {/* <div className="input-group input-group-sm mb-1">
+                    <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text custom-label">Mode paiement</span>
                         <select
                             className="form-select"
@@ -117,7 +117,7 @@ const FormVenteHeader = ({
                                 </option>
                             ))}
                         </select>
-                    </div> */}
+                    </div>
                 </div>
 
                 {/* Colonne 2 */}
