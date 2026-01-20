@@ -37,6 +37,12 @@ import ActionTypeFormPage from "../pages/ERPSystem/Action/ActionTypeFormPage";
 import ActionTypeListPage from "../pages/ERPSystem/Action/ActionTypeListPage";
 import VenteStatusListPage from "../pages/ERPSystem/StatusVente/VenteStatusListPage";
 import VenteStatusFormPage from "../pages/ERPSystem/StatusVente/VenteStatusFormPage";
+import StockageDepot from "../pages/StockageDepot/stockage_depot";
+import SdContacts from "../pages/StockageDepot/sd_contacts";
+import SdEmplacements from "../pages/StockageDepot/sd_emplacements";
+import Sdidentifications from "../pages/StockageDepot/sd_identification";
+import SdParametre from "../pages/StockageDepot/sd_parametres";
+import Sdutilisateur from "../pages/StockageDepot/sd_utilisateurs";
 
 
 export const routesConfig = [
@@ -59,6 +65,32 @@ export const routesConfig = [
   {
     path: "/login",
     element: <LoginForm />
+  },
+  {
+    path: "/stockage-depot",
+    element: <StockageDepot/>,
+    children: [
+      {
+        path: "contacts",
+        element: <SdContacts />
+      },
+      {
+        path: "emplacements",
+        element: <SdEmplacements />
+      },
+      {
+        path: "identification",
+        element: <Sdidentifications />
+      },
+      {
+        path: "parametre",
+        element: <SdParametre />
+      },
+      {
+        path: "utilisateur",
+        element: <Sdutilisateur />
+      }
+    ]
   },
   {
     path: "/entreprise",
