@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-// const ListLignesVente = ({
-//     lignes = [],
-//     onAddLigne,
-//     onDeleteLigne,
-//     articles = [],
-//     depots = [],
-//     unites = []
-// }) => {
 const ListLignesVente = ({
     lignes = [],
     onAddLigne,
@@ -17,7 +9,9 @@ const ListLignesVente = ({
     articles = [],
     depots = [],
     unites = [],
-    autoOpen = false
+    autoOpen = false,
+    dernieresVentes = [],
+    isValidated = false
 }) => {
 
 
@@ -115,6 +109,68 @@ const ListLignesVente = ({
                         </tr>
                     </thead>
                     <tbody>
+                        {!isValidated && dernieresVentes.length > 0 && (
+                            <>
+                                <tr>
+                                    <td colSpan="8" style={{
+                                        background: '#e7f3ff',
+                                        padding: '8px 12px',
+                                        fontWeight: '600',
+                                        fontSize: '12px',
+                                        color: '#0078d4',
+                                        textAlign: 'left'
+                                    }}>
+                                        📊 5 Dernières ventes
+                                    </td>
+                                </tr>
+                                {dernieresVentes.map((vente, index) => (
+                                    <tr key={`vente-${vente.vente_id || index}`} style={{
+                                        background: index % 2 === 0 ? '#f8f9fa' : '#fff',
+                                        cursor: 'pointer'
+                                    }}>
+                                        {/* Article - Colonne 1 */}
+                                        <td style={{ fontWeight: '500', color: '#0d6efd' }}>
+                                            {vente.vente_numero || `VEN${String(vente.vente_id).padStart(6, '0')}`}
+                                        </td>
+                                        {/* Dépôt - Colonne 2 */}
+                                        <td style={{ color: '#6c757d' }}>
+                                            {vente.client?.client_name || 'Client inconnu'}
+                                        </td>
+                                        {/* Qté - Colonne 3 */}
+                                        <td className="text-right" style={{ fontSize: '11px' }}>
+                                            -
+                                        </td>
+                                        {/* Unité - Colonne 4 */}
+                                        <td style={{ fontSize: '11px' }}>
+                                            -
+                                        </td>
+                                        {/* P.U. HT - Colonne 5 */}
+                                        <td className="text-right" style={{ fontSize: '11px' }}>
+                                            -
+                                        </td>
+                                        {/* Remise % - Colonne 6 */}
+                                        <td className="text-right" style={{ fontSize: '11px' }}>
+                                            -
+                                        </td>
+                                        {/* Montant HT - Colonne 7 */}
+                                        <td className="text-right" style={{ fontWeight: '600', color: '#198754' }}>
+                                            {formatCurrency(vente.vente_total_amount || 0)} Ar
+                                        </td>
+                                        {/* Actions - Colonne 8 */}
+                                        <td className="text-right" style={{
+                                            fontSize: '11px',
+                                            color: '#868e96',
+                                            fontStyle: 'italic'
+                                        }}>
+                                            {new Date(vente.vente_date || vente.created_at).toLocaleDateString('fr-FR')}
+                                        </td>
+                                    </tr>
+                                ))}
+                                <tr>
+                                    <td colSpan="8" style={{ height: '10px', background: '#fff' }}></td>
+                                </tr>
+                            </>
+                        )}
                         {/* Formulaire d'ajout */}
                         {showAddForm && (
                             <tr style={{ background: '#fffbea' }}>

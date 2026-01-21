@@ -7,7 +7,7 @@ import FormVenteHeader from './FormVenteHeader';
 import ListLignesVente from './ListLignesVente';
 
 import { getAllClient } from '../../../services/clientService';
-import { createVente } from '../../../services/venteService';
+import { createVente, getAllVente } from '../../../services/venteService';
 import { getAllUsers } from '../../../services/userService';
 import { getAllArticles } from '../../../services/articleService';
 import { getAllDepots } from '../../../services/depotService';
@@ -30,6 +30,7 @@ const VenteForm = ({ document, onClose }) => {
     const [unites, setUnites] = useState([]);
     const [isValidated, setIsValidated] = useState(false);
     const [modesPaiement, setModesPaiement] = useState([]);
+    const [dernieresVentes, setDernieresVentes] = useState([]);
 
     const [formData, setFormData] = useState({
         client_id: '',
@@ -74,7 +75,7 @@ const VenteForm = ({ document, onClose }) => {
             const [
                 clientsRes,
                 statusRes,
-                usersRes, articlesRes, depotsRes, unitesRes, modesPaiementRes,
+                usersRes, articlesRes, depotsRes, unitesRes, modesPaiementRes, ventesRes
             ] =
                 await Promise.all([
                     getAllClient(),
@@ -83,7 +84,8 @@ const VenteForm = ({ document, onClose }) => {
                     getAllArticles(),
                     getAllDepots(),
                     getAllUnites(),
-                    getAllModePaiement()
+                    getAllModePaiement(),
+                    getAllVente()
                 ]);
 
             if (clientsRes.data.status === 'success') setClients(clientsRes.data.data || []);
@@ -93,7 +95,11 @@ const VenteForm = ({ document, onClose }) => {
             if (depotsRes.data.status === 'success') setDepots(depotsRes.data.data || []);
             if (unitesRes.data.status === 'success') setUnites(unitesRes.data.data || []);
             if (modesPaiementRes.data.status === 'success') setModesPaiement(modesPaiementRes.data.data || []);  // ✅ AJOUT ICI
-
+            if (ventesRes.data.status === 'success') {
+                const allVentes = ventesRes.data.data || [];
+                const last5 = allVentes.slice(-5).reverse(); // Les 5 dernières, ordre décroissant
+                setDernieresVentes(last5);
+            }
         } catch (error) {
             console.error('Erreur chargement données:', error);
             alert('Erreur lors du chargement des données de référence');
@@ -337,6 +343,8 @@ const VenteForm = ({ document, onClose }) => {
                             unites={unites}
                             isReadOnly={!isValidated}
                             autoOpen={isValidated}
+                            dernieresVentes={dernieresVentes}
+                            isValidated={isValidated}
                         />
 
 
