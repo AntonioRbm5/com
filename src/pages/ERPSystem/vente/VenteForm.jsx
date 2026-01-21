@@ -130,47 +130,109 @@ const VenteForm = ({ document, onClose }) => {
             const response = await getVenteByID(doc.id);
             console.log('📥 Réponse API:', response.data);
 
+            // if (response.data.status === 'success') {
+            //     const vente = response.data.data;
+            //     setVenteId(vente.vente_id);
+
+            //     // setFormData({
+            //     //     numeroVente: `VEN${String(vente.vente_id).padStart(6, '0')}`,
+            //     //     client_id: vente.client?.client_id || '',
+            //     //     client_name: vente.client?.client_name || '',
+            //     //     status_id: vente.status?.vente_status_id || '',
+            //     //     user_id: vente.user?.id || '',
+            //     //     mode_paiement_id: vente.mode_paiement?.mode_paiement_id || '',
+            //     //     vente_has_discount: vente.vente_has_discount || false,
+            //     //     date: vente.vente_execute_date ?
+            //     //         new Date(vente.vente_execute_date).toISOString().split('T')[0] :
+            //     //         new Date().toISOString().split('T')[0],
+            //     //     reference: vente.vente_reference || '',
+            //     //     notes: vente.vente_notes || '',
+            //     //     totalHT: vente.vente_total_amount || '0.00',
+            //     //     totalTTC: (parseFloat(vente.vente_total_amount || 0) * 1.2).toFixed(2),
+            //     //     validationCode: ''
+            //     // });
+            //     // Dans VenteForm.js, autour de la ligne 138
+
+            //     setFormData(prevFormData => ({ // <-- Utilisez la fonction de mise à jour avec l'état précédent
+            //         ...prevFormData, // <-- CONSERVEZ toutes les données existantes
+
+            //         // Écrasez ou ajoutez les nouvelles données de l'API
+            //         numeroVente: `VEN${String(vente.vente_id).padStart(6, '0')}`,
+            //         client_id: vente.client?.client_id || '',
+            //         client_name: vente.client?.client_name || '',
+            //         status_id: vente.status?.vente_status_id || '',
+            //         user_id: vente.user?.id || '',
+            //         mode_paiement_id: vente.mode_paiement?.mode_paiement_id || '',
+            //         vente_has_discount: vente.vente_has_discount || false,
+            //         date: vente.vente_execute_date ?
+            //             new Date(vente.vente_execute_date).toISOString().split('T')[0] :
+            //             new Date().toISOString().split('T')[0],
+            //         reference: vente.vente_reference || '',
+            //         notes: vente.vente_notes || '',
+            //         totalHT: vente.vente_total_amount || '0.00',
+            //         totalTTC: (parseFloat(vente.vente_total_amount || 0) * 1.2).toFixed(2),
+            //         validationCode: '' // Vous pouvez conserver ce champ vide si c'est le comportement souhaité
+            //     }));
+
+
+            //     // ✅ Charger les détails (vente_products)
+            //     if (vente.details && vente.details.length > 0) {
+            //         const enrichedLignes = vente.details.map(detail => ({
+            //             article_id: detail.article?.article_id,
+            //             article_name: detail.article?.article_name || '',
+            //             depot_id: detail.depot?.depot_id,
+            //             depot_name: detail.depot?.depot_name || '',
+            //             quantity: detail.vente_detail_quantity,
+            //             unite_id: detail.unite?.unite_id,
+            //             unite_code: detail.unite?.unite_code || '',
+            //             prix_unitaire: detail.vente_detail_prix_unitaire,
+            //             remise: detail.vente_detail_remise || 0,
+            //             subtotal: detail.vente_detail_subtotal
+            //         }));
+            //         setLignes(enrichedLignes);
+            //     }
+
+            //     setIsValidated(true);
+            // }
             if (response.data.status === 'success') {
                 const vente = response.data.data;
                 setVenteId(vente.vente_id);
 
                 setFormData({
                     numeroVente: `VEN${String(vente.vente_id).padStart(6, '0')}`,
+                    // On cherche l'ID correspondant au libellé reçu pour que le <select> puisse le sélectionner
                     client_id: vente.client?.client_id || '',
-                    client_name: vente.client?.client_name || '',
-                    status_id: vente.status?.vente_status_id || '',
-                    user_id: vente.user?.id || '',
-                    mode_paiement_id: vente.mode_paiement?.mode_paiement_id || '',
+                    status_id: venteStatuses.find(s => s.vente_status_name === vente.vente_status)?.vente_status_id || '',
+                    user_id: vente.vente_responsable?.user_id || '',
+                    mode_paiement_id: modesPaiement.find(m => m.mode_paiement_libelle === vente.vente_mode_paiement)?.mode_paiement_id || '',
+
                     vente_has_discount: vente.vente_has_discount || false,
-                    date: vente.vente_execute_date ?
-                        new Date(vente.vente_execute_date).toISOString().split('T')[0] :
-                        new Date().toISOString().split('T')[0],
+                    date: vente.vente_execute_date ? vente.vente_execute_date.split(' ')[0] : '',
                     reference: vente.vente_reference || '',
                     notes: vente.vente_notes || '',
-                    totalHT: vente.vente_total_amount || '0.00',
-                    totalTTC: (parseFloat(vente.vente_total_amount || 0) * 1.2).toFixed(2),
+                    totalHT: vente.vente_total_value || '0.00',
+                    totalTTC: (parseFloat(vente.vente_total_value || 0) * 1.2).toFixed(2),
                     validationCode: ''
                 });
 
-                // ✅ Charger les détails (vente_products)
-                if (vente.details && vente.details.length > 0) {
-                    const enrichedLignes = vente.details.map(detail => ({
-                        article_id: detail.article?.article_id,
-                        article_name: detail.article?.article_name || '',
-                        depot_id: detail.depot?.depot_id,
-                        depot_name: detail.depot?.depot_name || '',
-                        quantity: detail.vente_detail_quantity,
-                        unite_id: detail.unite?.unite_id,
-                        unite_code: detail.unite?.unite_code || '',
-                        prix_unitaire: detail.vente_detail_prix_unitaire,
-                        remise: detail.vente_detail_remise || 0,
-                        subtotal: detail.vente_detail_subtotal
+                // Correction pour les lignes de produits
+                if (vente.vente_products && vente.vente_products.length > 0) {
+                    const enrichedLignes = vente.vente_products.map(p => ({
+                        article_id: p.article_id,
+                        article_name: p.article_name,
+                        quantity: p.quantity,
+                        prix_unitaire: p.prix_unitaire,
+                        subtotal: p.total,
+                        // Attention: assurez-vous que l'API renvoie aussi depot_id et unite_id si besoin
+                        depot_id: p.depot_id || '',
+                        unite_id: p.unite_id || '',
+                        remise: 0
                     }));
                     setLignes(enrichedLignes);
                 }
-
                 setIsValidated(true);
             }
+
         } catch (error) {
             console.error('❌ Erreur chargement vente:', error);
             alert('Erreur lors du chargement de la vente');
