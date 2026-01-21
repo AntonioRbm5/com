@@ -19,6 +19,7 @@ import Navbar from '../../composants/navbar';
 import PaymentListPage from './mode_payment/PaymentListPage';
 import ActionTypeListPage from './Action/ActionTypeListPage';
 import VenteStatusListPage from './StatusVente/VenteStatusListPage';
+import GestionCommandes from './Bon_de_commande/GestionCommandes';
 
 const ERPSystem = () => {
     const [currentView, setCurrentView] = useState('sales');
@@ -146,10 +147,8 @@ const ERPSystem = () => {
                             )}
 
                             {currentView === 'commande' && (
-                                <BonCommande
+                                <GestionCommandes
                                     key={`commande-${refreshKey}`}
-                                    documents={documents}
-                                    onDocumentClick={setShowDocument}
                                 />
                             )}
 

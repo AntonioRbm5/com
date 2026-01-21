@@ -43,6 +43,7 @@ import SdEmplacements from "../pages/StockageDepot/sd_emplacements";
 import Sdidentifications from "../pages/StockageDepot/sd_identification";
 import SdParametre from "../pages/StockageDepot/sd_parametres";
 import Sdutilisateur from "../pages/StockageDepot/sd_utilisateurs";
+import GestionVentes from "../pages/ERPSystem/vente/GestionVentes";
 
 
 export const routesConfig = [
@@ -68,7 +69,7 @@ export const routesConfig = [
   },
   {
     path: "/stockage-depot",
-    element: <StockageDepot/>,
+    element: <StockageDepot />,
     children: [
       {
         path: "contacts",
@@ -219,7 +220,7 @@ export const routesConfig = [
   },
   {
     path: "/ventes",
-    element: <VenteForm />
+    element: <GestionVentes />
   },
   {
     path: "/mode_payement/*",
@@ -243,7 +244,7 @@ export const routesConfig = [
   },
   {
     path: "/vente_status/*",
-    elements: <VenteStatusListPage/>
+    elements: <VenteStatusListPage />
   },
   {
     path: "/vente_status/new",

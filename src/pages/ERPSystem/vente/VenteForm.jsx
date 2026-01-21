@@ -7,14 +7,14 @@ import FormVenteHeader from './FormVenteHeader';
 import ListLignesVente from './ListLignesVente';
 
 import { getAllClient } from '../../../services/clientService';
-import { createVente, getAllVente } from '../../../services/venteService';
+import { createVente, getAllVente, getVenteByID } from '../../../services/venteService';
 import { getAllUsers } from '../../../services/userService';
 import { getAllArticles } from '../../../services/articleService';
 import { getAllDepots } from '../../../services/depotService';
 import { getAllUnites } from '../../../services/uniteService';
 import Sidebar from '../../../composants/sidebar';
 import Navbar from '../../../composants/navbar';
-import { getAllVenteStatus, getVenteStatusById } from '../../../services/venteStatusService';
+import { getAllVenteStatus } from '../../../services/venteStatusService';
 import { getAllModePaiement } from '../../../services/modePaiementService';
 
 const VenteForm = ({ document, onClose }) => {
@@ -38,8 +38,8 @@ const VenteForm = ({ document, onClose }) => {
         status_id: '',
         user_id: '',
         mode_paiement_id: '',
-        date: new Date().toLocaleDateString('fr-FR'),
-        numeroVente: document?.id || 'VEN0001',
+        date: new Date().toISOString().split('T')[0], // Format YYYY-MM-DD
+        numeroVente: document?.id || 'VEN000001',
         reference: '',
         validationCode: '',
         vente_has_discount: false,
@@ -75,18 +75,28 @@ const VenteForm = ({ document, onClose }) => {
             const [
                 clientsRes,
                 statusRes,
-                usersRes, articlesRes, depotsRes, unitesRes, modesPaiementRes, ventesRes
-            ] =
-                await Promise.all([
-                    getAllClient(),
-                    getAllVenteStatus(),
-                    getAllUsers(),
-                    getAllArticles(),
-                    getAllDepots(),
-                    getAllUnites(),
-                    getAllModePaiement(),
-                    getAllVente()
-                ]);
+                usersRes,
+                articlesRes,
+                depotsRes,
+                unitesRes,
+                modesPaiementRes,
+                ventesRes
+            ] = await Promise.all([
+                getAllClient(),
+                getAllVenteStatus(),
+                getAllUsers(),
+                getAllArticles(),
+                getAllDepots(),
+                getAllUnites(),
+                getAllModePaiement(),
+                getAllVente()
+            ]);
+
+            console.log('📦 Données chargées:', {
+                clients: clientsRes.data,
+                statuses: statusRes.data,
+                ventes: ventesRes.data
+            });
 
             if (clientsRes.data.status === 'success') setClients(clientsRes.data.data || []);
             if (statusRes.data.status === 'success') setVenteStatuses(statusRes.data.data || []);
@@ -94,14 +104,16 @@ const VenteForm = ({ document, onClose }) => {
             if (articlesRes.data.status === 'success') setArticles(articlesRes.data.data || []);
             if (depotsRes.data.status === 'success') setDepots(depotsRes.data.data || []);
             if (unitesRes.data.status === 'success') setUnites(unitesRes.data.data || []);
-            if (modesPaiementRes.data.status === 'success') setModesPaiement(modesPaiementRes.data.data || []);  // ✅ AJOUT ICI
+            if (modesPaiementRes.data.status === 'success') setModesPaiement(modesPaiementRes.data.data || []);
+
+            // ✅ CORRECTION: Adapter à la structure réelle de l'API
             if (ventesRes.data.status === 'success') {
                 const allVentes = ventesRes.data.data || [];
-                const last5 = allVentes.slice(-5).reverse(); // Les 5 dernières, ordre décroissant
+                const last5 = allVentes.slice(-5).reverse();
                 setDernieresVentes(last5);
             }
         } catch (error) {
-            console.error('Erreur chargement données:', error);
+            console.error('❌ Erreur chargement données:', error);
             alert('Erreur lors du chargement des données de référence');
         } finally {
             setLoading(false);
@@ -109,33 +121,59 @@ const VenteForm = ({ document, onClose }) => {
     };
 
     const loadDocumentData = async (doc) => {
+        if (!doc?.id) return;
+
         try {
             setLoading(true);
-            const response = await getVenteStatusById(doc.id);
+            console.log('📖 Chargement vente ID:', doc.id);
+
+            const response = await getVenteByID(doc.id);
+            console.log('📥 Réponse API:', response.data);
 
             if (response.data.status === 'success') {
                 const vente = response.data.data;
                 setVenteId(vente.vente_id);
+
                 setFormData({
-                    numeroVente: vente.vente_id,
+                    numeroVente: `VEN${String(vente.vente_id).padStart(6, '0')}`,
                     client_id: vente.client?.client_id || '',
                     client_name: vente.client?.client_name || '',
                     status_id: vente.status?.vente_status_id || '',
                     user_id: vente.user?.id || '',
                     mode_paiement_id: vente.mode_paiement?.mode_paiement_id || '',
                     vente_has_discount: vente.vente_has_discount || false,
+                    date: vente.vente_execute_date ?
+                        new Date(vente.vente_execute_date).toISOString().split('T')[0] :
+                        new Date().toISOString().split('T')[0],
+                    reference: vente.vente_reference || '',
+                    notes: vente.vente_notes || '',
                     totalHT: vente.vente_total_amount || '0.00',
-                    date: new Date().toLocaleDateString('fr-FR'),
-                    reference: '',
-                    validationCode: '',
-                    notes: '',
-                    totalTTC: '0.00'
+                    totalTTC: (parseFloat(vente.vente_total_amount || 0) * 1.2).toFixed(2),
+                    validationCode: ''
                 });
-                setLignes(vente.details || []);
+
+                // ✅ Charger les détails (vente_products)
+                if (vente.details && vente.details.length > 0) {
+                    const enrichedLignes = vente.details.map(detail => ({
+                        article_id: detail.article?.article_id,
+                        article_name: detail.article?.article_name || '',
+                        depot_id: detail.depot?.depot_id,
+                        depot_name: detail.depot?.depot_name || '',
+                        quantity: detail.vente_detail_quantity,
+                        unite_id: detail.unite?.unite_id,
+                        unite_code: detail.unite?.unite_code || '',
+                        prix_unitaire: detail.vente_detail_prix_unitaire,
+                        remise: detail.vente_detail_remise || 0,
+                        subtotal: detail.vente_detail_subtotal
+                    }));
+                    setLignes(enrichedLignes);
+                }
+
                 setIsValidated(true);
             }
         } catch (error) {
-            console.error('Erreur chargement vente:', error);
+            console.error('❌ Erreur chargement vente:', error);
+            alert('Erreur lors du chargement de la vente');
         } finally {
             setLoading(false);
         }
@@ -180,89 +218,131 @@ const VenteForm = ({ document, onClose }) => {
         }
     };
 
-    // ✅ BOUTON VALIDER - ENVOIE API + AFFICHE TABLEAU
+    // ✅ VALIDATION EN-TÊTE - Crée la vente dans l'API
     const handleValidation = async () => {
-        console.log('🔥 BOUTON VALIDER CLIQUÉ !');
-        console.log('FormData:', formData);
+        console.log('🔥 VALIDATION EN-TÊTE - Création vente');
 
         try {
+            // Validation des champs obligatoires
             if (!formData.client_id) {
-                alert('Veuillez sélectionner un client');
+                alert('⚠️ Veuillez sélectionner un client');
                 return;
             }
             if (!formData.user_id) {
-                alert('Veuillez sélectionner un vendeur');
+                alert('⚠️ Veuillez sélectionner un vendeur');
                 return;
             }
             if (!formData.status_id) {
-                alert('Veuillez sélectionner un statut');
+                alert('⚠️ Veuillez sélectionner un statut');
                 return;
             }
 
             setLoading(true);
 
+            // ✅ CORRECTION: Structure selon votre API
             const payload = {
                 user_id: parseInt(formData.user_id),
                 status_id: parseInt(formData.status_id),
                 client_id: parseInt(formData.client_id),
                 mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null,
-                vente_has_discount: formData.vente_has_discount,
-                vente_date: formData.date,
-                vente_reference: formData.reference,
-                vente_notes: formData.notes
+                vente_has_discount: formData.vente_has_discount
             };
-            // const payload = {
-            //     user_id: parseInt(formData.user_id),
-            //     status_id: parseInt(formData.status_id),
-            //     client_id: parseInt(formData.client_id),
-            //     mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null,
-            //     vente_has_discount: formData.vente_has_discount
-            // };
 
-            const details = lignes.map(ligne => ({
-                article_id: parseInt(ligne.article_id),
-                depot_id: parseInt(ligne.depot_id),
-                quantite: parseFloat(ligne.quantite),
-                unite_id: parseInt(ligne.unite_id),
-                prix_unitaire: parseFloat(ligne.prix_unitaire),
-                remise: parseFloat(ligne.remise || 0),
-                subtotal: parseFloat(ligne.subtotal)
-            }));
-            console.log('📤 Envoi API:', { payload, details });
+            // Pour la création initiale, envoyer un tableau vide
+            const details = [];
+
+            console.log('📤 Envoi API createVente:', { payload, details });
 
             const response = await createVente({ payload, details });
 
-            console.log('📥 Réponse:', response.data);
+            console.log('📥 Réponse création:', response.data);
 
-            if (response.data.status === 'success') {
-                const createdVente = response.data.data;
-                setVenteId(createdVente.vente_id || createdVente.id);
+            if (response.data.status === 'success' || response.data.vente_id) {
+                const createdVente = response.data.data || response.data;
+                const newVenteId = createdVente.vente_id || createdVente.id;
+
+                setVenteId(newVenteId);
                 setFormData(prev => ({
                     ...prev,
-                    numeroVente: createdVente.vente_numero || createdVente.vente_id || prev.numeroVente
+                    numeroVente: `VEN${String(newVenteId).padStart(6, '0')}`
                 }));
                 setIsValidated(true);
-                alert('✅ Vente créée ! Ajoutez maintenant vos lignes.');
+
+                alert('✅ Vente créée avec succès ! Vous pouvez maintenant ajouter des lignes.');
             } else {
                 alert('❌ Erreur: ' + (response.data.message || 'Erreur inconnue'));
             }
         } catch (error) {
-            console.error('❌ ERREUR:', error);
-            console.error('Réponse serveur:', error.response?.data);
-            alert('Erreur: ' + (error.response?.data?.message || error.message));
+            console.error('❌ ERREUR création vente:', error);
+            console.error('Détails:', error.response?.data);
+            alert('❌ Erreur: ' + (error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }
     };
 
-    // ✅ ENREGISTREMENT DES LIGNES
+    // ✅ ENREGISTREMENT DES LIGNES - Met à jour la vente existante
     const handleSave = async () => {
-        console.log('💾 ENREGISTRER CLIQUÉ !');
-        alert('Fonction à implémenter : mise à jour avec les lignes');
+        console.log('💾 ENREGISTREMENT DES LIGNES');
+
+        if (!venteId) {
+            alert('⚠️ Aucune vente validée. Veuillez d\'abord valider l\'en-tête.');
+            return;
+        }
+
+        if (lignes.length === 0) {
+            alert('⚠️ Aucune ligne à enregistrer');
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const details = lignes.map(ligne => ({
+                article_id: parseInt(ligne.article_id),
+                depot_id: parseInt(ligne.depot_id),
+                quantity: parseFloat(ligne.quantity),
+                unite_id: parseInt(ligne.unite_id),
+                prix_unitaire: parseFloat(ligne.prix_unitaire),
+                remise: parseFloat(ligne.remise || 0),
+                subtotal: parseFloat(ligne.subtotal)
+            }));
+
+            console.log('📤 Mise à jour vente ID:', venteId);
+            console.log('📦 Détails à envoyer:', details);
+
+            // Utiliser l'endpoint de mise à jour
+            const payload = {
+                status_id: parseInt(formData.status_id),
+                mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null
+            };
+
+            const response = await createVente({
+                payload: { ...payload, user_id: parseInt(formData.user_id), client_id: parseInt(formData.client_id) },
+                details
+            });
+
+            console.log('📥 Réponse mise à jour:', response.data);
+
+            if (response.data.status === 'success') {
+                alert('✅ Lignes enregistrées avec succès !');
+                // Recharger les données
+                if (venteId) {
+                    await loadDocumentData({ id: venteId });
+                }
+            } else {
+                alert('❌ Erreur: ' + (response.data.message || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error('❌ ERREUR enregistrement:', error);
+            alert('❌ Erreur: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleValidate = () => {
-        alert('Fonction à implémenter : comptabilisation');
+        alert('📊 Fonction comptabilisation à implémenter');
     };
 
     const formatCurrency = (value) => {
@@ -289,7 +369,7 @@ const VenteForm = ({ document, onClose }) => {
                         onSave={handleSave}
                         onPrint={() => window.print()}
                         onComptabiliser={handleValidate}
-                        disabled={loading || !isValidated}
+                        disabled={loading || !isValidated || lignes.length === 0}
                     />
 
                     <div className="invoice-body">
@@ -315,6 +395,9 @@ const VenteForm = ({ document, onClose }) => {
                                 depots={depots}
                                 unites={unites}
                                 isReadOnly={false}
+                                autoOpen={isValidated}
+                                dernieresVentes={dernieresVentes}
+                                isValidated={isValidated}
                             />
                         ) : (
                             <div style={{
@@ -331,22 +414,6 @@ const VenteForm = ({ document, onClose }) => {
                                 </p>
                             </div>
                         )}
-
-                        <ListLignesVente
-                            lignes={lignes}
-                            onAddLigne={handleAddLigne}
-                            onDeleteLigne={handleDeleteLigne}
-                            onSave={handleSave}
-                            onValidate={handleValidate}
-                            articles={articles}
-                            depots={depots}
-                            unites={unites}
-                            isReadOnly={!isValidated}
-                            autoOpen={isValidated}
-                            dernieresVentes={dernieresVentes}
-                            isValidated={isValidated}
-                        />
-
 
                         <DocumentFooter
                             poidsNet={totaux.poidsNet}
