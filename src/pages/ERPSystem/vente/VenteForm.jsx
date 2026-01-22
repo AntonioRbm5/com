@@ -38,7 +38,7 @@ const VenteForm = ({ document, onClose }) => {
         status_id: '',
         user_id: '',
         mode_paiement_id: '',
-        date: new Date().toISOString().split('T')[0], // Format YYYY-MM-DD
+        date: new Date().toISOString().split('T')[0],
         numeroVente: document?.id || 'VEN000001',
         reference: '',
         validationCode: '',
@@ -55,15 +55,17 @@ const VenteForm = ({ document, onClose }) => {
         poidsBrut: 0
     });
 
+    // ✅ CORRECTION 1: Charger d'abord les données de référence
     useEffect(() => {
         fetchAllData();
     }, []);
 
+    // ✅ CORRECTION 2: Charger le document APRÈS que les données de référence soient disponibles
     useEffect(() => {
-        if (document?.id) {
+        if (document?.id && clients.length > 0 && venteStatuses.length > 0 && users.length > 0) {
             loadDocumentData(document);
         }
-    }, [document]);
+    }, [document, clients, venteStatuses, users, modesPaiement]);
 
     useEffect(() => {
         calculateTotaux();
@@ -95,7 +97,8 @@ const VenteForm = ({ document, onClose }) => {
             console.log('📦 Données chargées:', {
                 clients: clientsRes.data,
                 statuses: statusRes.data,
-                ventes: ventesRes.data
+                users: usersRes.data,
+                modesPaiement: modesPaiementRes.data
             });
 
             if (clientsRes.data.status === 'success') setClients(clientsRes.data.data || []);
@@ -106,7 +109,6 @@ const VenteForm = ({ document, onClose }) => {
             if (unitesRes.data.status === 'success') setUnites(unitesRes.data.data || []);
             if (modesPaiementRes.data.status === 'success') setModesPaiement(modesPaiementRes.data.data || []);
 
-            // ✅ CORRECTION: Adapter à la structure réelle de l'API
             if (ventesRes.data.status === 'success') {
                 const allVentes = ventesRes.data.data || [];
                 const last5 = allVentes.slice(-5).reverse();
@@ -128,86 +130,57 @@ const VenteForm = ({ document, onClose }) => {
             console.log('📖 Chargement vente ID:', doc.id);
 
             const response = await getVenteByID(doc.id);
-            console.log('📥 Réponse API:', response.data);
+            console.log('📥 Réponse API complète:', response.data);
 
-            // if (response.data.status === 'success') {
-            //     const vente = response.data.data;
-            //     setVenteId(vente.vente_id);
-
-            //     // setFormData({
-            //     //     numeroVente: `VEN${String(vente.vente_id).padStart(6, '0')}`,
-            //     //     client_id: vente.client?.client_id || '',
-            //     //     client_name: vente.client?.client_name || '',
-            //     //     status_id: vente.status?.vente_status_id || '',
-            //     //     user_id: vente.user?.id || '',
-            //     //     mode_paiement_id: vente.mode_paiement?.mode_paiement_id || '',
-            //     //     vente_has_discount: vente.vente_has_discount || false,
-            //     //     date: vente.vente_execute_date ?
-            //     //         new Date(vente.vente_execute_date).toISOString().split('T')[0] :
-            //     //         new Date().toISOString().split('T')[0],
-            //     //     reference: vente.vente_reference || '',
-            //     //     notes: vente.vente_notes || '',
-            //     //     totalHT: vente.vente_total_amount || '0.00',
-            //     //     totalTTC: (parseFloat(vente.vente_total_amount || 0) * 1.2).toFixed(2),
-            //     //     validationCode: ''
-            //     // });
-            //     // Dans VenteForm.js, autour de la ligne 138
-
-            //     setFormData(prevFormData => ({ // <-- Utilisez la fonction de mise à jour avec l'état précédent
-            //         ...prevFormData, // <-- CONSERVEZ toutes les données existantes
-
-            //         // Écrasez ou ajoutez les nouvelles données de l'API
-            //         numeroVente: `VEN${String(vente.vente_id).padStart(6, '0')}`,
-            //         client_id: vente.client?.client_id || '',
-            //         client_name: vente.client?.client_name || '',
-            //         status_id: vente.status?.vente_status_id || '',
-            //         user_id: vente.user?.id || '',
-            //         mode_paiement_id: vente.mode_paiement?.mode_paiement_id || '',
-            //         vente_has_discount: vente.vente_has_discount || false,
-            //         date: vente.vente_execute_date ?
-            //             new Date(vente.vente_execute_date).toISOString().split('T')[0] :
-            //             new Date().toISOString().split('T')[0],
-            //         reference: vente.vente_reference || '',
-            //         notes: vente.vente_notes || '',
-            //         totalHT: vente.vente_total_amount || '0.00',
-            //         totalTTC: (parseFloat(vente.vente_total_amount || 0) * 1.2).toFixed(2),
-            //         validationCode: '' // Vous pouvez conserver ce champ vide si c'est le comportement souhaité
-            //     }));
-
-
-            //     // ✅ Charger les détails (vente_products)
-            //     if (vente.details && vente.details.length > 0) {
-            //         const enrichedLignes = vente.details.map(detail => ({
-            //             article_id: detail.article?.article_id,
-            //             article_name: detail.article?.article_name || '',
-            //             depot_id: detail.depot?.depot_id,
-            //             depot_name: detail.depot?.depot_name || '',
-            //             quantity: detail.vente_detail_quantity,
-            //             unite_id: detail.unite?.unite_id,
-            //             unite_code: detail.unite?.unite_code || '',
-            //             prix_unitaire: detail.vente_detail_prix_unitaire,
-            //             remise: detail.vente_detail_remise || 0,
-            //             subtotal: detail.vente_detail_subtotal
-            //         }));
-            //         setLignes(enrichedLignes);
-            //     }
-
-            //     setIsValidated(true);
-            // }
             if (response.data.status === 'success') {
                 const vente = response.data.data;
+                console.log('🔍 Données vente:', vente);
+
                 setVenteId(vente.vente_id);
+
+                // ✅ CORRECTION 3: Trouver les IDs correspondants dans les listes de référence
+                const statusId = venteStatuses.find(s => 
+                    s.vente_status_name?.toLowerCase() === vente.vente_status?.toLowerCase()
+                )?.vente_status_id || '';
+
+                const modePaiementId = modesPaiement.find(m => 
+                    m.mode_paiement_libelle?.toLowerCase() === vente.vente_mode_paiement?.toLowerCase()
+                )?.mode_paiement_id || '';
+
+                const userId = vente.vente_responsable?.user_id || '';
+                const clientId = vente.vente_client?.client_id || '';
+
+                console.log('🔧 Mapping des IDs:', {
+                    statusId,
+                    modePaiementId,
+                    userId,
+                    clientId,
+                    venteStatus: vente.vente_status,
+                    modePaiement: vente.vente_mode_paiement
+                });
+
+                // ✅ CORRECTION 4: Formatter correctement la date
+                let formattedDate = new Date().toISOString().split('T')[0];
+                if (vente.vente_execute_date) {
+                    try {
+                        const dateObj = new Date(vente.vente_execute_date);
+                        if (!isNaN(dateObj.getTime())) {
+                            formattedDate = dateObj.toISOString().split('T')[0];
+                        }
+                    } catch (e) {
+                        console.error('Erreur formatage date:', e);
+                    }
+                }
 
                 setFormData({
                     numeroVente: `VEN${String(vente.vente_id).padStart(6, '0')}`,
-                    // On cherche l'ID correspondant au libellé reçu pour que le <select> puisse le sélectionner
-                    client_id: vente.client?.client_id || '',
-                    status_id: venteStatuses.find(s => s.vente_status_name === vente.vente_status)?.vente_status_id || '',
-                    user_id: vente.vente_responsable?.user_id || '',
-                    mode_paiement_id: modesPaiement.find(m => m.mode_paiement_libelle === vente.vente_mode_paiement)?.mode_paiement_id || '',
-
+                    client_id: String(clientId),
+                    client_name: vente.vente_client?.client_name || '',
+                    status_id: String(statusId),
+                    user_id: String(userId),
+                    mode_paiement_id: String(modePaiementId),
                     vente_has_discount: vente.vente_has_discount || false,
-                    date: vente.vente_execute_date ? vente.vente_execute_date.split(' ')[0] : '',
+                    date: formattedDate,
                     reference: vente.vente_reference || '',
                     notes: vente.vente_notes || '',
                     totalHT: vente.vente_total_value || '0.00',
@@ -215,21 +188,24 @@ const VenteForm = ({ document, onClose }) => {
                     validationCode: ''
                 });
 
-                // Correction pour les lignes de produits
+                // ✅ CORRECTION 5: Charger les lignes de produits
                 if (vente.vente_products && vente.vente_products.length > 0) {
                     const enrichedLignes = vente.vente_products.map(p => ({
                         article_id: p.article_id,
                         article_name: p.article_name,
-                        quantity: p.quantity,
-                        prix_unitaire: p.prix_unitaire,
-                        subtotal: p.total,
-                        // Attention: assurez-vous que l'API renvoie aussi depot_id et unite_id si besoin
                         depot_id: p.depot_id || '',
+                        depot_name: depots.find(d => d.depot_id === p.depot_id)?.depot_name || '',
+                        quantity: p.quantity,
                         unite_id: p.unite_id || '',
-                        remise: 0
+                        unite_code: unites.find(u => u.unite_id === p.unite_id)?.unite_code || '',
+                        prix_unitaire: p.prix_unitaire,
+                        remise: p.remise || 0,
+                        subtotal: p.total
                     }));
                     setLignes(enrichedLignes);
+                    console.log('📦 Lignes chargées:', enrichedLignes);
                 }
+
                 setIsValidated(true);
             }
 
@@ -280,12 +256,10 @@ const VenteForm = ({ document, onClose }) => {
         }
     };
 
-    // ✅ VALIDATION EN-TÊTE - Crée la vente dans l'API
     const handleValidation = async () => {
         console.log('🔥 VALIDATION EN-TÊTE - Création vente');
 
         try {
-            // Validation des champs obligatoires
             if (!formData.client_id) {
                 alert('⚠️ Veuillez sélectionner un client');
                 return;
@@ -301,7 +275,6 @@ const VenteForm = ({ document, onClose }) => {
 
             setLoading(true);
 
-            // ✅ CORRECTION: Structure selon votre API
             const payload = {
                 user_id: parseInt(formData.user_id),
                 status_id: parseInt(formData.status_id),
@@ -310,7 +283,6 @@ const VenteForm = ({ document, onClose }) => {
                 vente_has_discount: formData.vente_has_discount
             };
 
-            // Pour la création initiale, envoyer un tableau vide
             const details = [];
 
             console.log('📤 Envoi API createVente:', { payload, details });
@@ -343,7 +315,6 @@ const VenteForm = ({ document, onClose }) => {
         }
     };
 
-    // ✅ ENREGISTREMENT DES LIGNES - Met à jour la vente existante
     const handleSave = async () => {
         console.log('💾 ENREGISTREMENT DES LIGNES');
 
@@ -373,7 +344,6 @@ const VenteForm = ({ document, onClose }) => {
             console.log('📤 Mise à jour vente ID:', venteId);
             console.log('📦 Détails à envoyer:', details);
 
-            // Utiliser l'endpoint de mise à jour
             const payload = {
                 status_id: parseInt(formData.status_id),
                 mode_paiement_id: formData.mode_paiement_id ? parseInt(formData.mode_paiement_id) : null
@@ -388,7 +358,6 @@ const VenteForm = ({ document, onClose }) => {
 
             if (response.data.status === 'success') {
                 alert('✅ Lignes enregistrées avec succès !');
-                // Recharger les données
                 if (venteId) {
                     await loadDocumentData({ id: venteId });
                 }
@@ -443,7 +412,7 @@ const VenteForm = ({ document, onClose }) => {
                             users={users}
                             venteStatuses={venteStatuses}
                             modesPaiement={modesPaiement}
-                            isReadOnly={isValidated}
+                            isReadOnly={false}
                         />
 
                         {isValidated ? (

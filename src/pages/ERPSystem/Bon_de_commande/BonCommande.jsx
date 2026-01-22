@@ -21,7 +21,6 @@ const BonCommande = ({ document, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [clients, setClients] = useState([]);
     const [articles, setArticles] = useState([]);
-    const [actions, setActions] = useState([]);
 
     const [formData, setFormData] = useState({
         commande_client_id: '',
@@ -43,12 +42,17 @@ const BonCommande = ({ document, onClose }) => {
         poidsBrut: 0
     });
 
+    // ✅ CORRECTION 1: Charger d'abord les données de référence
     useEffect(() => {
         fetchInitialData();
-        if (document?.id) {
+    }, []);
+
+    // ✅ CORRECTION 2: Charger la commande APRÈS que les données soient disponibles
+    useEffect(() => {
+        if (document?.id && clients.length > 0 && articles.length > 0) {
             loadExistingCommande(document.id);
         }
-    }, [document]);
+    }, [document, clients, articles]);
 
     useEffect(() => {
         calculateTotaux();
@@ -62,6 +66,11 @@ const BonCommande = ({ document, onClose }) => {
                 getAllArticles()
             ]);
 
+            console.log('📦 Données chargées:', {
+                clients: clientsRes.data,
+                articles: articlesRes.data
+            });
+
             if (clientsRes.data.status === 'success') {
                 setClients(clientsRes.data.data || []);
             }
@@ -74,7 +83,6 @@ const BonCommande = ({ document, onClose }) => {
                 ...prev,
                 commande_action_id: 1
             }));
-
         } catch (error) {
             console.error('Erreur chargement données:', error);
             alert('Erreur lors du chargement des données');
@@ -86,38 +94,92 @@ const BonCommande = ({ document, onClose }) => {
     const loadExistingCommande = async (id) => {
         try {
             setLoading(true);
+            console.log('📖 Chargement commande ID:', id);
+
             const response = await getCommandeById(id);
+            console.log('📥 Réponse API complète:', response.data);
 
             if (response.data.status === 'success') {
                 const commande = response.data.data;
+                console.log('🔍 Données commande:', commande);
+
                 setCommandeId(commande.commande_id);
-                setFormData({
-                    commande_client_id: commande.client?.client_id || '',
-                    commande_user_id: commande.user?.id || 1,
-                    commande_status_id: commande.commande_status?.commande_status_id || 1,
-                    commande_action_id: commande.action?.action_id || 1,
-                    mode_paiement_id: commande.mode_paiement?.mode_paiement_id || null,
-                    reference: `BC${String(commande.commande_id).padStart(6, '0')}`,
-                    date: new Date(commande.commande_added_date).toISOString().split('T')[0]
+
+                // ✅ CORRECTION 3: Formatter correctement la date
+                let formattedDate = new Date().toISOString().split('T')[0];
+                if (commande.commande_added_date) {
+                    try {
+                        const dateObj = new Date(commande.commande_added_date);
+                        if (!isNaN(dateObj.getTime())) {
+                            formattedDate = dateObj.toISOString().split('T')[0];
+                        }
+                    } catch (e) {
+                        console.error('Erreur formatage date:', e);
+                    }
+                }
+
+                // ✅ CORRECTION 4: Extraire les IDs correctement
+                const clientId = commande.client?.client_id || commande.commande_client_id || '';
+                const userId = commande.user?.id || commande.commande_user_id || 1;
+                const statusId = commande.commande_status?.commande_status_id || commande.commande_status_id || 1;
+                const actionId = commande.action?.action_id || commande.commande_action_id || 1;
+                const modePaiementId = commande.mode_paiement?.mode_paiement_id || commande.mode_paiement_id || null;
+
+                console.log('🔧 Mapping des IDs:', {
+                    clientId,
+                    userId,
+                    statusId,
+                    actionId,
+                    modePaiementId
                 });
 
+                setFormData({
+                    commande_client_id: String(clientId),
+                    commande_user_id: userId,
+                    commande_status_id: statusId,
+                    commande_action_id: actionId,
+                    mode_paiement_id: modePaiementId,
+                    reference: `BC${String(commande.commande_id).padStart(6, '0')}`,
+                    date: formattedDate,
+                    dateLivraison: commande.commande_date_livraison || '',
+                    affaire: commande.commande_affaire || '',
+                    expedition: commande.commande_expedition || ''
+                });
+
+                // ✅ CORRECTION 5: Charger les lignes de détails
                 if (commande.details && commande.details.length > 0) {
-                    setLignes(commande.details.map(d => ({
-                        article_id: d.article.article_id,
-                        ref: d.article.article_reference || '',
-                        designation: d.article.article_name,
-                        puht: d.article.article_prix_vente || 0,
-                        qte: d.commande_detail_quantity,
-                        conditionner: d.conditionner || 'PIECE',
-                        remise: d.commande_detail_remise || 0,
-                        totalBrut: (d.article.article_prix_vente * d.commande_detail_quantity).toFixed(2),
-                        montantNet: d.commande_detail_subtotal.toFixed(2)
-                    })));
-                    setIsValidated(true);
+                    const enrichedLignes = commande.details.map(d => {
+                        const article = d.article || {};
+                        const puht = parseFloat(article.article_prix_vente || 0);
+                        const qte = parseFloat(d.commande_detail_quantity || 0);
+                        const remise = parseFloat(d.commande_detail_remise || 0);
+                        
+                        const totalBrut = puht * qte;
+                        const montantRemise = (totalBrut * remise) / 100;
+                        const montantNet = totalBrut - montantRemise;
+
+                        return {
+                            article_id: article.article_id,
+                            ref: article.article_reference || '',
+                            designation: article.article_name || '',
+                            puht: puht,
+                            qte: qte,
+                            conditionner: d.conditionner || 'PIECE',
+                            remise: remise,
+                            totalBrut: totalBrut.toFixed(2),
+                            montantRemise: montantRemise.toFixed(2),
+                            montantNet: montantNet.toFixed(2)
+                        };
+                    });
+
+                    setLignes(enrichedLignes);
+                    console.log('📦 Lignes chargées:', enrichedLignes);
                 }
+
+                setIsValidated(true);
             }
         } catch (error) {
-            console.error('Erreur chargement commande:', error);
+            console.error('❌ Erreur chargement commande:', error);
             alert('Erreur lors du chargement de la commande');
         } finally {
             setLoading(false);
@@ -128,7 +190,6 @@ const BonCommande = ({ document, onClose }) => {
         const totalHT = lignes.reduce((sum, ligne) => {
             return sum + parseFloat(ligne.montantNet || 0);
         }, 0);
-
         const totalTTC = totalHT * 1.2;
 
         setTotaux({
@@ -179,7 +240,6 @@ const BonCommande = ({ document, onClose }) => {
 
             if (!commandeId) {
                 const response = await createCommande(commandeData);
-
                 console.log('📥 Réponse de l\'API:', response);
 
                 if (response.data.status === 'success') {
@@ -203,34 +263,23 @@ const BonCommande = ({ document, onClose }) => {
             console.error('❌ Réponse erreur:', error.response);
             console.error('❌ Données erreur:', error.response?.data);
 
-            // CORRECTION: Gérer les différents formats d'erreur
             if (error.response?.data?.detail) {
                 const detail = error.response.data.detail;
-
-                // Si detail est un tableau (erreurs de validation FastAPI)
                 if (Array.isArray(detail)) {
                     const errorMessages = detail.map(err => {
                         const field = err.loc ? err.loc.join('.') : 'inconnu';
                         return `• ${field}: ${err.msg}`;
                     }).join('\n');
                     alert(`❌ Erreur de validation:\n\n${errorMessages}`);
-                }
-                // Si detail est un objet avec message d'erreur
-                else if (typeof detail === 'object' && detail.message) {
-                    alert(`❌ ${detail.message}\n\nCode: ${detail.error_code || 'INCONNU'}\n\n⚠️ Vérifiez les logs du serveur pour plus de détails.`);
-                }
-                // Si detail est un autre type d'objet
-                else if (typeof detail === 'object') {
+                } else if (typeof detail === 'object' && detail.message) {
+                    alert(`❌ ${detail.message}\n\nCode: ${detail.error_code || 'INCONNU'}`);
+                } else if (typeof detail === 'object') {
                     alert(`❌ Erreur:\n\n${JSON.stringify(detail, null, 2)}`);
-                }
-                // Si detail est une chaîne
-                else {
+                } else {
                     alert(`❌ Erreur: ${detail}`);
                 }
             } else if (error.response?.data?.message) {
                 alert(`❌ Erreur: ${error.response.data.message}`);
-            } else if (error.response?.data) {
-                alert(`❌ Erreur: ${JSON.stringify(error.response.data)}`);
             } else {
                 alert(error.message || 'Erreur lors de la validation de la commande');
             }
@@ -254,6 +303,7 @@ const BonCommande = ({ document, onClose }) => {
             conditionner: ligneData.conditionner,
             remise: ligneData.remise,
             totalBrut: ligneData.totalBrut,
+            montantRemise: ligneData.montantRemise,
             montantNet: ligneData.montantNet
         }]);
     };
@@ -288,7 +338,7 @@ const BonCommande = ({ document, onClose }) => {
             const response = await updateCommande(commandeId, updateData);
 
             if (response.data.status === 'success') {
-                alert('Bon de commande mis à jour avec succès !');
+                alert('✅ Bon de commande mis à jour avec succès !');
                 if (onClose) onClose();
             } else {
                 throw new Error(response.data.message || 'Erreur lors de la mise à jour');
@@ -342,7 +392,7 @@ const BonCommande = ({ document, onClose }) => {
                         setFormData={setFormData}
                         clients={clients}
                         onValidate={handleValidation}
-                        isReadOnly={isValidated}
+                        isReadOnly={false}
                         hasLignes={lignes.length > 0}
                         lignesCount={lignes.length}
                     />

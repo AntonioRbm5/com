@@ -15,9 +15,7 @@ const FormBonCommande = ({ formData, setFormData, clients = [], onValidate, isRe
 
     const statutOptions = [
         { id: 1, label: 'A préparer' },
-        { id: 2, label: 'En cours' },
-        { id: 3, label: 'Préparé' },
-        { id: 4, label: 'Livré' }
+        
     ];
 
     const expeditionOptions = [
