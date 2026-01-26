@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaHome, FaUsers, FaSignOutAlt, FaBars, FaBox, FaWarehouse, FaClipboardList, FaTruck, FaDollarSign, FaBuilding, FaBoxOpen } from "react-icons/fa";
+import { FaHome, FaUsers, FaSignOutAlt, FaBars, FaBox, FaWarehouse, FaClipboardList, FaTruck, FaDollarSign, FaBuilding, FaBoxOpen, FaHandshake } from "react-icons/fa";
 import { GrTransaction } from "react-icons/gr";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -21,6 +21,7 @@ export default function Sidebar() {
     { label: "Fournisseurs", icon: <FaTruck className="ft-2" />, path: "/fournisseur" },
     { label: "Ventes", icon: <FaDollarSign className="ft-2" />, path: "/ventes" },
     { label: "Mouvement", icon: <GrTransaction className="ft-2" />, path: "/mouvement" },
+    { label: "Tiers", icon: <FaHandshake className="ft-2"/>, path:"/tiers/general"},
     { label: "Logout", icon: <FaSignOutAlt className="ft-2" />, path: "/login" }
   ];
 
