@@ -44,7 +44,10 @@ import Sdidentifications from "../pages/StockageDepot/sd_identification";
 import SdParametre from "../pages/StockageDepot/sd_parametres";
 import Sdutilisateur from "../pages/StockageDepot/sd_utilisateurs";
 import GestionVentes from "../pages/ERPSystem/vente/GestionVentes";
-
+import Tiers from "../pages/Tiers/tiers";
+import T_General from "../pages/Tiers/t_general";
+import T_Codification from "../pages/Tiers/t_codification";
+import T_Categorie_tarifaire from "../pages/Tiers/t_categorie_tarifaire"; 
 
 export const routesConfig = [
   {
@@ -90,6 +93,24 @@ export const routesConfig = [
       {
         path: "utilisateur",
         element: <Sdutilisateur />
+      }
+    ]
+  },
+  {
+    path:"/tiers",
+    element: <Tiers/>,
+    children: [
+      {
+        path:"general",
+        element:<T_General/>
+      },
+      {
+        path: "codification",
+        element:<T_Codification/>
+      },
+      {
+        path: "categorie-tarifaire",
+        element:<T_Categorie_tarifaire/>
       }
     ]
   },
