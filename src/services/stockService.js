@@ -23,7 +23,7 @@ export const deleteStockMouvement = (id) => api.delete(`/stock-mouvement/delete/
 // ============================================
 // ÉTAT DU STOCK
 // ============================================
-export const getStockState = () => api.get("/stock-management/stock/state");
+export const getStockState = () => api.get("/stock-management/state");
 export const getArticleState = () => api.get("/stock-management/article-state");
 
 // ============================================

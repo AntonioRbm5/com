@@ -269,14 +269,18 @@ const IdentificationTab = ({ formData, handleInputChange, familles = [] }) => {
                         <label className="article-form-label">Unité de vente</label>
                         <select
                             className="form-select"
-                            value={formData.unitVente || 'PIECE'}
-                            onChange={(e) => handleInputChange('unitVente', e.target.value)}
+                            value={formData.unite_vente_defaut_id || ''}
+                            onChange={(e) => handleInputChange('unite_vente_defaut_id', parseInt(e.target.value) || null)}
+                            disabled={loading}
                         >
-                            <option>PIECE</option>
-                            <option>METRE</option>
-                            <option>KG</option>
-                            <option>LITRE</option>
+                            <option value="">-- Sélectionner --</option>
+                            {unitesStock.map(u => (
+                                <option key={u.unite_id} value={u.unite_id}>
+                                    {u.unite_libelle} ({u.unite_code})
+                                </option>
+                            ))}
                         </select>
+
                     </div>
                 </div>
             </div>
