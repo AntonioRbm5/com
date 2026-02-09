@@ -12,4 +12,4 @@ export const updateUser = (data, id_user) => api.put(`/users/update/${id_user}`,
 export const deleteUser = (id_user) => api.delete(`/users/delete/${id_user}`);
 export const getAllUsers = () => api.get("/users/all");
 export const getUserById = (id_user) => api.get(`/users/${id_user}`);
-export const loginUser = (data) => api.post("/users/login", data);
+export const loginUser = (data) => api.post("/user/authentication", data);

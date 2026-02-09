@@ -1,4 +1,4 @@
-const AUTH_KEY = "tantana_auth";
+const AUTH_KEY = "tantana_auth_";
 
 export const saveAuth = (data) => {
   localStorage.setItem(AUTH_KEY, JSON.stringify(data));
