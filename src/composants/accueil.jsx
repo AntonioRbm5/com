@@ -64,7 +64,7 @@ const DashboardHome = () => {
                       {item.icon}
                     </div>
                     <Card.Text
-                      style={{ fontSize: "0.95rem", fontWeight: 500 }}
+                      style={{ fontSize: "0.75rem", fontWeight: 500 }}
                     >
                       {item.label}
                     </Card.Text>

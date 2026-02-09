@@ -91,7 +91,7 @@ const Identification_entreprise = () => {
                 onClick={() => removeActivite(idx)}
               >
                 <i className="bi bi-dash"></i>
-              </button>
+              </button>n nnnnnnn
             </div>
           ))}
         </div>

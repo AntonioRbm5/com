@@ -15,7 +15,7 @@ const HomeCom = () => {
                 <div className="d-flex">
                     
                     <div style={{ width:"40%"}}>
-                        <ChartList/>
+                        {/* <ChartList/> */}
                     </div>
                     <div style={{ width: "60%" }}>
                 
