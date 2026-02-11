@@ -1,4 +1,4 @@
-import LoginForm from "../pages/Login";
+import LoginForm from "../pages/login";
 import ArticleFormPage from "../pages/articles/ArticleFormPage";
 import ArticleListPage from "../pages/articles/ArticleListPage";
 import FamilleFormPage from "../pages/familles/FamilleFormPage";

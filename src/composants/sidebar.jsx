@@ -22,7 +22,7 @@ export default function Sidebar() {
     { label: "Ventes", icon: <FaDollarSign className="ft-2" />, path: "/ventes" },
     { label: "Mouvement", icon: <GrTransaction className="ft-2" />, path: "/mouvement" },
     { label: "Tiers", icon: <FaHandshake className="ft-2"/>, path:"/tiers/general"},
-    { label: "Logout", icon: <FaSignOutAlt className="ft-2" />, path: "/login" }
+    { label: "Logout", icon: <FaSignOutAlt className="ft-2" />, path: "/login" } 
   ];
 
 
@@ -46,8 +46,10 @@ export default function Sidebar() {
           <FaBars className="cursor-pointer" onClick={toggleSidebar} />
         </div>
 
-        <ul className="nav nav-pills flex-column mb-auto gap-1">
-          {menuItems.slice(0, -1).map((item) => {
+       <ul className="nav nav-pills flex-column mb-auto gap-1">
+        {menuItems
+          .filter(item => item.label !== "Logout")
+          .map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <li key={item.label} className="nav-item">
@@ -62,24 +64,25 @@ export default function Sidebar() {
               </li>
             );
           })}
-        </ul>
+      </ul>
 
-        <div className="mt-auto">
-          {(() => {
-            const item = menuItems[2];
-            const isActive = location.pathname === item.path;
-            return (
-              <a
-                href="#"
-                className={`nav-link d-flex align-items-center ${isActive ? 'bg-light text-primary' : 'text-white'}`}
-                onClick={(e) => { e.preventDefault(); handleClick(item.path); }}
-              >
-                {item.icon}
-                <span className={`${collapsed ? 'd-none' : 'ms-2'}`}>{item.label}</span>
-              </a>
-            );
-          })()}
-        </div>
+      <div className="mt-auto">
+        {(() => {
+          const item = menuItems.find(i => i.label === "Logout");
+          const isActive = location.pathname === item.path;
+          return (
+            <a
+              href="#"
+              className={`nav-link d-flex align-items-center ${isActive ? 'bg-light text-primary' : 'text-white'}`}
+              onClick={(e) => { e.preventDefault(); handleClick(item.path); }}
+            >
+              {item.icon}
+              <span className={`${collapsed ? 'd-none' : 'ms-2'}`}>{item.label}</span>
+            </a>
+          );
+        })()}
+      </div>
+
 
       </aside>
 

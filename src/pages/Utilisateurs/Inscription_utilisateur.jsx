@@ -164,8 +164,8 @@ const UserSignupForm = () => {
                         >
                           <option value="">Sélectionnez un rôle</option>
                           {role_list.map((r) => (
-                            <option key={r.id} value={r.id}>
-                              {r.name}
+                            <option key={r.role_id} value={r.role_id}>
+                              {r.role_name}
                             </option>
                           ))}
                         </select>
@@ -196,8 +196,8 @@ const UserSignupForm = () => {
                           >
                             <option value="">-- Sélectionnez une entreprise --</option>
                             {entreprise_list.map((e) => (
-                              <option key={e.id} value={e.id}>
-                                {e.name}
+                              <option key={e.entreprise_id} value={e.entreprise_id}>
+                                {e.entreprise_name}
                               </option>
                             ))}
                           </select>

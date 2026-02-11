@@ -7,7 +7,7 @@ import {
 import './stock.css';
 import { getAllTelecommunication } from '../../services/telecommunicationService';
 import { getAllCoordonnees } from '../../services/coordonneeService';
-import { getAllResponsables } from '../../services/responsableservice';
+import { getAllResponsables } from '../../services/responsableService';
 
 const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
     const [loading, setLoading] = useState(false);
