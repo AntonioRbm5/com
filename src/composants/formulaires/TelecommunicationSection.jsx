@@ -1,106 +1,34 @@
-const TelecommunicationSection = ({ formData, handleChange }) => {
+const TelecommunicationSection = ({ telecommunications = [], onChange }) => {
   return (
     <>
-      <h6 className="mb-3 mt-4">Télécommunication</h6>
+      {telecommunications.map((telecom, index) => (
+        <div key={index} className="border rounded p-3 mb-3">
+          <span className="fw-semibold text-muted mb-3 d-block">
+            Télécommunication {index + 1}
+          </span>
 
-      {/* Téléphone / Télécopie */}
-      <div className="row mb-3">
-        <div className="col-md-6">
-          <div className="row align-items-center">
-            <label className="col-md-4 col-form-label">Téléphone</label>
-            <div className="col-md-8">
-              <input
-                type="tel"
-                name="telephone"
-                value={formData.telephone}
-                onChange={handleChange}
-                className="form-control"
-              />
+          {[
+            { label: "Téléphone",   field: "telecom_info_tel",       type: "text" },
+            { label: "Télécopie",   field: "telecom_info_telecopie",  type: "text" },
+            { label: "Email",       field: "telecom_info_email",      type: "email" },
+            { label: "Site web",    field: "telecom_info_site_web",   type: "text" },
+            { label: "LinkedIn",    field: "telecom_info_linkdin",    type: "text" },
+            { label: "Facebook",    field: "telecom_info_facebook",   type: "text" },
+          ].map(({ label, field, type }) => (
+            <div className="row mb-3 align-items-center" key={field}>
+              <label className="col-md-3 col-form-label">{label}</label>
+              <div className="col-md-9">
+                <input
+                  type={type}
+                  className="form-control"
+                  value={telecom[field] ?? ""}
+                  onChange={(e) => onChange(index, field, e.target.value)}
+                />
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-
-        <div className="col-md-6">
-          <div className="row align-items-center">
-            <label className="col-md-4 col-form-label">Télécopie</label>
-            <div className="col-md-8">
-              <input
-                type="text"
-                name="telecopie"
-                value={formData.telecopie}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* LinkedIn / Facebook */}
-      <div className="row mb-3">
-        <div className="col-md-6">
-          <div className="row align-items-center">
-            <label className="col-md-4 col-form-label">LinkedIn</label>
-            <div className="col-md-8">
-              <input
-                type="text"
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="row align-items-center">
-            <label className="col-md-4 col-form-label">Facebook</label>
-            <div className="col-md-8">
-              <input
-                type="text"
-                name="facebook"
-                value={formData.facebook}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* E-mail / Site internet */}
-      <div className="row mb-3">
-        <div className="col-md-6">
-          <div className="row align-items-center">
-            <label className="col-md-4 col-form-label">E-mail</label>
-            <div className="col-md-8">
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="row align-items-center">
-            <label className="col-md-4 col-form-label">Site internet</label>
-            <div className="col-md-8">
-              <input
-                type="text"
-                name="site_internet"
-                value={formData.site_internet}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      ))}
     </>
   );
 };
