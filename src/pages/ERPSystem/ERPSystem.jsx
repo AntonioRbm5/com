@@ -45,7 +45,7 @@ const ERPSystem = () => {
         { id: 'stats', label: 'Statistiques clients', icon: '📉' },
         { id: 'payment', label: 'Mode de payment', icon: '💳' },
         { id: 'action_type', label: 'Action type', icon: '⚙️' },
-        { id: 'vente_status', label: 'Ventes status'}
+        { id: 'vente_status', label: 'Ventes status' }
 
     ];
 
@@ -202,7 +202,7 @@ const ERPSystem = () => {
                                 </div>
                             )}
 
-                            {!['sales', 'facture', 'commande', 'purchases', 'stock', 'analysis', 'stats'].includes(currentView) && (
+                            {!['sales', 'facture', 'commande', 'purchases', 'stock', 'analysis', 'stats', 'payment', 'action_type', 'vente_status'].includes(currentView) && (
                                 <div style={{ padding: '20px', textAlign: 'center' }}>
                                     <h3>🚧 {sidebarItems.find(item => item.id === currentView)?.label}</h3>
                                     <p style={{ color: '#666', marginTop: '12px' }}>

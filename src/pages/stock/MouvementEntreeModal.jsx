@@ -9,6 +9,7 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
     ========================= */
     const [isHeaderValidated, setIsHeaderValidated] = useState(false);
     const [articles, setArticles] = useState([]);
+    const [unites, setUnites] = useState([]);
 
     const [formData, setFormData] = useState({
         date: getCurrentDateFormatted(),
@@ -16,20 +17,19 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
         depot: '',
         depotId: null,
         articleId: null,
+        uniteId: '',        // ← plus hardcodé à 1
+        lotId: null,
         reference: '',
         affaire: '',
         info1: '',
-        info2: '',
-        uniteId: 1,
-        lotId: null
+        info2: ''
     });
 
-    // Fonction helper pour obtenir la date au format DDMMYY
     function getCurrentDateFormatted() {
         const today = new Date();
-        const day = String(today.getDate()).padStart(2, '0');
+        const day   = String(today.getDate()).padStart(2, '0');
         const month = String(today.getMonth() + 1).padStart(2, '0');
-        const year = String(today.getFullYear()).substring(2);
+        const year  = String(today.getFullYear()).substring(2);
         return `${day}${month}${year}`;
     }
 
@@ -45,28 +45,42 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
     });
 
     /* =========================
-       CHARGEMENT DES ARTICLES
+       CHARGEMENT ARTICLES + UNITÉS
     ========================= */
     useEffect(() => {
         loadArticles();
+        loadUnites();
     }, []);
 
     const loadArticles = async () => {
         try {
             const response = await getAllArticles();
             if (response?.data?.status === 'success') {
-                setArticles(response.data.data || []);
-
-                // Sélectionner le premier article par défaut si disponible
-                if (response.data.data && response.data.data.length > 0) {
-                    setFormData(prev => ({
-                        ...prev,
-                        articleId: response.data.data[0].article_id
-                    }));
-                }
+                const data = response.data.data || [];
+                setArticles(data);
             }
         } catch (err) {
             console.error('Erreur chargement articles:', err);
+        }
+    };
+
+    const loadUnites = async () => {
+        try {
+            // Adapter l'import si votre service s'appelle différemment
+            const { getAllUnites } = await import('../../services/uniteService');
+            const response = await getAllUnites();
+            if (response?.data?.status === 'success') {
+                const data = response.data.data || [];
+                setUnites(data);
+                // Sélectionner la première unité par défaut
+                if (data.length > 0) {
+                    setFormData(prev => ({ ...prev, uniteId: data[0].unite_id }));
+                }
+            }
+        } catch (err) {
+            // Si le service n'existe pas encore, on garde l'unité 1 comme fallback
+            console.warn('Service unités non disponible, fallback unite_id=1');
+            setFormData(prev => ({ ...prev, uniteId: 1 }));
         }
     };
 
@@ -74,47 +88,41 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
        INIT / EDITION
     ========================= */
     useEffect(() => {
-        if (show) {
-            if (mouvement) {
-                // Mode édition
-                setFormData({
-                    date: mouvement.header?.date || mouvement.date,
-                    numeroDocument: mouvement.header?.numeroDocument || mouvement.numeroPiece,
-                    depot: mouvement.header?.depot || mouvement.depotOrigine,
-                    depotId: mouvement.header?.depotId || null,
-                    articleId: mouvement.header?.articleId || null,
-                    reference: mouvement.header?.reference || mouvement.reference,
-                    affaire: mouvement.header?.affaire || '',
-                    info1: mouvement.header?.info1 || '',
-                    info2: mouvement.header?.info2 || '',
-                    uniteId: mouvement.header?.uniteId || 1,
-                    lotId: mouvement.header?.lotId || null
-                });
+        if (!show) return;
 
-                setLignes(mouvement.lignes || []);
-                setIsHeaderValidated(true);
-            } else {
-                // Mode création
-                const defaultDepot = depots.length > 0 ? depots[0] : null;
-                const defaultArticle = articles.length > 0 ? articles[0] : null;
+        if (mouvement) {
+            // Mode édition
+            setFormData({
+                date:           mouvement.header?.date            || mouvement.date,
+                numeroDocument: mouvement.header?.numeroDocument  || mouvement.numeroPiece || '',
+                depot:          mouvement.header?.depot           || mouvement.depotOrigine || '',
+                depotId:        mouvement.header?.depotId         || null,
+                articleId:      mouvement.header?.articleId       || null,
+                uniteId:        mouvement.header?.uniteId         || 1,
+                lotId:          mouvement.header?.lotId           || null,
+                reference:      mouvement.header?.reference       || mouvement.reference || '',
+                affaire:        mouvement.header?.affaire         || '',
+                info1:          mouvement.header?.info1           || '',
+                info2:          mouvement.header?.info2           || ''
+            });
+            setLignes(mouvement.lignes || []);
+            setIsHeaderValidated(true);
+        } else {
+            // Mode création
+            const defaultDepot   = depots.length   > 0 ? depots[0]   : null;
+            const defaultArticle = articles.length > 0 ? articles[0] : null;
 
-                setFormData({
-                    date: getCurrentDateFormatted(),
-                    numeroDocument: generateNumeroDocument(),
-                    depot: defaultDepot?.name || '',
-                    depotId: defaultDepot?.id || null,
-                    articleId: defaultArticle?.article_id || null,
-                    reference: '',
-                    affaire: '',
-                    info1: '',
-                    info2: '',
-                    uniteId: 1,
-                    lotId: null
-                });
+            setFormData(prev => ({
+                ...prev,
+                date:           getCurrentDateFormatted(),
+                numeroDocument: generateNumeroDocument(),
+                depot:          defaultDepot?.name        || '',
+                depotId:        defaultDepot?.id          || null,
+                articleId:      defaultArticle?.article_id || null
+            }));
 
-                setLignes([]);
-                setIsHeaderValidated(false);
-            }
+            setLignes([]);
+            setIsHeaderValidated(false);
         }
     }, [mouvement, show, depots, articles]);
 
@@ -122,7 +130,23 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
         `ME-${Date.now().toString().slice(-6)}`;
 
     /* =========================
-       HANDLERS
+       HELPERS — FORMATAGE DATE
+    ========================= */
+    /**
+     * Convertit DDMMYY → ISO string pour l'API
+     * ex: "260225" → "2025-02-26T00:00:00.000Z"
+     */
+    const convertDateToISO = (ddmmyy) => {
+        if (!ddmmyy || ddmmyy.length !== 6) return new Date().toISOString();
+        const day   = ddmmyy.substring(0, 2);
+        const month = ddmmyy.substring(2, 4);
+        const year  = '20' + ddmmyy.substring(4, 6);
+        const date  = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+        return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    };
+
+    /* =========================
+       HANDLERS FORM
     ========================= */
     const handleInputChange = e => {
         const { name, value } = e.target;
@@ -131,94 +155,82 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
 
     const handleDepotChange = e => {
         const selectedDepotName = e.target.value;
-        const selectedDepot = depots.find(d => d.name === selectedDepotName);
-
+        const selectedDepot     = depots.find(d => d.name === selectedDepotName);
         setFormData(prev => ({
             ...prev,
-            depot: selectedDepotName,
+            depot:   selectedDepotName,
             depotId: selectedDepot?.id || null
         }));
     };
 
     const handleArticleChange = e => {
-        const articleId = parseInt(e.target.value);
         setFormData(prev => ({
             ...prev,
-            articleId: articleId
+            articleId: parseInt(e.target.value) || null
         }));
     };
 
+    const handleUniteChange = e => {
+        setFormData(prev => ({
+            ...prev,
+            uniteId: parseInt(e.target.value) || null
+        }));
+    };
+
+    /* =========================
+       VALIDATION EN-TÊTE
+    ========================= */
     const validateHeader = () => {
-        const required = ['date', 'numeroDocument', 'depot', 'reference'];
-        const isValid = required.every(f => formData[f]?.toString().trim());
-
-        if (!isValid) {
-            console.log('❌ Validation échouée - Champs manquants');
+        if (!formData.date || !formData.numeroDocument) {
+            alert('Date et numéro de document sont obligatoires');
             return false;
         }
-
         if (!formData.depotId) {
-            console.log('❌ Validation échouée - Dépôt non sélectionné');
+            alert('Veuillez sélectionner un dépôt de destination');
             return false;
         }
-
         if (!formData.articleId) {
-            console.log('❌ Validation échouée - Article non sélectionné');
+            alert('Veuillez sélectionner un article');
             return false;
         }
-
+        if (!formData.uniteId) {
+            alert('Veuillez sélectionner une unité');
+            return false;
+        }
         return true;
     };
 
     const handleValidateHeader = () => {
-        if (!validateHeader()) {
-            alert('Veuillez remplir tous les champs obligatoires et sélectionner un article');
-            return;
-        }
-
-        console.log('✅ En-tête validé avec succès');
+        if (!validateHeader()) return;
         setIsHeaderValidated(true);
     };
 
     /* =========================
-       LIGNES
+       GESTION DES LIGNES
     ========================= */
     const handleLigneChange = e => {
         const { name, value } = e.target;
-
         setLigneCourante(prev => {
             const updated = { ...prev, [name]: value };
-
             if (name === 'puHT' || name === 'quantite') {
-                const pu = parseFloat(updated.puHT) || 0;
+                const pu  = parseFloat(updated.puHT)    || 0;
                 const qte = parseFloat(updated.quantite) || 0;
                 updated.montantHT = (pu * qte).toFixed(2);
             }
-
             return updated;
         });
     };
 
     const ajouterLigne = () => {
         if (!isHeaderValidated) return;
-
         if (!ligneCourante.reference || !ligneCourante.quantite) {
             alert('Référence et quantité obligatoires');
             return;
         }
-
-        setLignes(prev => [
-            ...prev,
-            { ...ligneCourante, id: Date.now() }
-        ]);
-
+        setLignes(prev => [...prev, { ...ligneCourante, id: Date.now() }]);
         setLigneCourante({
-            reference: '',
-            designation: '',
-            puHT: '',
-            quantite: '',
-            conditionnement: 'PIECE',
-            montantHT: ''
+            reference: '', designation: '', puHT: '',
+            quantite: '', conditionnement: 'PIECE', montantHT: ''
         });
     };
 
@@ -229,69 +241,62 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
        TOTAUX
     ========================= */
     const calculerTotaux = () => ({
-        poidsNet: lignes.reduce((s, l) => s + (+l.quantite || 0), 0),
-        poidsBrut: 0,
-        totalHT: lignes.reduce((s, l) => s + (+l.montantHT || 0), 0)
+        poidsNet: lignes.reduce((s, l) => s + (parseFloat(l.quantite)   || 0), 0),
+        totalHT:  lignes.reduce((s, l) => s + (parseFloat(l.montantHT) || 0), 0)
     });
 
     /* =========================
-       SUBMIT GLOBAL (API READY)
+       SUBMIT — PAYLOAD ALIGNÉ SUR LE BACKEND
     ========================= */
     const handleSubmit = () => {
         if (!isHeaderValidated) {
             alert('Veuillez valider l\'en-tête');
             return;
         }
-
         if (!formData.depotId) {
-            alert('Erreur: Dépôt non valide');
+            alert('Erreur : Dépôt de destination non valide');
             return;
         }
-
         if (!formData.articleId) {
-            alert('Erreur: Article non sélectionné');
+            alert('Erreur : Article non sélectionné');
+            return;
+        }
+        if (!formData.uniteId) {
+            alert('Erreur : Unité non sélectionnée');
             return;
         }
 
         const totaux = calculerTotaux();
 
-        // const payload = {
-        //     header: {
-        //         ...formData,
-        //         type: 'Mouvement d\'entrée'
-        //     },
-        //     lignes: lignes.map(ligne => ({
-        //         ...ligne,
-        //         id: undefined
-        //     })),
-        //     totaux: totaux
-        // };
-
+        /**
+         * Payload strictement conforme à StockMouvementCreate (backend)
+         * ─────────────────────────────────────────────────────────────
+         * article_id            : int
+         * lot_id                : int | null
+         * depot_source_id       : int | null   ← null pour une entrée
+         * depot_destination_id  : int          ← dépôt sélectionné
+         * mouvement_type        : "ACHAT" | "VENTE" | "TRANSFERT" | "AJUSTEMENT"
+         * unite_id              : int
+         * mouvement_quantity    : float
+         * mouvement_valeur      : float
+         * mouvement_reference   : str | null
+         *
+         * NB : mouvement_date et lignes ne sont PAS dans StockMouvementCreate
+         *      → on ne les envoie pas pour éviter une erreur 422
+         */
         const payload = {
-            mouvement_type: "ENTREE",
-            mouvement_date: new Date().toISOString(),
-
-            article_id: formData.articleId,
-            depot_source_id: null,
+            article_id:           formData.articleId,
+            lot_id:               formData.lotId     || null,
+            depot_source_id:      null,                          // entrée = pas de source
             depot_destination_id: formData.depotId,
+            mouvement_type:       "ACHAT",                       // ← type valide selon le backend
+            unite_id:             formData.uniteId,
+            mouvement_quantity:   totaux.poidsNet,
+            mouvement_valeur:     totaux.totalHT,
+            mouvement_reference:  formData.numeroDocument || null
+        };
 
-            unite_id: formData.uniteId,
-            lot_id: formData.lotId,
-
-            mouvement_quantity: totaux.poidsNet,
-            mouvement_valeur: totaux.totalHT,
-            mouvement_reference: formData.numeroDocument,
-
-            lignes: lignes.map(l => ({
-                reference: l.reference,
-                designation: l.designation,
-                quantite: Number(l.quantite),
-                pu: Number(l.puHT),
-                montant: Number(l.montantHT)
-            }))
-        }
-
-        console.log('📤 Payload à envoyer:', payload);
+        console.log('📤 Payload envoyé à l\'API :', payload);
         onSave(payload);
     };
 
@@ -306,10 +311,10 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
         <div className="mouvement-modal-overlay">
             <div className="mouvement-modal-container">
 
-                {/* HEADER */}
+                {/* ── HEADER ── */}
                 <div className="mouvement-modal-header">
                     <span className="mouvement-modal-title">
-                        Mouvement d'entrée N° {formData?.numeroDocument ?? ''}
+                        Mouvement d'entrée N° {formData.numeroDocument}
                     </span>
                     <button className="close-btn" onClick={onHide}>×</button>
                 </div>
@@ -323,10 +328,10 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                     <button className="mouvement-toolbar-btn">📋 Projet</button>
                 </div>
 
-                {/* FORM HEADER */}
+                {/* ── FORM HEADER ── */}
                 <div className="mouvement-form-header">
 
-                    {/* DATE / DEPOT */}
+                    {/* DATE / DÉPÔT DESTINATION */}
                     <div className="mouvement-form-row">
                         <div className="mouvement-form-group">
                             <label>Date</label>
@@ -338,11 +343,13 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                                 onChange={handleInputChange}
                                 placeholder="JJMMAA"
                             />
-                            <button className="mouvement-toolbar-btn" style={{ padding: '2px 6px' }}>📅</button>
+                            <button className="mouvement-toolbar-btn" style={{ padding: '2px 6px' }}>
+                                📅
+                            </button>
                         </div>
 
                         <div className="mouvement-form-group" style={{ flex: 1 }}>
-                            <label>Dépôt *</label>
+                            <label>Dépôt destination *</label>
                             <select
                                 name="depot"
                                 value={formData.depot}
@@ -350,20 +357,22 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                                 className="large-select"
                                 style={{ width: '100%' }}
                             >
-                                {depots.length === 0 ? (
-                                    <option value="">Aucun dépôt disponible</option>
-                                ) : (
-                                    depots.map(depot => (
-                                        <option key={depot.id} value={depot.name}>
-                                            {depot.name} ({depot.code})
-                                        </option>
-                                    ))
-                                )}
+                                <option value="">-- Sélectionner un dépôt --</option>
+                                {depots.map(depot => (
+                                    <option key={depot.id} value={depot.name}>
+                                        [{depot.code}] {depot.name}
+                                    </option>
+                                ))}
                             </select>
+                            {!formData.depotId && (
+                                <span style={{ fontSize: '11px', color: '#cc0000', marginLeft: '6px' }}>
+                                    ⚠ Requis
+                                </span>
+                            )}
                         </div>
                     </div>
 
-                    {/* DOC / REF / ARTICLE */}
+                    {/* N° DOC / RÉFÉRENCE / ARTICLE */}
                     <div className="mouvement-form-row">
                         <div className="mouvement-form-group">
                             <label>N° document</label>
@@ -376,13 +385,13 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                         </div>
 
                         <div className="mouvement-form-group">
-                            <label>Référence *</label>
+                            <label>Référence</label>
                             <input
                                 type="text"
                                 name="reference"
                                 value={formData.reference}
                                 onChange={handleInputChange}
-                                style={{ width: '200px' }}
+                                style={{ width: '180px' }}
                             />
                         </div>
 
@@ -394,23 +403,50 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                                 onChange={handleArticleChange}
                                 style={{ width: '100%' }}
                             >
-                                {articles.length === 0 ? (
-                                    <option value="">Aucun article disponible</option>
-                                ) : (
-                                    articles.map(article => (
-                                        <option key={article.article_id} value={article.article_id}>
-                                            {article.article_name} ({article.article_reference})
-                                        </option>
-                                    ))
-                                )}
+                                <option value="">-- Sélectionner un article --</option>
+                                {articles.map(a => (
+                                    <option key={a.article_id} value={a.article_id}>
+                                        [{a.article_reference}] {a.article_name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
 
-                    {/* INFOS */}
+                    {/* UNITÉ / INFOS */}
                     <div className="mouvement-form-row">
+                        <div className="mouvement-form-group">
+                            <label>Unité *</label>
+                            {unites.length > 0 ? (
+                                <select
+                                    name="uniteId"
+                                    value={formData.uniteId || ''}
+                                    onChange={handleUniteChange}
+                                    style={{ minWidth: '120px' }}
+                                >
+                                    <option value="">-- Unité --</option>
+                                    {unites.map(u => (
+                                        <option key={u.unite_id} value={u.unite_id}>
+                                            {u.unite_name || u.unite_libelle || `Unité #${u.unite_id}`}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                /* Fallback si le service unités n'est pas encore branché */
+                                <input
+                                    type="number"
+                                    name="uniteId"
+                                    value={formData.uniteId}
+                                    onChange={handleInputChange}
+                                    style={{ width: '80px' }}
+                                    placeholder="ID unité"
+                                    min="1"
+                                />
+                            )}
+                        </div>
+
                         <div className="mouvement-form-group" style={{ flex: 1 }}>
-                            <label>Info1</label>
+                            <label>Info 1</label>
                             <input
                                 type="text"
                                 name="info1"
@@ -420,8 +456,9 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                                 style={{ width: '100%' }}
                             />
                         </div>
+
                         <div className="mouvement-form-group" style={{ flex: 1 }}>
-                            <label>Info2</label>
+                            <label>Info 2</label>
                             <input
                                 type="text"
                                 name="info2"
@@ -440,13 +477,23 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                             Valider
                         </button>
                     </div>
+
+                    {/* Indicateur de validation */}
+                    {isHeaderValidated && (
+                        <div style={{
+                            fontSize: '11px', color: '#008000', marginTop: '4px',
+                            paddingLeft: '4px'
+                        }}>
+                            ✅ En-tête validé — vous pouvez saisir les lignes
+                        </div>
+                    )}
                 </div>
 
-                {/* LINE EDITOR */}
+                {/* ── SAISIE LIGNE ── */}
                 <div
                     className="mouvement-line-editor"
                     style={{
-                        opacity: isHeaderValidated ? 1 : 0.4,
+                        opacity:       isHeaderValidated ? 1 : 0.4,
                         pointerEvents: isHeaderValidated ? 'auto' : 'none'
                     }}
                 >
@@ -468,17 +515,17 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                         />
                         <input
                             type="number"
-                            className="mouvement-line-input"
                             name="puHT"
                             placeholder="P.U. HT"
+                            className="mouvement-line-input"
                             value={ligneCourante.puHT}
                             onChange={handleLigneChange}
                         />
                         <input
                             type="number"
                             name="quantite"
-                            className="mouvement-line-input"
                             placeholder="Qté"
+                            className="mouvement-line-input"
                             value={ligneCourante.quantite}
                             onChange={handleLigneChange}
                         />
@@ -495,8 +542,8 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                         <input
                             type="text"
                             name="montantHT"
-                            className="mouvement-line-input"
                             placeholder="Montant HT"
+                            className="mouvement-line-input"
                             value={ligneCourante.montantHT}
                             readOnly
                             style={{ backgroundColor: '#f0f0f0' }}
@@ -508,23 +555,31 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                         <button className="mouvement-action-btn primary" onClick={ajouterLigne}>
                             Nouveau
                         </button>
-                        <button className="mouvement-action-btn secondary">Supprimer</button>
+                        <button
+                            className="mouvement-action-btn secondary"
+                            onClick={() => setLigneCourante({
+                                reference: '', designation: '', puHT: '',
+                                quantite: '', conditionnement: 'PIECE', montantHT: ''
+                            })}
+                        >
+                            Effacer
+                        </button>
                         <button className="mouvement-action-btn primary" onClick={ajouterLigne}>
                             Enregistrer
                         </button>
                     </div>
                 </div>
 
-                {/* TABLE */}
+                {/* ── TABLE DES LIGNES ── */}
                 <div className="mouvement-lines-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Référence a...</th>
+                                <th>Référence</th>
                                 <th>Désignation</th>
                                 <th>P.U. HT</th>
                                 <th>Quantité</th>
-                                <th>Conditionn...</th>
+                                <th>Conditionnement</th>
                                 <th>Montant HT</th>
                                 <th>▶</th>
                             </tr>
@@ -532,20 +587,34 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                         <tbody>
                             {lignes.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#999' }}>
-                                        Aucune ligne ajoutée
+                                    <td colSpan="7" style={{
+                                        textAlign: 'center', padding: '30px', color: '#999'
+                                    }}>
+                                        Aucune ligne — ajoutez des articles via le formulaire ci-dessus
                                     </td>
                                 </tr>
                             ) : (
                                 lignes.map(l => (
-                                    <tr key={l.id} onDoubleClick={() => supprimerLigne(l.id)}>
+                                    <tr
+                                        key={l.id}
+                                        title="Double-clic pour supprimer"
+                                        onDoubleClick={() => supprimerLigne(l.id)}
+                                    >
                                         <td>{l.reference}</td>
                                         <td>{l.designation}</td>
-                                        <td>{l.puHT}</td>
+                                        <td>{parseFloat(l.puHT).toLocaleString('fr-FR')}</td>
                                         <td>{l.quantite}</td>
                                         <td>{l.conditionnement}</td>
-                                        <td>{l.montantHT}</td>
-                                        <td>▲</td>
+                                        <td>{parseFloat(l.montantHT).toLocaleString('fr-FR', {
+                                            minimumFractionDigits: 2
+                                        })}</td>
+                                        <td
+                                            style={{ cursor: 'pointer', color: '#cc0000' }}
+                                            onClick={() => supprimerLigne(l.id)}
+                                            title="Supprimer"
+                                        >
+                                            ✕
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -553,29 +622,61 @@ const MouvementEntreeModal = ({ show, onHide, mouvement, onSave, depots = [] }) 
                     </table>
                 </div>
 
-                {/* FOOTER */}
+                {/* ── FOOTER RÉSUMÉ ── */}
                 <div className="mouvement-footer-summary">
                     <div className="mouvement-summary-row">
                         <div className="mouvement-summary-col">
                             <div className="mouvement-summary-item">
                                 <span className="mouvement-summary-label">Quantité totale</span>
-                                <span className="mouvement-summary-value">{totaux.poidsNet.toFixed(2)}</span>
+                                <span className="mouvement-summary-value">
+                                    {totaux.poidsNet.toFixed(3)}
+                                </span>
                             </div>
                         </div>
                         <div className="mouvement-summary-col">
                             <div className="mouvement-summary-item">
-                                <span className="mouvement-summary-label">Valeur totale</span>
+                                <span className="mouvement-summary-label">Valeur totale HT</span>
                                 <span className="mouvement-summary-value">
-                                    {totaux.totalHT.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}
+                                    {totaux.totalHT.toLocaleString('fr-FR', {
+                                        minimumFractionDigits: 2
+                                    })}
                                 </span>
                             </div>
                         </div>
                     </div>
+
+                    {/* Récapitulatif du payload */}
+                    <div style={{ fontSize: '10px', color: '#888', marginTop: '6px' }}>
+                        Dépôt destination : <strong>{formData.depot || '—'}</strong>
+                        {' · '}
+                        Article ID : <strong>{formData.articleId || '—'}</strong>
+                        {' · '}
+                        Unité ID : <strong>{formData.uniteId || '—'}</strong>
+                        {' · '}
+                        Type : <strong>ACHAT</strong>
+                    </div>
                 </div>
 
+                {/* ── ACTIONS ── */}
                 <div className="mouvement-modal-footer">
-                    <button className="btn-custom btn-secondary-custom">Nouveau</button>
-                    <button className="btn-custom btn-primary-custom" onClick={handleSubmit}>
+                    <button
+                        className="btn-custom btn-secondary-custom"
+                        onClick={() => {
+                            setLignes([]);
+                            setIsHeaderValidated(false);
+                        }}
+                    >
+                        Nouveau
+                    </button>
+                    <button
+                        className="btn-custom btn-primary-custom"
+                        onClick={handleSubmit}
+                        disabled={!isHeaderValidated || lignes.length === 0}
+                        title={
+                            !isHeaderValidated ? 'Validez l\'en-tête d\'abord' :
+                            lignes.length === 0 ? 'Ajoutez au moins une ligne' : ''
+                        }
+                    >
                         OK
                     </button>
                     <button className="btn-custom btn-secondary-custom" onClick={onHide}>

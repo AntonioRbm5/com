@@ -120,30 +120,20 @@ export const transformMouvementFromAPI = (apiMouvement) => {
  */
 const translateMouvementType = (apiType) => {
     const typeMap = {
-        'ENTREE': 'Mouvement d\'entrée',
-        'SORTIE': 'Mouvement de sortie',
-        'TRANSFERT': 'Mouvement de transfert',
-        'DEPRECIATION': 'Dépréciation du stock',
-        'FABRICATION': 'Bon de fabrication',
-        'PREPARATION_FABRICATION': 'Préparation de fabrication'
+        'ACHAT':                  'Mouvement d\'entrée',
+        'ENTREE':                 'Mouvement d\'entrée',
+        'VENTE':                  'Mouvement de sortie',
+        'SORTIE':                 'Mouvement de sortie',
+        'TRANSFERT':              'Mouvement de transfert',
+        'AJUSTEMENT':             'Dépréciation du stock',
+        'DEPRECIATION':           'Dépréciation du stock',
+        'FABRICATION':            'Bon de fabrication',
+        'PREPARATION_FABRICATION':'Préparation de fabrication'
     };
     return typeMap[apiType] || apiType;
 };
 
-/**
- * Traduit le type de mouvement de l'UI vers l'API
- */
-const translateMouvementTypeToAPI = (uiType) => {
-    const typeMap = {
-        'Mouvement d\'entrée': 'ENTREE',
-        'Mouvement de sortie': 'SORTIE',
-        'Mouvement de transfert': 'TRANSFERT',
-        'Dépréciation du stock': 'DEPRECIATION',
-        'Bon de fabrication': 'FABRICATION',
-        'Préparation de fabrication': 'PREPARATION_FABRICATION'
-    };
-    return typeMap[uiType] || 'ENTREE';
-};
+
 
 /**
  * Formate une date pour l'API (DDMMYY -> ISO)

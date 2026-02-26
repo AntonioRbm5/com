@@ -274,6 +274,8 @@ export const routesConfig = [
   {
     path: "/vente_status/edit/:id",
     element: <VenteStatusFormPage mode="edit" />
-  }
+  },
+  
+  
 
 ];

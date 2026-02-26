@@ -24,7 +24,7 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
     const [usersList, setUsersList] = useState([]);
     const [loadingData, setLoadingData] = useState(true);
 
-    // ─── Charger les listes au montage ────────────────────────────────────────
+    // ─── Chargement des listes ─────────────────────────────────────────────────
     useEffect(() => {
         const fetchSelectData = async () => {
             try {
@@ -36,25 +36,38 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                     getAllUsers().catch(() => ({ data: { data: [] } }))
                 ]);
 
-                // ✅ AJOUTER CES LOGS
-                console.log("📦 coordonnees raw:", coordonneesRes?.data);
-                console.log("📞 telecoms raw:", telecomsRes?.data);
-                console.log("👤 users raw:", usersRes?.data);
+                const coordonnees = Array.isArray(coordonneesRes?.data?.data)
+                    ? coordonneesRes.data.data
+                    : Array.isArray(coordonneesRes?.data) ? coordonneesRes.data : [];
 
-                const coordonnees = coordonneesRes?.data?.data || coordonneesRes?.data || [];
-                const telecoms = telecomsRes?.data?.data || telecomsRes?.data || [];
-                const users = usersRes?.data?.data || usersRes?.data || [];
+                const telecoms = Array.isArray(telecomsRes?.data?.data)
+                    ? telecomsRes.data.data
+                    : Array.isArray(telecomsRes?.data) ? telecomsRes.data : [];
 
-                console.log("✅ coordonnees final:", coordonnees);
-                console.log("✅ telecoms final:", telecoms);
-                console.log("✅ users final:", users);
+                const allUsers = Array.isArray(usersRes?.data?.data)
+                    ? usersRes.data.data
+                    : Array.isArray(usersRes?.data) ? usersRes.data : [];
 
-                setCoordonneesList(Array.isArray(coordonnees) ? coordonnees : []);
-                setTelecommunicationsList(Array.isArray(telecoms) ? telecoms : []);
-                setUsersList(Array.isArray(users) ? users : []);
+                // ── Log pour déboguer la structure exacte ──
+                console.log("🔑 Premier user:", JSON.stringify(allUsers[0], null, 2));
+
+                // ── Filtrer uniquement les responsables ──
+                // role_id === 4 correspond à "responsable" selon votre API des rôles
+                const responsables = allUsers.filter(u =>
+                    u.role_id === 4 ||
+                    u.role?.role_id === 4 ||
+                    u.role?.role_name === "responsable" ||
+                    u.roles?.some(r => r.role_name === "responsable" || r.role_id === 4)
+                );
+
+                setCoordonneesList(coordonnees);
+                setTelecommunicationsList(telecoms);
+                // Si aucun responsable trouvé → afficher tous les users en fallback
+                setUsersList(responsables.length > 0 ? responsables : allUsers);
 
             } catch (error) {
                 console.error('❌ Erreur chargement données:', error);
+                alert('⚠️ Erreur lors du chargement des données de référence');
             } finally {
                 setLoadingData(false);
             }
@@ -62,16 +75,35 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
 
         if (show) fetchSelectData();
     }, [show]);
-    // ─── Remplir le formulaire en mode édition ────────────────────────────────
+
+    // ─── Remplir en mode édition ───────────────────────────────────────────────
     useEffect(() => {
         if (show) {
             if (depot) {
+                // ── Le backend retourne coordonne{} et telecom{} et responsable{}
+                // ── pas directement les IDs → il faut les extraire
+                console.log("📋 Depot reçu en édition:", depot);
+
                 setFormData({
-                    name: depot.name || '',
-                    code: depot.code || '',
-                    depot_coordonnees_id: String(depot.depot_coordonnees_id || ''),        // ✅ String
-                    depot_telecommunication_id: String(depot.depot_telecommunication_id || ''),  // ✅ String
-                    depot_responsable_id: String(depot.depot_responsable_id || '')         // ✅ String
+                    name: depot.name || depot.depot_name || '',
+                    code: depot.code || depot.depot_code || '',
+
+                    // Extraire l'ID depuis l'objet imbriqué OU depuis le champ plat
+                    depot_coordonnees_id: String(
+                        depot.depot_coordonnees_id ||
+                        depot.coordonne?.coordonnees_id ||
+                        ''
+                    ),
+                    depot_telecommunication_id: String(
+                        depot.depot_telecommunication_id ||
+                        depot.telecom?.telecom_info_id ||
+                        ''
+                    ),
+                    depot_responsable_id: String(
+                        depot.depot_responsable_id ||
+                        depot.responsable?.id ||
+                        ''
+                    ),
                 });
             } else {
                 setFormData({
@@ -118,6 +150,7 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
 
         try {
             setLoading(true);
+
             const apiData = {
                 depot_name: formData.name,
                 depot_code: formData.code,
@@ -126,7 +159,7 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                 depot_responsable_id: parseInt(formData.depot_responsable_id)
             };
 
-            console.log('📤 Données à envoyer:', apiData);
+            console.log('📤 Données envoyées au backend:', apiData);
 
             let response;
             if (depot) {
@@ -134,6 +167,8 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
             } else {
                 response = await createStockageDepot(apiData);
             }
+
+            console.log('📨 Réponse backend:', response?.data);
 
             if (response?.data?.status === 'success') {
                 alert(depot ? '✅ Dépôt modifié avec succès' : '✅ Dépôt créé avec succès');
@@ -143,7 +178,9 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
             }
         } catch (err) {
             console.error('❌ Erreur sauvegarde:', err);
-            alert(`❌ Erreur: ${err.response?.data?.message || err.message || 'Erreur inconnue'}`);
+            // ── Afficher le détail de l'erreur 500 du backend ──
+            console.error('❌ Détail erreur backend:', err.response?.data);
+            alert(`❌ Erreur: ${err.response?.data?.detail || err.response?.data?.message || err.message || 'Erreur inconnue'}`);
         } finally {
             setLoading(false);
         }
@@ -209,8 +246,7 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                                         onChange={handleInputChange}
                                         placeholder="Ex: Dépôt principal, Entrepôt nord..."
                                         style={{
-                                            width: '100%',
-                                            padding: '10px',
+                                            width: '100%', padding: '10px',
                                             border: errors.name ? '2px solid red' : '1px solid #ccc',
                                             borderRadius: '4px'
                                         }}
@@ -237,11 +273,9 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                                         placeholder="Ex: DP01, ENT-N, SIEGE..."
                                         maxLength={10}
                                         style={{
-                                            width: '100%',
-                                            padding: '10px',
+                                            width: '100%', padding: '10px',
                                             border: errors.code ? '2px solid red' : '1px solid #ccc',
-                                            borderRadius: '4px',
-                                            textTransform: 'uppercase'
+                                            borderRadius: '4px', textTransform: 'uppercase'
                                         }}
                                     />
                                     <small style={{ color: '#666', fontSize: '12px' }}>
@@ -263,21 +297,19 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                                     </label>
                                     <select
                                         name="depot_coordonnees_id"
-                                        value={formData.depot_coordonnees_id}  // ✅ String
+                                        value={formData.depot_coordonnees_id}
                                         onChange={handleInputChange}
                                         style={{
-                                            width: '100%',
-                                            padding: '10px',
+                                            width: '100%', padding: '10px',
                                             border: errors.depot_coordonnees_id ? '2px solid red' : '1px solid #ccc',
-                                            borderRadius: '4px',
-                                            backgroundColor: 'white'
+                                            borderRadius: '4px', backgroundColor: 'white'
                                         }}
                                     >
                                         <option value="">-- Sélectionner une coordonnée --</option>
                                         {coordonneesList.map((coord, index) => (
                                             <option
                                                 key={`coord-${coord.coordonnees_id ?? index}`}
-                                                value={String(coord.coordonnees_id)}  // ✅ String
+                                                value={String(coord.coordonnees_id)}
                                             >
                                                 {coord.coordonnees_ville} - {coord.coordonnees_address} ({coord.coordonnees_pays})
                                             </option>
@@ -304,21 +336,19 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                                     </label>
                                     <select
                                         name="depot_telecommunication_id"
-                                        value={formData.depot_telecommunication_id}  // ✅ String
+                                        value={formData.depot_telecommunication_id}
                                         onChange={handleInputChange}
                                         style={{
-                                            width: '100%',
-                                            padding: '10px',
+                                            width: '100%', padding: '10px',
                                             border: errors.depot_telecommunication_id ? '2px solid red' : '1px solid #ccc',
-                                            borderRadius: '4px',
-                                            backgroundColor: 'white'
+                                            borderRadius: '4px', backgroundColor: 'white'
                                         }}
                                     >
                                         <option value="">-- Sélectionner une télécommunication --</option>
                                         {telecommunicationsList.map((telecom, index) => (
                                             <option
                                                 key={`telecom-${telecom.telecom_info_id ?? index}`}
-                                                value={String(telecom.telecom_info_id)}  // ✅ String
+                                                value={String(telecom.telecom_info_id)}
                                             >
                                                 {telecom.telecom_info_tel} — {telecom.telecom_info_email}
                                             </option>
@@ -332,7 +362,7 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                                 </div>
                             </div>
 
-                            {/* ── Responsable (Users) ── */}
+                            {/* ── Responsable ── */}
                             <div className="mouvement-form-row">
                                 <div className="mouvement-form-group" style={{ flex: 1 }}>
                                     <label>
@@ -345,31 +375,29 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                                     </label>
                                     <select
                                         name="depot_responsable_id"
-                                        value={formData.depot_responsable_id}  // ✅ String
+                                        value={formData.depot_responsable_id}
                                         onChange={handleInputChange}
                                         style={{
-                                            width: '100%',
-                                            padding: '10px',
+                                            width: '100%', padding: '10px',
                                             border: errors.depot_responsable_id ? '2px solid red' : '1px solid #ccc',
-                                            borderRadius: '4px',
-                                            backgroundColor: 'white'
+                                            borderRadius: '4px', backgroundColor: 'white'
                                         }}
                                     >
                                         <option value="">-- Sélectionner un responsable --</option>
                                         {usersList.map((user) => (
                                             <option
                                                 key={user.id}
-                                                value={String(user.id)}  // ✅ String
+                                                value={String(user.id)}  // ✅ String obligatoire
                                             >
                                                 {user.username || `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim()}
-                                                {user.role ? ` — ${user.role}` : ''}
+                                                {user.role?.role_name ? ` — ${user.role.role_name}` : ''}
                                             </option>
                                         ))}
                                     </select>
                                     <small style={{ color: '#666', fontSize: '12px' }}>
                                         {usersList.length === 0
-                                            ? '⚠️ Aucun utilisateur disponible'
-                                            : `${usersList.length} utilisateur(s) disponible(s)`}
+                                            ? '⚠️ Aucun responsable disponible'
+                                            : `${usersList.length} responsable(s) disponible(s)`}
                                     </small>
                                 </div>
                             </div>
@@ -377,10 +405,8 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
                             {/* ── Infos mode édition ── */}
                             {depot && (
                                 <div style={{
-                                    marginTop: '20px',
-                                    padding: '15px',
-                                    backgroundColor: '#f0f8ff',
-                                    borderRadius: '4px',
+                                    marginTop: '20px', padding: '15px',
+                                    backgroundColor: '#f0f8ff', borderRadius: '4px',
                                     border: '1px solid #b3d9ff'
                                 }}>
                                     <div style={{ fontSize: '13px', color: '#333' }}>
@@ -396,12 +422,9 @@ const DepotFormModal = ({ show, onHide, depot, onSaveSuccess }) => {
 
                             {/* ── Astuce ── */}
                             <div style={{
-                                marginTop: '20px',
-                                padding: '12px',
-                                backgroundColor: '#fff3cd',
-                                borderRadius: '4px',
-                                border: '1px solid #ffc107',
-                                fontSize: '13px'
+                                marginTop: '20px', padding: '12px',
+                                backgroundColor: '#fff3cd', borderRadius: '4px',
+                                border: '1px solid #ffc107', fontSize: '13px'
                             }}>
                                 <strong>💡 Astuce:</strong> Le code du dépôt doit être unique et court
                                 pour faciliter les saisies rapides. Utilisez des codes mnémoniques
